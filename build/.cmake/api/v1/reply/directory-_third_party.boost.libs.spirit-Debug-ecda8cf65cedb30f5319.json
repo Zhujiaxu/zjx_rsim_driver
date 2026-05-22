@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "_third_party/boost/libs/spirit",
+		"source" : "third_party/boost/libs/spirit"
+	}
+}

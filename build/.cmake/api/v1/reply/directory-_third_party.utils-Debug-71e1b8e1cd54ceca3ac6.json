@@ -1,0 +1,68 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"third_party/utils/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 32,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 38,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"_third_party/utils/libth_util.a"
+			],
+			"targetId" : "th_util::@e3bedc251a198ebd9610",
+			"targetIndex" : 80,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "include/utils",
+			"paths" : 
+			[
+				"third_party/utils/utils/environment.h",
+				"third_party/utils/utils/file.h",
+				"third_party/utils/utils/log.h",
+				"third_party/utils/utils/macros.h",
+				"third_party/utils/utils/port.h",
+				"third_party/utils/utils/th_time.h",
+				"third_party/utils/utils/util.h",
+				"third_party/utils/utils/mac_address.hpp"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_third_party/utils",
+		"source" : "third_party/utils"
+	}
+}

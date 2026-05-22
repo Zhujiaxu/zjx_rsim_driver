@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+    <FileHeader revMajor="1" revMinor="1" date="2024-03-30T10:00:00" description="pedestrian catalog" author="thsousands sim team"/>
+    <Catalog name="PedestrianCatalog">
+        <Pedestrian mass="90" name="pedestrian_adult" pedestrianCategory="pedestrian" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/dvg4x8jrp5/gfc41u/Adult_male3.glb?Expires=1779375689&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=EMV1mXEFTBkpacwXij3V0FwtWOA%3D">
+            <BoundingBox>
+                <Center x="0" y="0" z="0.930000"/>
+                <Dimensions width="0.344" length="1.02" height="1.77"/>
+            </BoundingBox>
+            <Properties>
+                <Property name="model_bp" value="walker.pedestrian.0027"/>
+            </Properties>
+        </Pedestrian>
+    </Catalog>
+</OpenSCENARIO>

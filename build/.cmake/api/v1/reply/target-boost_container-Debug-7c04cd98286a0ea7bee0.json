@@ -1,0 +1,331 @@
+{
+	"archive" : {},
+	"artifacts" : 
+	[
+		{
+			"path" : "_third_party/boost/libs/container/libboost_container.a"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"install",
+			"rsim_install",
+			"target_compile_definitions",
+			"target_link_libraries"
+		],
+		"files" : 
+		[
+			"third_party/boost/libs/container/CMakeLists.txt",
+			"third_party/RSimAPI/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 9,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 461,
+				"parent" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 446,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 446,
+				"parent" : 4
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 446,
+				"parent" : 5
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 446,
+				"parent" : 6
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 413,
+				"parent" : 7
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 32,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 41,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 23,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fPIC"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 9,
+					"define" : "BOOST_CONTAINER_NO_LIB"
+				},
+				{
+					"backtrace" : 10,
+					"define" : "BOOST_CONTAINER_STATIC_LINK"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 0,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/assert/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/config/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/intrusive/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container_hash/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/describe/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/mp11/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/move/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/static_assert/include"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fPIC"
+				},
+				{
+					"fragment" : "-std=gnu++17"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 9,
+					"define" : "BOOST_CONTAINER_NO_LIB"
+				},
+				{
+					"backtrace" : 10,
+					"define" : "BOOST_CONTAINER_STATIC_LINK"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 0,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/assert/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/config/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/intrusive/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container_hash/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/describe/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/mp11/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/move/include"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/static_assert/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					11,
+					11,
+					11,
+					11
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		}
+	],
+	"folder" : 
+	{
+		"name" : "Dependencies"
+	},
+	"id" : "boost_container::@75ffd30c75e617e19650",
+	"install" : 
+	{
+		"destinations" : 
+		[
+			{
+				"backtrace" : 8,
+				"path" : "lib"
+			}
+		],
+		"prefix" : 
+		{
+			"path" : "/usr/local"
+		}
+	},
+	"name" : "boost_container",
+	"nameOnDisk" : "libboost_container.a",
+	"paths" : 
+	{
+		"build" : "_third_party/boost/libs/container",
+		"source" : "third_party/boost/libs/container"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/boost/libs/container/src/alloc_lib.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "third_party/boost/libs/container/src/dlmalloc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "third_party/boost/libs/container/src/global_resource.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "third_party/boost/libs/container/src/monotonic_buffer_resource.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "third_party/boost/libs/container/src/pool_resource.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "third_party/boost/libs/container/src/synchronized_pool_resource.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "third_party/boost/libs/container/src/unsynchronized_pool_resource.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

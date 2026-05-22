@@ -1,0 +1,4101 @@
+{
+	"archive" : {},
+	"artifacts" : 
+	[
+		{
+			"path" : "_third_party/RSimAPI/librsim-client.a"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"install",
+			"rsim_install",
+			"target_link_libraries",
+			"add_compile_options",
+			"include",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"third_party/RSimAPI/CMakeLists.txt",
+			"third_party/RSimAPI/CMake/Common.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 351,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 455,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 413,
+				"parent" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 357,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 24,
+				"parent" : 0
+			},
+			{
+				"file" : 1,
+				"parent" : 5
+			},
+			{
+				"command" : 4,
+				"file" : 1,
+				"line" : 118,
+				"parent" : 6
+			},
+			{
+				"command" : 4,
+				"file" : 1,
+				"line" : 155,
+				"parent" : 6
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 375,
+				"parent" : 0
+			},
+			{
+				"command" : 6,
+				"file" : 0,
+				"line" : 382,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fPIC"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-fexceptions"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-frtti"
+				},
+				{
+					"fragment" : "-std=gnu++17"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_ATOMIC_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_ATOMIC_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_CHRONO_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_CHRONO_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_CONTAINER_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_CONTAINER_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_CONTEXT_EXPORT="
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_CONTEXT_NO_LIB="
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_CONTEXT_STATIC_LINK="
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_COROUTINE_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_COROUTINE_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_DATE_TIME_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_DATE_TIME_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_FILESYSTEM_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_FILESYSTEM_STATIC_LINK=1"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_RANDOM_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_RANDOM_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_SERIALIZATION_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_SERIALIZATION_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_THREAD_NO_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_THREAD_STATIC_LINK"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_THREAD_USE_LIB"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "RPCLIB_MSGPACK=clmdep_msgpack"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "SPDLOG_COMPILED_LIB"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "SPDLOG_FWRITE_UNLOCKED"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 10,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/RSimAPI/source"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/asio/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/align/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/assert/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/config/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/core/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/static_assert/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/throw_exception/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/context/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/mp11/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/pool/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/integer/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/type_traits/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/winapi/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/predef/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/smart_ptr/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/move/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/coroutine/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/exception/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/tuple/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/system/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/variant2/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/utility/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/io/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/preprocessor/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/date_time/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/algorithm/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/array/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/bind/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/concept_check/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/function/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/iterator/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/detail/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/function_types/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/mpl/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/fusion/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container_hash/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/describe/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/typeof/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/functional/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/optional/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/range/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/conversion/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/regex/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/unordered/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/lexical_cast/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/intrusive/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/numeric/conversion/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/tokenizer/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/geometry/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/any/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/type_index/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/endian/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/math/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/random/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/dynamic_bitset/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/multiprecision/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/polygon/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/qvm/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/rational/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/serialization/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/spirit/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/phoenix/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/proto/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/thread/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/atomic/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/chrono/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/ratio/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/variant/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/gil/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/filesystem/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/libpng"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/zlib"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/zlib"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/rpclib/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/utils"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/spdlog/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser/.."
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser/CommonMini"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser/pugixml"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/PROJ/src"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/eigen/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/pugixml/src"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/json"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					4,
+					4,
+					4,
+					4,
+					4,
+					4
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				377,
+				378,
+				379,
+				380,
+				381,
+				382,
+				383,
+				384,
+				385,
+				386,
+				387,
+				388,
+				389,
+				390,
+				391,
+				392,
+				393,
+				394,
+				395,
+				396,
+				397,
+				398,
+				399,
+				400,
+				401,
+				402,
+				403,
+				404,
+				405,
+				406,
+				407,
+				408,
+				409,
+				410,
+				411,
+				412,
+				413,
+				414,
+				415,
+				416,
+				417,
+				418,
+				419,
+				420,
+				421,
+				422,
+				423,
+				424,
+				425,
+				426,
+				427,
+				428,
+				429,
+				430,
+				431,
+				432,
+				433,
+				434,
+				435,
+				436,
+				437,
+				438,
+				439,
+				440,
+				441,
+				442,
+				443,
+				444,
+				445,
+				446,
+				447,
+				448,
+				449,
+				450,
+				451,
+				452,
+				453,
+				454,
+				455,
+				456,
+				457,
+				458,
+				459,
+				460,
+				461,
+				462,
+				463,
+				464,
+				465,
+				466,
+				467,
+				468,
+				469,
+				470,
+				471,
+				472,
+				473,
+				474,
+				475,
+				476,
+				477,
+				478,
+				479,
+				480,
+				481,
+				482,
+				483,
+				484,
+				485,
+				486,
+				487,
+				488,
+				489,
+				490,
+				491,
+				492,
+				493,
+				494,
+				495,
+				496,
+				497,
+				498,
+				499,
+				500,
+				501,
+				502,
+				503,
+				504,
+				505,
+				506,
+				507,
+				508,
+				509,
+				510,
+				511,
+				512,
+				513,
+				514,
+				515,
+				516,
+				517
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "boost_atomic::@0bf71a16517ab67829b9"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_chrono::@511e5d14aecf3e92ecbc"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_container::@75ffd30c75e617e19650"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_context::@cc59fcae0b209c2292b3"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_coroutine::@01bf2ecc9d68d7242118"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_date_time::@376edac2a9adff2285e5"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_exception::@ce4e0cb6449d84068d8f"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_filesystem::@b64b7a407e471367f768"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_random::@cb106f949d6e9fb4f13e"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_serialization::@1bb0bbf3911e9e525dd6"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "boost_thread::@a16981d14c597fa259fa"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "pugixml-static::@3f7111a3a35b7f001d1a"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "png_static::@414c9de45e31cdf623a7"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "spdlog::@2781e1ec871f3981efe7"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "th_util::@e3bedc251a198ebd9610"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "proj::@d27db4d35feddfae758b"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "OpenDriveParser::@cdf73e9a24df4ec63f3e"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "rpc::@2ae44847ba071e41f2bc"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "zlibstatic::@b26152731b8b3dc7e6b2"
+		}
+	],
+	"id" : "rsim-client::@3d3a8988e5ff0f097286",
+	"install" : 
+	{
+		"destinations" : 
+		[
+			{
+				"backtrace" : 3,
+				"path" : "lib"
+			}
+		],
+		"prefix" : 
+		{
+			"path" : "/usr/local"
+		}
+	},
+	"name" : "rsim-client",
+	"nameOnDisk" : "librsim-client.a",
+	"paths" : 
+	{
+		"build" : "_third_party/RSimAPI",
+		"source" : "third_party/RSimAPI"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63,
+				64,
+				65,
+				66,
+				67,
+				68,
+				69,
+				70,
+				71,
+				72,
+				73,
+				74,
+				75,
+				76,
+				77,
+				78,
+				79,
+				80,
+				81,
+				82,
+				83,
+				84,
+				85,
+				86,
+				87,
+				88,
+				89,
+				90,
+				91,
+				92,
+				93,
+				94,
+				95,
+				96,
+				97,
+				98,
+				99,
+				100,
+				101,
+				102,
+				103,
+				104,
+				105,
+				106,
+				107,
+				108,
+				109,
+				110,
+				111,
+				112,
+				113,
+				114,
+				115,
+				116,
+				117,
+				118,
+				119,
+				120,
+				121,
+				122,
+				123,
+				124,
+				125,
+				126,
+				127,
+				128,
+				129,
+				130,
+				131,
+				132,
+				133,
+				134,
+				135,
+				136,
+				137,
+				138,
+				139,
+				140,
+				141,
+				142,
+				143,
+				144,
+				145,
+				146,
+				147,
+				148,
+				149,
+				150,
+				151,
+				152,
+				153,
+				154,
+				155,
+				156,
+				157,
+				158,
+				159,
+				160,
+				161,
+				162,
+				163,
+				164,
+				165,
+				166,
+				167,
+				168,
+				169,
+				170,
+				171,
+				172,
+				173,
+				174,
+				175,
+				176,
+				177,
+				178,
+				179,
+				180,
+				181,
+				182,
+				183,
+				184,
+				185,
+				186,
+				187,
+				188,
+				189,
+				190,
+				191,
+				192,
+				193,
+				194,
+				195,
+				196,
+				197,
+				198,
+				199,
+				200,
+				201,
+				202,
+				203,
+				204,
+				205,
+				206,
+				207,
+				208,
+				209,
+				210,
+				211,
+				212,
+				213,
+				214,
+				215,
+				216,
+				217,
+				218,
+				219,
+				220,
+				221,
+				222,
+				223,
+				224,
+				225,
+				226,
+				227,
+				228,
+				229,
+				230,
+				231,
+				232,
+				233,
+				234,
+				235,
+				236,
+				237,
+				238,
+				239,
+				240,
+				241,
+				242,
+				243,
+				244,
+				245,
+				246,
+				247,
+				248,
+				249,
+				250,
+				251,
+				252,
+				253,
+				254,
+				255,
+				256,
+				257,
+				258,
+				259,
+				260,
+				261,
+				262,
+				263,
+				264,
+				265,
+				266,
+				267,
+				268,
+				269,
+				270,
+				271,
+				272,
+				273,
+				274,
+				275,
+				276,
+				277,
+				278,
+				279,
+				280,
+				281,
+				282,
+				283,
+				284,
+				285,
+				286,
+				287,
+				288,
+				289,
+				290,
+				291,
+				292,
+				293,
+				294,
+				295,
+				296,
+				297,
+				298,
+				299,
+				300,
+				301,
+				302,
+				303,
+				304,
+				305,
+				306,
+				307,
+				308,
+				309,
+				310,
+				311,
+				312,
+				313,
+				314,
+				315,
+				316,
+				317,
+				318,
+				319,
+				320,
+				321,
+				322,
+				323,
+				324,
+				325,
+				326,
+				327,
+				328,
+				329,
+				330,
+				331,
+				332,
+				333,
+				334,
+				335,
+				336,
+				337,
+				338,
+				339,
+				340,
+				341,
+				342,
+				343,
+				344,
+				345,
+				346,
+				347,
+				348,
+				349,
+				350,
+				351,
+				352,
+				353,
+				354,
+				355,
+				356,
+				357,
+				358,
+				359,
+				360,
+				361,
+				362,
+				363,
+				364,
+				365,
+				366,
+				367,
+				368,
+				369,
+				370,
+				371,
+				372,
+				373,
+				374,
+				375
+			]
+		},
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				376
+			]
+		},
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				377,
+				378,
+				379,
+				380,
+				381,
+				382,
+				383,
+				384,
+				385,
+				386,
+				387,
+				388,
+				389,
+				390,
+				391,
+				392,
+				393,
+				394,
+				395,
+				396,
+				397,
+				398,
+				399,
+				400,
+				401,
+				402,
+				403,
+				404,
+				405,
+				406,
+				407,
+				408,
+				409,
+				410,
+				411,
+				412,
+				413,
+				414,
+				415,
+				416,
+				417,
+				418,
+				419,
+				420,
+				421,
+				422,
+				423,
+				424,
+				425,
+				426,
+				427,
+				428,
+				429,
+				430,
+				431,
+				432,
+				433,
+				434,
+				435,
+				436,
+				437,
+				438,
+				439,
+				440,
+				441,
+				442,
+				443,
+				444,
+				445,
+				446,
+				447,
+				448,
+				449,
+				450,
+				451,
+				452,
+				453,
+				454,
+				455,
+				456,
+				457,
+				458,
+				459,
+				460,
+				461,
+				462,
+				463,
+				464,
+				465,
+				466,
+				467,
+				468,
+				469,
+				470,
+				471,
+				472,
+				473,
+				474,
+				475,
+				476,
+				477,
+				478,
+				479,
+				480,
+				481,
+				482,
+				483,
+				484,
+				485,
+				486,
+				487,
+				488,
+				489,
+				490,
+				491,
+				492,
+				493,
+				494,
+				495,
+				496,
+				497,
+				498,
+				499,
+				500,
+				501,
+				502,
+				503,
+				504,
+				505,
+				506,
+				507,
+				508,
+				509,
+				510,
+				511,
+				512,
+				513,
+				514,
+				515,
+				516,
+				517
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/AtomicList.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/AtomicSharedPtr.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Buffer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/BufferPool.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/BufferView.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Debug.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Exception.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/FileSystem.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Functional.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Iterator.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/ListView.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Logging.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Memory.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Module.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/MoveHandler.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/MsgPack.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/MsgPackAdaptors.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/NonCopyable.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Platform.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/PythonUtil.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/RecurrentSharedFuture.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Sockets.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/StopWatch.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/StringUtil.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/ThreadGroup.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/ThreadPool.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Time.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/TypeTraits.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/Version.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Actor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/ActorAttribute.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/ActorBlueprint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/ActorList.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/ActorSnapshot.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/BlueprintLibrary.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Client.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/ClientSideSensor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/DebugHelper.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/FileTransfer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/GarbageCollectionPolicy.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Junction.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Landmark.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/LaneInvasionSensor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Light.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/LightManager.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/LightState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Map.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/MapGenClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/PythonServerClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimHILControllerClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimMap.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimRDBClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/RealViewClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/SceneRunnerClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Sensor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/ServerSideSensor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/THTrafficLight.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/TimeoutException.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Timestamp.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/TrafficLight.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/TrafficSign.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Vehicle.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/VehicleSimClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Walker.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/WalkerAIController.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/Waypoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/World.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/WorldSnapshot.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/ActorFactory.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/ActorState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/ActorVariant.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/CachedActorList.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/CallbackList.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/Client.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/Episode.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/EpisodeProxy.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/EpisodeState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/RPCClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/RPCTickEvent.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/RSimEpisode.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/Simulator.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/WalkerNavigation.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/BoundingBox.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/CubicPolynomial.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/GeoLocation.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Location.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Math.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Mesh.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Pose.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Quaternion.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Rotation.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Rtree.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Simplification.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Transform.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Vector2D.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Vector3D.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Vector3DInt.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/image/BoostGil.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/image/CityScapesPalette.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/image/ColorConverter.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/image/ImageConverter.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/image/ImageIO.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/image/ImageIOConfig.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/image/ImageView.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/commands.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/incomingMessage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/listener.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/primary.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/primaryCommands.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/router.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/secondary.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/secondaryCommands.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/nav/Navigation.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/nav/WalkerEvent.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/nav/WalkerManager.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/OpenDriveParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/ControllerParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/GeoReferenceParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/GeometryParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/JunctionParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/LaneParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/ObjectParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/ProfilesParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/RoadParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/SignalParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/TrafficGroupParser.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/pointcloud/PointCloudIO.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/profiler/LifetimeProfiled.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/profiler/Profiler.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rdb/RDB.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rdb/RDBSubscriber.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rdb/RDBUtils.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Controller.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Deformation.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/InformationSet.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Junction.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Lane.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/LaneSection.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/LaneSectionMap.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/LaneValidity.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Map.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/MapBuilder.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/MapData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/MeshFactory.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Object.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Road.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/RoadElementSet.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/RoadTypes.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/Signal.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/SignalType.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/Geometry.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/LaneCrossingCalculator.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/LaneMarking.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfo.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoCrosswalk.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoElevation.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoGeometry.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoIterator.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneAccess.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneBorder.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneHeight.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneMaterial.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneOffset.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneRule.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneVisibility.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoLaneWidth.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoMarkRecord.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoMarkTypeLine.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoObject.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoSignal.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoSpeed.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/RoadInfoVisitor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/Waypoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/road/object/RepeatRecord.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ADCPath.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ADCTrajectory.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/AckermannControllerSettings.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Actor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ActorAttribute.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ActorAttributeType.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ActorDefinition.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ActorDescription.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ActorId.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ActorState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/AttachmentType.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/BoneTransformDataIn.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/BoneTransformDataOut.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/BufferSerialize.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Chassis.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Client.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Color.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ColorRGBA.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Command.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/CommandResponse.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ControlCmd.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ControlMode.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/DebugShape.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Duration.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/EnvironmentObject.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/EpisodeInfo.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/EpisodeSettings.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/FloatColor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/GeoReference.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/GroundTruthObjects.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Header.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ImagePacket.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/JsonStringPacket.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/LabelledPoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/LidarPacket.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/LightState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Location.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/MapInfo.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/MapLayer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Marker.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/MaterialParameter.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Metadata.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ModuleState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ObjectLabel.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/OpendriveGenerationParameters.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/PathPoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/PerceptionObstacle.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/PerceptionObstacleType.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/PerceptionObstacles.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Pose.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/PredictionObstacle.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/PredictionObstacles.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/QualityLevel.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/RDBTransportConfig.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/RSimSettings.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/RSimSteppingMode.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/RenderInfo.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Response.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Route.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/SceneRunMode.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/SceneRunnerSnapshot.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/SensorConfig.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/SensorType.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Server.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ServerInfo.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/SlaveConfig.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/SpectatorFollowMode.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/String.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/TFMessage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/THTrafficLight.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Texture.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/TickMessage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Time.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Timestamp.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/TrafficLightDetection.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/TrafficLightState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Trajectory.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/TrajectoryPoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Transform.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/TransformStamped.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Vector2D.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/Vector3D.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleAckermannControl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleControl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleControlCMD.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleDoor.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleFailureState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleGNSS.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleGNSSINS.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleIMU.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleLightState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleLightStateList.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleParams.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehiclePhysicsControl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleStatus.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleWSS.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleWheels.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/WalkerBoneControlIn.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/WalkerBoneControlOut.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/WalkerControl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/WeatherParameters.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/WheelPhysicsControl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rsim_funclib.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/rsim_wrapper.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/CompileTimeTypeMap.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/CompositeSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/Deserializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/RawData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/SensorData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/SensorFactory.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/SensorRegistry.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/AT128LidarHILData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/ActorDynamicState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/Array.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/BaseLidarHILData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/CollisionEvent.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/Color.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/DVSEvent.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/DVSEventArray.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/FT120LidarHILData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/GnssMeasurement.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/IMUMeasurement.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/Image.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/ImageTmpl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/LaneInvasionEvent.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/LidarData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/LidarMeasurement.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/ObstacleDetectionEvent.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/RadarData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/RadarMeasurement.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/RawEpisodeState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/RssResponse.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/SemanticLidarData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/SemanticLidarMeasurement.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/CollisionEventSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/DVSEventArraySerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/EpisodeStateSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/GBufferFloatSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/GBufferUint8Serializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/GnssSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/IMUSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/ImageSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/LidarSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/NoopSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/NormalsImageSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/ObstacleDetectionEventSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/OpticalFlowImageSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/RadarSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/SemanticLidarSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/SensorHeaderSerializer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/server/PythonServerBase.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/server/Server.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/Client.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/EndPoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/Server.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/Stream.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/Token.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/Dispatcher.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/MultiStreamState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/Session.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/Stream.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/StreamStateBase.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/Token.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/Types.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/tcp/Client.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/tcp/Message.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/tcp/Server.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/tcp/ServerSession.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/low_level/Client.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/low_level/Server.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/ALSM.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/AtomicActorSet.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/AtomicMap.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/CachedSimpleWaypoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/CollisionStage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/Constants.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/DataStructures.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/InMemoryMap.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/LocalizationStage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/LocalizationUtils.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/MotionPlanStage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/PIDController.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/Parameters.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/RandomGenerator.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/SimpleWaypoint.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/SimulationState.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/SnippetProfiler.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/Stage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrackTraffic.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficLightStage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManager.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManagerBase.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManagerClient.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManagerLocal.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManagerRemote.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManagerServer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/VehicleLightStage.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/util/disable-ue4-macros.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/util/enable-ue4-macros.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/util/ue-header-guard-begin.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/util/ue-header-guard-end.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "third_party/RSimAPI/source/util/winnt-macros.txt",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/Buffer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/FileSystem.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/Module.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/StringUtil.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/Actor.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/ActorAttribute.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/ActorBlueprint.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/ActorList.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/BlueprintLibrary.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/DebugHelper.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/FIleTransfer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/Junction.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/LaneInvasionSensor.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/Light.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/LightManager.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/Map.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/MapGenClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/PythonServerClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimHILControllerClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimMap.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/RSimRDBClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/RealViewClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/SceneRunnerClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/ServerSideSensor.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/THTrafficLight.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/TimeoutException.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/TrafficLight.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/TrafficSign.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/Vehicle.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/VehicleSimClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/Walker.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/WalkerAIController.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/Waypoint.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/World.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/ActorFactory.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/ActorState.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/ActorVariant.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/Client.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/Episode.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/EpisodeProxy.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/EpisodeState.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/RPCClient.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/RSimEpisode.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/Simulator.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/client/detail/WalkerNavigation.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/geom/GeoLocation.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Math.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Mesh.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/geom/Simplification.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/listener.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/primary.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/primaryCommands.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/router.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/secondary.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/multigpu/secondaryCommands.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/nav/Navigation.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/nav/WalkerEvent.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/nav/WalkerManager.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/OpenDriveParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/ControllerParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/GeoReferenceParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/GeometryParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/JunctionParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/LaneParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/ObjectParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/ProfilesParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/RoadParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/SignalParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/opendrive/parser/TrafficGroupParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rdb/RDBSubscriber.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rdb/RDBUtils.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/Lane.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/LaneSection.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/Map.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/MapBuilder.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/MapData.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/MeshFactory.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/Road.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/SignalType.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/Geometry.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/LaneCrossingCalculator.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/LaneMarking.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/road/element/Waypoint.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ActorDefinition.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/MapLayer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/MaterialParameter.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/PerceptionObstacle.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/RenderInfo.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/SensorConfig.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/ServerInfo.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/TickMessage.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/VehicleParams.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rpc/WeatherParameters.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rsim_funclib.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/rsim_wrapper.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/Deserializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/SensorFactory.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/AT128LidarHILData.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/FT120LidarHILData.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/data/LaneInvasionEvent.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/CollisionEventSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/DVSEventArraySerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/EpisodeStateSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/GBufferFloatSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/GBufferUint8Serializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/GnssSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/IMUSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/ImageSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/LidarSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/NoopSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/NormalsImageSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/ObstacleDetectionEventSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/OpticalFlowImageSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/RadarSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/SemanticLidarSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/sensor/s11n/SensorHeaderSerializer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/server/PythonServerBase.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/server/Server.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/Dispatcher.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/StreamStateBase.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/Token.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/tcp/Client.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/tcp/Server.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/streaming/detail/tcp/ServerSession.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/ALSM.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/CachedSimpleWaypoint.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/CollisionStage.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/InMemoryMap.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/LocalizationStage.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/LocalizationUtils.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/MotionPlanStage.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/Parameters.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/SimpleWaypoint.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/SimulationState.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrackTraffic.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficLightStage.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManager.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManagerLocal.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/TrafficManagerRemote.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/RSimAPI/source/rsim/trafficmanager/VehicleLightStage.cpp",
+			"sourceGroupIndex" : 2
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

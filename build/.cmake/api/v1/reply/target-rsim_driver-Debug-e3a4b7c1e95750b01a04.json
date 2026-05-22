@@ -1,0 +1,881 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "source/plugins/rsim_driver/librsim_driver.so"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"target_link_libraries",
+			"TARGET_LINK_LIBRARIES",
+			"include",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"source/plugins/rsim_driver/CMakeLists.txt",
+			"third_party/PROJ/src/lib_proj.cmake",
+			"third_party/PROJ/src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 7,
+				"parent" : 0
+			},
+			{
+				"file" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 3,
+				"parent" : 3
+			},
+			{
+				"file" : 1,
+				"parent" : 4
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 325,
+				"parent" : 5
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 4,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fPIC"
+				},
+				{
+					"fragment" : "-std=gnu++17"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_ATOMIC_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_ATOMIC_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CHRONO_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CHRONO_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CONTAINER_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CONTAINER_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CONTEXT_EXPORT="
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CONTEXT_NO_LIB="
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CONTEXT_STATIC_LINK="
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_COROUTINE_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_COROUTINE_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_DATE_TIME_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_DATE_TIME_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_FILESYSTEM_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_FILESYSTEM_STATIC_LINK=1"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_RANDOM_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_RANDOM_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_SERIALIZATION_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_SERIALIZATION_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_THREAD_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_THREAD_STATIC_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_THREAD_USE_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "OSQP_EIGEN_OSQP_IS_V1"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "OSQP_EIGEN_OSQP_IS_V1_FINAL"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "OSQP_SHARED_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "RPCLIB_MSGPACK=clmdep_msgpack"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "SPDLOG_COMPILED_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "SPDLOG_FWRITE_UNLOCKED"
+				},
+				{
+					"define" : "rsim_driver_EXPORTS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 7,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/RSimAPI/source"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/source/lib/driver_common"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/source/lib/perception_helper"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/source/lib/sampling_planner"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/source/lib/em_planner"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/source/lib/reference_line"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/source/lib/map_helper"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser/.."
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser/CommonMini"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/OpenDriveParser/src/OpenDriveParser/pugixml"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/PROJ/src"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/eigen/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/utils"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/spdlog/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/pugixml/src"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/geometry/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/algorithm/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/array/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/assert/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/config/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/core/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/static_assert/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/throw_exception/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/bind/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/concept_check/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/preprocessor/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/type_traits/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/exception/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/smart_ptr/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/move/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/tuple/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/function/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/iterator/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/detail/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/function_types/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/mpl/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/predef/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/utility/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/io/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/fusion/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container_hash/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/describe/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/mp11/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/typeof/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/functional/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/optional/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/range/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/conversion/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/regex/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/unordered/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/any/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/type_index/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/container/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/intrusive/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/endian/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/integer/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/lexical_cast/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/numeric/conversion/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/math/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/random/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/dynamic_bitset/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/system/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/variant2/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/winapi/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/multiprecision/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/polygon/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/qvm/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/rational/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/serialization/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/spirit/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/phoenix/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/proto/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/pool/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/thread/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/atomic/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/chrono/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/ratio/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/date_time/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/tokenizer/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/variant/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/source/lib/traffic_rule_handler"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/asio/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/align/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/context/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/coroutine/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/gil/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/boost/libs/filesystem/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/libpng"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/zlib"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/zlib"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/rpclib/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/json"
+				},
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/usr/local/include/osqp"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					2,
+					2,
+					2,
+					2,
+					2,
+					2
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "boost_atomic::@0bf71a16517ab67829b9"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_chrono::@511e5d14aecf3e92ecbc"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_container::@75ffd30c75e617e19650"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_context::@cc59fcae0b209c2292b3"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_coroutine::@01bf2ecc9d68d7242118"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_date_time::@376edac2a9adff2285e5"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_exception::@ce4e0cb6449d84068d8f"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_filesystem::@b64b7a407e471367f768"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_random::@cb106f949d6e9fb4f13e"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_serialization::@1bb0bbf3911e9e525dd6"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_thread::@a16981d14c597fa259fa"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "pugixml-static::@3f7111a3a35b7f001d1a"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "png_static::@414c9de45e31cdf623a7"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "spdlog::@2781e1ec871f3981efe7"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "th_util::@e3bedc251a198ebd9610"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "proj::@d27db4d35feddfae758b"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "OpenDriveParser::@cdf73e9a24df4ec63f3e"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "rpc::@2ae44847ba071e41f2bc"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "zlibstatic::@b26152731b8b3dc7e6b2"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "rsim-client::@3d3a8988e5ff0f097286"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "perception_helper::@6f00f3b1d76b744cd2e2"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "map_helper::@5369364f4c3d57a02064"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "reference_line::@7c6a8b240743c71048fd"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "traffic_rule_handler::@582c93eb2476f55c01f9"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "sampling_planner::@1919e8ecad40f7660993"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "em_planner::@a48fa40223478e2967a6"
+		}
+	],
+	"id" : "rsim_driver::@4ec286cb9d912ab490be",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "source/lib/perception_helper/libperception_helper.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "source/lib/sampling_planner/libsampling_planner.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "source/lib/em_planner/libem_planner.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "source/lib/traffic_rule_handler/libtraffic_rule_handler.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "source/lib/map_helper/libmap_helper.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "_third_party/RSimAPI/librsim-client.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "source/lib/reference_line/libreference_line.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/local/lib/libOsqpEigen.so.0.10.0",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/local/lib/libosqp.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "source/lib/map_helper/libmap_helper.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/OpenDriveParser/src/OpenDriveParser/libOpenDriveParser.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/pugixml/libpugixml.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/PROJ/lib/libproj.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 6,
+				"fragment" : "-lm",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/random/libboost_random.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/serialization/libboost_serialization.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/thread/libboost_thread.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/coroutine/libboost_coroutine.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/context/libboost_context.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/date_time/libboost_date_time.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/container/libboost_container.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/exception/libboost_exception.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/filesystem/libboost_filesystem.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/atomic/libboost_atomic.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/boost/libs/chrono/libboost_chrono.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/libpng/libpng16d.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lm",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/zlib/libz.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/rpclib/librpc.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/utils/libth_util.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "_third_party/spdlog/libspdlogd.a",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "rsim_driver",
+	"nameOnDisk" : "librsim_driver.so",
+	"paths" : 
+	{
+		"build" : "source/plugins/rsim_driver",
+		"source" : "source/plugins/rsim_driver"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/plugins/rsim_driver/RSimDriverPlugin.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "SHARED_LIBRARY"
+}

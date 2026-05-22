@@ -1,0 +1,113 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"third_party/PROJ/cmake/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 11,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 15,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 21,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 24,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/proj4",
+			"paths" : 
+			[
+				{
+					"from" : "build/_third_party/PROJ/cmake/project-config.cmake",
+					"to" : "proj4-config.cmake"
+				}
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/proj4",
+			"paths" : 
+			[
+				{
+					"from" : "build/_third_party/PROJ/cmake/project-config-version.cmake",
+					"to" : "proj4-config-version.cmake"
+				}
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/proj4",
+			"exportName" : "targets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "proj::@d27db4d35feddfae758b",
+					"index" : 67
+				}
+			],
+			"paths" : 
+			[
+				"_third_party/PROJ/cmake/CMakeFiles/Export/lib/cmake/proj4/proj4-targets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/proj4",
+			"exportName" : "targets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "proj::@d27db4d35feddfae758b",
+					"index" : 67
+				}
+			],
+			"paths" : 
+			[
+				"_third_party/PROJ/cmake/CMakeFiles/Export/lib/cmake/proj4/proj4-namespace-targets.cmake"
+			],
+			"type" : "export"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_third_party/PROJ/cmake",
+		"source" : "third_party/PROJ/cmake"
+	}
+}
