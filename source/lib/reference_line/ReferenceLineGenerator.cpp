@@ -44,6 +44,115 @@ namespace rsim_driver
             return MakeReferencePoint(point.x, point.y);
         }
 
+        double DistanceSquared(const ReferencePoint &point, double x, double y)
+        {
+            const double dx = point.x - x;
+            const double dy = point.y - y;
+            return dx * dx + dy * dy;
+        }
+
+        void RecomputeHeading(std::vector<ReferencePoint> &pts)
+        {
+            if (pts.empty())
+                return;
+
+            if (pts.size() < 2)
+            {
+                pts.front().hdg = 0.0;
+                return;
+            }
+
+            for (std::size_t i = 0; i < pts.size(); ++i)
+            {
+                if (i == 0)
+                {
+                    pts[i].hdg = std::atan2(pts[1].y - pts[0].y,
+                                            pts[1].x - pts[0].x);
+                }
+                else if (i + 1 == pts.size())
+                {
+                    pts[i].hdg = std::atan2(pts[i].y - pts[i - 1].y,
+                                            pts[i].x - pts[i - 1].x);
+                }
+                else
+                {
+                    pts[i].hdg = std::atan2(pts[i + 1].y - pts[i - 1].y,
+                                            pts[i + 1].x - pts[i - 1].x);
+                }
+            }
+        }
+
+        double SegmentProjectionRatio(const ReferencePoint &a,
+                                      const ReferencePoint &b,
+                                      const ReferencePoint &point)
+        {
+            const double vx = b.x - a.x;
+            const double vy = b.y - a.y;
+            const double len2 = vx * vx + vy * vy;
+            if (len2 <= 1e-12)
+                return 0.0;
+
+            const double wx = point.x - a.x;
+            const double wy = point.y - a.y;
+            return std::max(0.0, std::min(1.0, (wx * vx + wy * vy) / len2));
+        }
+
+        void RecomputeCurvature(std::vector<ReferencePoint> &pts)
+        {
+            for (ReferencePoint &point : pts)
+            {
+                point.k = 0.0;
+                point.dk = 0.0;
+            }
+
+            if (pts.size() < 2)
+                return;
+
+            for (std::size_t i = 0; i < pts.size(); ++i)
+            {
+                if (i == 0)
+                {
+                    const double ds = pts[1].s - pts[0].s;
+                    pts[i].k = (std::fabs(ds) > 1e-6)
+                                   ? NormalizeAngle(pts[1].hdg - pts[0].hdg) / ds
+                                   : 0.0;
+                }
+                else if (i + 1 == pts.size())
+                {
+                    const double ds = pts[i].s - pts[i - 1].s;
+                    pts[i].k = (std::fabs(ds) > 1e-6)
+                                   ? NormalizeAngle(pts[i].hdg - pts[i - 1].hdg) / ds
+                                   : 0.0;
+                }
+                else
+                {
+                    const double ds = pts[i + 1].s - pts[i - 1].s;
+                    pts[i].k = (std::fabs(ds) > 1e-6)
+                                   ? NormalizeAngle(pts[i + 1].hdg - pts[i - 1].hdg) / ds
+                                   : 0.0;
+                }
+            }
+
+            for (std::size_t i = 0; i < pts.size(); ++i)
+            {
+                if (i == 0)
+                {
+                    const double ds = pts[1].s - pts[0].s;
+                    pts[i].dk = (std::fabs(ds) > 1e-6) ? (pts[1].k - pts[0].k) / ds : 0.0;
+                }
+                else if (i + 1 == pts.size())
+                {
+                    const double ds = pts[i].s - pts[i - 1].s;
+                    pts[i].dk = (std::fabs(ds) > 1e-6) ? (pts[i].k - pts[i - 1].k) / ds : 0.0;
+                }
+                else
+                {
+                    const double ds = pts[i + 1].s - pts[i - 1].s;
+                    pts[i].dk = (std::fabs(ds) > 1e-6) ? (pts[i + 1].k - pts[i - 1].k) / ds : 0.0;
+                }
+            }
+        }
+
     } // namespace
 
     ReferenceLineGenerator::ReferenceLineGenerator()
@@ -66,7 +175,7 @@ namespace rsim_driver
         smoother_.config = Generateconfig.smoother;
 
         const std::size_t matchIndex = FindMatchIndex(globalPath, egoX, egoY);
-        last_projection_index_ = matchIndex;
+        last_match_point_index_ = matchIndex;
         has_projection_ = true;
 
         std::vector<ReferencePoint> raw = BuildRawWindow(globalPath, matchIndex);
@@ -77,6 +186,22 @@ namespace rsim_driver
         if (!smoother_.Smooth(raw, &smoothed))
             return nullptr;
         ReferenceLineGenerator::RecomputeGeometry(&smoothed);
+
+        last_reference_match_point_ = FindMatchPoint(smoothed, egoX, egoY);
+        const double tangentX = std::cos(last_reference_match_point_.hdg);
+        const double tangentY = std::sin(last_reference_match_point_.hdg);
+        const double dx = egoX - last_reference_match_point_.x;
+        const double dy = egoY - last_reference_match_point_.y;
+        const double scalar = dx * tangentX + dy * tangentY;
+
+        last_projection_point_ = last_reference_match_point_;
+        last_projection_point_.x = last_reference_match_point_.x + scalar * tangentX;
+        last_projection_point_.y = last_reference_match_point_.y + scalar * tangentY;
+        last_projection_point_.s = 0.0;
+        last_projection_point_.k = 0.0;
+        last_projection_point_.dk = 0.0;
+
+        ReferenceLineGenerator::RecomputeGeometry(&smoothed, last_projection_point_);
 
         auto result = std::make_unique<ReferenceLine>();
         result->points = std::move(smoothed);
@@ -93,7 +218,7 @@ namespace rsim_driver
             return 0;
 
         const std::size_t begin =
-            has_projection_ ? std::min(last_projection_index_, n - 1) : 0;
+            has_projection_ ? std::min(last_match_point_index_, n - 1) : 0;
         const std::size_t confirmCount =
             std::max<std::size_t>(1, Generateconfig.matchConfirmForwardPoints);
 
@@ -117,6 +242,37 @@ namespace rsim_driver
         }
 
         return bestIndex;
+    }
+
+    ReferencePoint ReferenceLineGenerator::FindMatchPoint(
+        const std::vector<ReferencePoint> &smoothed,
+        double egoX,
+        double egoY) const
+    {
+        if (smoothed.empty())
+            return {};
+
+        const std::size_t confirmCount =
+            std::max<std::size_t>(1, Generateconfig.matchConfirmForwardPoints);
+        std::size_t bestIndex = 0;
+        double bestDistance = std::numeric_limits<double>::infinity();
+        std::size_t consecutiveFarther = 0;
+        for (std::size_t i = 0; i < smoothed.size(); ++i)
+        {
+            const double distance = DistanceSquared(smoothed[i], egoX, egoY);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestIndex = i;
+                consecutiveFarther = 0;
+                continue;
+            }
+
+            ++consecutiveFarther;
+            if (consecutiveFarther >= confirmCount)
+                break;
+        }
+        return smoothed[bestIndex];
     }
 
     std::vector<ReferencePoint> ReferenceLineGenerator::BuildRawWindow(
@@ -149,85 +305,65 @@ namespace rsim_driver
             return;
 
         std::vector<ReferencePoint> &pts = *points;
-        const double anchorS = pts.front().s;
-        pts.front().s = anchorS;
-        for (std::size_t i = 1; i < pts.size(); ++i)
+        RecomputeHeading(pts);
+
+        for (ReferencePoint &point : pts)
         {
-            const double dx = pts[i].x - pts[i - 1].x;
-            const double dy = pts[i].y - pts[i - 1].y;
-            pts[i].s = pts[i - 1].s + std::sqrt(dx * dx + dy * dy);
+            point.k = 0.0;
+            point.dk = 0.0;
         }
+    }
+
+    void ReferenceLineGenerator::RecomputeGeometry(std::vector<ReferencePoint> *points,
+                                                   const ReferencePoint &projectionPoint)
+    {
+        if (points == nullptr || points->empty())
+            return;
+
+        std::vector<ReferencePoint> &pts = *points;
+        RecomputeHeading(pts);
 
         if (pts.size() < 2)
         {
-            pts.front().hdg = 0.0;
+            pts.front().s = 0.0;
             pts.front().k = 0.0;
             pts.front().dk = 0.0;
             return;
         }
 
-        std::vector<double> heading(pts.size(), 0.0);
-        for (std::size_t i = 0; i < pts.size(); ++i)
+        std::vector<double> cumulative(pts.size(), 0.0);
+        for (std::size_t i = 1; i < pts.size(); ++i)
         {
-            if (i == 0)
-            {
-                heading[i] = std::atan2(pts[1].y - pts[0].y,
-                                        pts[1].x - pts[0].x);
-            }
-            else if (i + 1 == pts.size())
-            {
-                heading[i] = std::atan2(pts[i].y - pts[i - 1].y,
-                                        pts[i].x - pts[i - 1].x);
-            }
-            else
-            {
-                heading[i] = std::atan2(pts[i + 1].y - pts[i - 1].y,
-                                        pts[i + 1].x - pts[i - 1].x);
-            }
-            pts[i].hdg = heading[i];
+            const double dx = pts[i].x - pts[i - 1].x;
+            const double dy = pts[i].y - pts[i - 1].y;
+            cumulative[i] = cumulative[i - 1] + std::sqrt(dx * dx + dy * dy);
         }
 
-        for (std::size_t i = 0; i < pts.size(); ++i)
+        std::size_t bestSegment = 0;
+        double bestRatio = 0.0;
+        double bestDistance = std::numeric_limits<double>::infinity();
+        for (std::size_t i = 0; i + 1 < pts.size(); ++i)
         {
-            if (i == 0)
+            const double ratio = SegmentProjectionRatio(pts[i], pts[i + 1], projectionPoint);
+            const double projX = pts[i].x + ratio * (pts[i + 1].x - pts[i].x);
+            const double projY = pts[i].y + ratio * (pts[i + 1].y - pts[i].y);
+            const double dx = projectionPoint.x - projX;
+            const double dy = projectionPoint.y - projY;
+            const double distance = dx * dx + dy * dy;
+            if (distance < bestDistance)
             {
-                const double ds = pts[1].s - pts[0].s;
-                pts[i].k = (ds > 1e-6) ? NormalizeAngle(heading[1] - heading[0]) / ds : 0.0;
-            }
-            else if (i + 1 == pts.size())
-            {
-                const double ds = pts[i].s - pts[i - 1].s;
-                pts[i].k = (ds > 1e-6)
-                               ? NormalizeAngle(heading[i] - heading[i - 1]) / ds
-                               : 0.0;
-            }
-            else
-            {
-                const double ds = pts[i + 1].s - pts[i - 1].s;
-                pts[i].k = (ds > 1e-6)
-                               ? NormalizeAngle(heading[i + 1] - heading[i - 1]) / ds
-                               : 0.0;
+                bestDistance = distance;
+                bestSegment = i;
+                bestRatio = ratio;
             }
         }
 
+        const double segmentLength = cumulative[bestSegment + 1] - cumulative[bestSegment];
+        const double projectionArcS = cumulative[bestSegment] + bestRatio * segmentLength;
         for (std::size_t i = 0; i < pts.size(); ++i)
-        {
-            if (i == 0)
-            {
-                const double ds = pts[1].s - pts[0].s;
-                pts[i].dk = (ds > 1e-6) ? (pts[1].k - pts[0].k) / ds : 0.0;
-            }
-            else if (i + 1 == pts.size())
-            {
-                const double ds = pts[i].s - pts[i - 1].s;
-                pts[i].dk = (ds > 1e-6) ? (pts[i].k - pts[i - 1].k) / ds : 0.0;
-            }
-            else
-            {
-                const double ds = pts[i + 1].s - pts[i - 1].s;
-                pts[i].dk = (ds > 1e-6) ? (pts[i + 1].k - pts[i - 1].k) / ds : 0.0;
-            }
-        }
+            pts[i].s = cumulative[i] - projectionArcS;
+
+        RecomputeCurvature(pts);
     }
 
 } // namespace rsim_driver

@@ -247,15 +247,12 @@ namespace
             if (reference_line_ == nullptr || reference_line_->points.empty())
                 return updates;
 
-            const std::size_t match_idx =
-                FindNearestReferencePointIndex(*reference_line_, ego->x, ego->y);
             const std::size_t target_idx =
-                std::min(match_idx + static_cast<std::size_t>(point_step_),
-                         reference_line_->points.size() - 1);
+                FindForwardReferencePointIndex(*reference_line_, point_step_);
             const rsim_driver::ReferencePoint &target = reference_line_->points[target_idx];
 
             updates.push_back(BuildActorUpdateFromReferencePoint(*ego, target, ctx.time_step));
-            WriteReferenceLineDebugCsv(ctx, *ego, match_idx, target_idx, target);
+            WriteReferenceLineDebugCsv(ctx, *ego, target_idx, target);
 
             return updates;
         }
@@ -603,28 +600,28 @@ namespace
             return nullptr;
         }
 
-        // 在当前平滑参考线上按世界坐标查找离 ego 最近的局部点下标
-        std::size_t FindNearestReferencePointIndex(const rsim_driver::ReferenceLine &line,
-                                                   double x,
-                                                   double y) const
+        // 在 signed s 参考线上, 从 s=0 后第一个正向点开始数 pointStep 个点作为目标点
+        std::size_t FindForwardReferencePointIndex(const rsim_driver::ReferenceLine &line,
+                                                   int pointStep) const
         {
             if (line.points.empty())
                 return 0;
 
-            std::size_t bestIndex = 0;
-            double bestDistance = std::numeric_limits<double>::infinity();
+            std::size_t firstForward = line.points.size();
             for (std::size_t i = 0; i < line.points.size(); ++i)
             {
-                const double dx = line.points[i].x - x;
-                const double dy = line.points[i].y - y;
-                const double distance = dx * dx + dy * dy;
-                if (distance < bestDistance)
+                if (line.points[i].s > 1e-6)
                 {
-                    bestDistance = distance;
-                    bestIndex = i;
+                    firstForward = i;
+                    break;
                 }
             }
-            return bestIndex;
+
+            if (firstForward >= line.points.size())
+                return line.points.size() - 1;
+
+            const std::size_t step = static_cast<std::size_t>(std::max(1, pointStep));
+            return std::min(firstForward + step - 1, line.points.size() - 1);
         }
 
         // 将参考线上的目标点转换成 SceneRunner controller 更新
@@ -674,31 +671,42 @@ namespace
             }
 
             std::fprintf(reference_line_csv_fp_,
-                         "frame_id,sim_time,ego_x,ego_y,match_idx,target_idx,"
-                         "point_idx,ref_s,ref_x,ref_y,ref_hdg,target_x,target_y\n");
+                         "frame_id,sim_time,ego_x,ego_y,global_match_idx,"
+                         "match_x,match_y,match_hdg,projection_x,projection_y,projection_hdg,"
+                         "target_idx,point_idx,ref_s,ref_x,ref_y,ref_hdg,target_x,target_y\n");
             std::fflush(reference_line_csv_fp_);
         }
 
         void WriteReferenceLineDebugCsv(const TickContext &ctx,
                                         const ActorState &ego,
-                                        std::size_t matchIdx,
                                         std::size_t targetIdx,
                                         const rsim_driver::ReferencePoint &target)
         {
             if (reference_line_csv_fp_ == nullptr || reference_line_ == nullptr)
                 return;
 
+            const rsim_driver::ReferencePoint matchPoint =
+                reference_line_generator_.lastReferenceMatchPoint();
+            const rsim_driver::ReferencePoint projectionPoint =
+                reference_line_generator_.lastProjectionPoint();
             for (std::size_t i = 0; i < reference_line_->points.size(); ++i)
             {
                 const rsim_driver::ReferencePoint &point = reference_line_->points[i];
                 std::fprintf(reference_line_csv_fp_,
-                             "%llu,%.9f,%.9f,%.9f,%zu,%zu,%zu,"
-                             "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f\n",
+                             "%llu,%.9f,%.9f,%.9f,%zu,"
+                             "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                             "%zu,%zu,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f\n",
                              static_cast<unsigned long long>(ctx.frame_id),
                              ctx.sim_time,
                              ego.x,
                              ego.y,
-                             matchIdx,
+                             reference_line_generator_.lastMatchPointIndex(),
+                             matchPoint.x,
+                             matchPoint.y,
+                             matchPoint.hdg,
+                             projectionPoint.x,
+                             projectionPoint.y,
+                             projectionPoint.hdg,
                              targetIdx,
                              i,
                              point.s,
@@ -802,10 +810,10 @@ namespace
                                                 reference_line_->points.front().s;
                 std::fprintf(stderr,
                              "[RSimDriver] Reference line ready: points=%zu length=%.2f m "
-                             "projectionIdx=%zu \n",
+                             "globalMatchIdx=%zu \n",
                              reference_line_->points.size(),
                              length,
-                             reference_line_generator_.lastProjectionIndex());
+                             reference_line_generator_.lastMatchPointIndex());
                 reference_line_ready_reported_ = true;
             }
         }

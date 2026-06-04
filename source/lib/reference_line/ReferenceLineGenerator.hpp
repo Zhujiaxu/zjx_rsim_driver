@@ -43,9 +43,17 @@ public:
         const std::vector<WorldPoint>& globalPath,
         double egoX,
         double egoY);
-    std::size_t lastProjectionIndex() const { return last_projection_index_; }
+    std::size_t lastMatchPointIndex() const { return last_match_point_index_; }
+    ReferencePoint lastReferenceMatchPoint() const { return last_reference_match_point_; }
+    ReferencePoint lastProjectionPoint() const { return last_projection_point_; }
+
+    ReferencePoint FindMatchPoint(const std::vector<ReferencePoint>& smoothed,
+                                  double egoX,
+                                  double egoY) const;
 
     static void RecomputeGeometry(std::vector<ReferencePoint>* points);
+    static void RecomputeGeometry(std::vector<ReferencePoint>* points,
+                                  const ReferencePoint& projectionPoint);
 
 private:
     std::size_t FindMatchIndex(const std::vector<WorldPoint>& globalPath,
@@ -57,7 +65,9 @@ private:
         std::size_t matchIndex);
 
     ReferenceLineSmoother smoother_;
-    std::size_t last_projection_index_ = 0;
+    std::size_t last_match_point_index_ = 0;
+    ReferencePoint last_reference_match_point_;
+    ReferencePoint last_projection_point_;
     bool  has_projection_ = false;
 };
 

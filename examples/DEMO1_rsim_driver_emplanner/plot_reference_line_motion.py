@@ -34,7 +34,13 @@ def read_motion(path: Path):
                     "sim_time": float(row["sim_time"]),
                     "ego_x": float(row["ego_x"]),
                     "ego_y": float(row["ego_y"]),
-                    "match_idx": int(row["match_idx"]),
+                    "global_match_idx": int(row["global_match_idx"]),
+                    "match_x": float(row["match_x"]),
+                    "match_y": float(row["match_y"]),
+                    "match_hdg": float(row["match_hdg"]),
+                    "projection_x": float(row["projection_x"]),
+                    "projection_y": float(row["projection_y"]),
+                    "projection_hdg": float(row["projection_hdg"]),
                     "target_idx": int(row["target_idx"]),
                     "point_idx": int(row["point_idx"]),
                     "ref_s": float(row["ref_s"]),
@@ -188,6 +194,12 @@ def plot(global_csv: Path, motion_csv: Path, svg_path: Path, max_frames: int = 2
             f'<circle cx="{tx(ego[0]):.2f}" cy="{ty(ego[1]):.2f}" r="3.5" '
             f'fill="#202124"><title>ego frame {key}</title></circle>'
         )
+        projection = (first["projection_x"], first["projection_y"] + _offset_y)
+        lines.append(
+            f'<circle cx="{tx(projection[0]):.2f}" cy="{ty(projection[1]):.2f}" r="4.0" '
+            f'fill="#ffffff" stroke="#202124" stroke-width="1.4">'
+            f'<title>projection frame {key}</title></circle>'
+        )
         lines.append(
             f'<circle cx="{tx(target[0]):.2f}" cy="{ty(target[1]):.2f}" r="4.5" '
             f'fill="{color}" stroke="#ffffff" stroke-width="1"><title>target frame {key}</title></circle>'
@@ -196,7 +208,7 @@ def plot(global_csv: Path, motion_csv: Path, svg_path: Path, max_frames: int = 2
         lines.append(
             f'<text x="{tx(label_x):.2f}" y="{ty(label_y) - 5:.2f}" '
             f'font-family="Arial" font-size="10" fill="{color}">'
-            f'f={key} t={first["sim_time"]:.2f} match={first["match_idx"]} target={first["target_idx"]}</text>'
+            f'f={key} t={first["sim_time"]:.2f} global={first["global_match_idx"]} target={first["target_idx"]}</text>'
         )
 
     lines.append(
@@ -216,7 +228,7 @@ def plot(global_csv: Path, motion_csv: Path, svg_path: Path, max_frames: int = 2
         first = rows[0]
         print(
             f"[plot] frame={key} t={first['sim_time']:.2f}s points={len(rows)} "
-            f"match={first['match_idx']} target={first['target_idx']}"
+            f"global_match={first['global_match_idx']} target={first['target_idx']}"
         )
     print(f"[plot] SVG written: {svg_path}")
 
