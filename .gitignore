@@ -1,9 +1,8 @@
-
-.build
+build/
 *.so
 *.o
 *.a
-.vscode/
+.vscode
 .idea/
 .cache/
 compile_commands.json
@@ -18,4 +17,3 @@ examples/*/log/
 .codex
 .agents
 .claude
-

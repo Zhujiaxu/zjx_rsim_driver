@@ -49,11 +49,11 @@ set_target_properties(rpc PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/rpclib/include"
 )
 
-# Import target "rpc" for configuration "Debug"
-set_property(TARGET rpc APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+# Import target "rpc" for configuration "Release"
+set_property(TARGET rpc APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(rpc PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
-  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/rpclib/librpc.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
+  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/rpclib/librpc.a"
   )
 
 # This file does not depend on other imported targets which have

@@ -12,7 +12,7 @@ if(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
     string(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   else()
-    set(CMAKE_INSTALL_CONFIG_NAME "Debug")
+    set(CMAKE_INSTALL_CONFIG_NAME "Release")
   endif()
   message(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 endif()
@@ -734,7 +734,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xrsim-clientx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng/libpng16d.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng/libpng16.a")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -750,7 +750,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/spdlog/libspdlogd.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/spdlog/libspdlog.a")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -783,8 +783,8 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xrsim-clientx" OR NOT CMAKE_INSTALL_
     endif()
   endif()
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/rsim" TYPE FILE FILES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/RSimAPI/CMakeFiles/Export/lib/cmake/rsim/rsim-targets.cmake")
-  if("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/rsim" TYPE FILE FILES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/RSimAPI/CMakeFiles/Export/lib/cmake/rsim/rsim-targets-debug.cmake")
+  if("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/rsim" TYPE FILE FILES "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/RSimAPI/CMakeFiles/Export/lib/cmake/rsim/rsim-targets-release.cmake")
   endif()
 endif()
 
