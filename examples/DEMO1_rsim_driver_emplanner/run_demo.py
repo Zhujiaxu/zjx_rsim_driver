@@ -110,6 +110,7 @@ OUTPUT_DIR = HERE / "output"
 CSV_DIR=OUTPUT_DIR / "csv"
 RUNTIME_XOSC = OUTPUT_DIR / CSV_DIR/"scene.runtime.xosc"
 GLOBAL_PATH_CSV = OUTPUT_DIR / CSV_DIR/"global_path_world_points.csv"
+REFERENCE_LINE_CSV = OUTPUT_DIR / CSV_DIR/"reference_line_motion.csv"
 CSV_PATH = OUTPUT_DIR / CSV_DIR/"scene.csv"
 LOG_DIR = OUTPUT_DIR / "logs"
 PACKAGE_DIR = OUTPUT_DIR / "package"
@@ -118,7 +119,7 @@ PACKAGE_DIR = OUTPUT_DIR / "package"
 PORT = 9080
 STREAMING_PORT = 9081
 STEP = 0.05
-SIM_DURATION = 3.0  # 短仿真 — 插件无规划器, 仅验证全局路径 CSV 生成
+SIM_DURATION = 20.0  # 仿真 — 验证插件沿参考线推动车辆并记录参考线
 
 # ---- RSimDriver 插件配置 -------------------------------------------------
 PLUGIN_PROPS = {
@@ -132,7 +133,9 @@ PLUGIN_PROPS = {
     "xodrPath":          str(XODR_PATH),
     "routeXoscPath":     str(RUNTIME_XOSC),
     "routeCsvPath":      str(GLOBAL_PATH_CSV),     # 插件 Init 时写入全局路径 CSV
+    "referenceLineCsvPath": str(REFERENCE_LINE_CSV),
     "setSpeed":          "8",
+    "pointStep":         "2",
     "entityName":        "ego",
 }
 # -------------------------------------------------------------------------
@@ -331,6 +334,8 @@ def main():
         CSV_PATH.unlink()
     if GLOBAL_PATH_CSV.exists():
         GLOBAL_PATH_CSV.unlink()
+    if REFERENCE_LINE_CSV.exists():
+        REFERENCE_LINE_CSV.unlink()
 
     sr = spawn(
         [str(sr_bin), "--scene_runner_port", str(PORT),

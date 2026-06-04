@@ -35,6 +35,8 @@
  *   routeXoscPath: runtime OpenSCENARIO 路径, 用于读取 ego FollowTrajectory
  *   entityName   : 要读取 FollowTrajectory 的实体名 (默认 "ego")
  *   setSpeed     : 期望巡航速度 m/s (默认 10.0, 预留)
+ *   pointStep    : 每帧沿当前参考线向前推进的离散点数 (默认 2)
+ *   referenceLineCsvPath: 参考线运动调试 CSV 输出路径 (可选)
  * ============================================================================
  */
 
@@ -45,11 +47,13 @@
 #include "MapHelper.hpp"
 #include "ReferenceLineGenerator.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -121,6 +125,12 @@ namespace
     class RSimDriverPlugin : public IPluginController
     {
     public:
+        ~RSimDriverPlugin() override
+        {
+            if (reference_line_csv_fp_ != nullptr)
+                std::fclose(reference_line_csv_fp_);
+        }
+
         // ========================================================================
         // Init() — 插件初始化: 加载地图 + 解析 XOSC 全局路径
         // ========================================================================
@@ -148,12 +158,29 @@ namespace
                     return def;
                 }
             };
+            auto getInt = [&](const char *key, int def) -> int
+            {
+                auto it = properties.find(key);
+                if (it == properties.end())
+                    return def;
+                try
+                {
+                    return std::stoi(it->second);
+                }
+                catch (...)
+                {
+                    return def;
+                }
+            };
 
             std::string xodr_path = getStr("xodrPath", "");
             route_xosc_path_ = getStr("routeXoscPath", "");
             route_csv_path_ = getStr("routeCsvPath", "");
+            reference_line_csv_path_ = getStr("referenceLineCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
             set_speed_ = getDouble("setSpeed", 10.0);
+            point_step_ = std::max(1, getInt("pointStep", 2));
+            OpenReferenceLineDebugCsv();
 
             // ---- 加载 OpenDRIVE 地图 (用于 lane/track 查询) ----
             if (xodr_path.empty() || !map_.Load(xodr_path))
@@ -182,6 +209,8 @@ namespace
                          "[RSimDriver]   routeXoscPath     = %s\n"
                          "[RSimDriver]   entityName        = %s\n"
                          "[RSimDriver]   setSpeed          = %.2f m/s\n"
+                         "[RSimDriver]   pointStep         = %d\n"
+                         "[RSimDriver]   refLineCsvPath    = %s\n"
                          "[RSimDriver]   mapLoaded          = %s\n"
                          "[RSimDriver]   routeInstalled     = %s\n"
                          "[RSimDriver]   routeSegments      = %zu\n"
@@ -191,6 +220,8 @@ namespace
                          route_xosc_path_.empty() ? "(none)" : route_xosc_path_.c_str(),
                          entity_name_.c_str(),
                          set_speed_,
+                         point_step_,
+                         reference_line_csv_path_.empty() ? "(none)" : reference_line_csv_path_.c_str(),
                          map_loaded_ ? "ok" : "FAILED",
                          xosc_route_installed ? "yes" : "no",
                          route_segments_.size(),
@@ -213,7 +244,18 @@ namespace
             LatchInitialState(ego);
             UpdateReferenceLine(*ego);
 
-            // TODO: 后续规划逻辑在此扩展
+            if (reference_line_ == nullptr || reference_line_->points.empty())
+                return updates;
+
+            const std::size_t match_idx =
+                FindNearestReferencePointIndex(*reference_line_, ego->x, ego->y);
+            const std::size_t target_idx =
+                std::min(match_idx + static_cast<std::size_t>(point_step_),
+                         reference_line_->points.size() - 1);
+            const rsim_driver::ReferencePoint &target = reference_line_->points[target_idx];
+
+            updates.push_back(BuildActorUpdateFromReferencePoint(*ego, target, ctx.time_step));
+            WriteReferenceLineDebugCsv(ctx, *ego, match_idx, target_idx, target);
 
             return updates;
         }
@@ -561,6 +603,114 @@ namespace
             return nullptr;
         }
 
+        // 在当前平滑参考线上按世界坐标查找离 ego 最近的局部点下标
+        std::size_t FindNearestReferencePointIndex(const rsim_driver::ReferenceLine &line,
+                                                   double x,
+                                                   double y) const
+        {
+            if (line.points.empty())
+                return 0;
+
+            std::size_t bestIndex = 0;
+            double bestDistance = std::numeric_limits<double>::infinity();
+            for (std::size_t i = 0; i < line.points.size(); ++i)
+            {
+                const double dx = line.points[i].x - x;
+                const double dy = line.points[i].y - y;
+                const double distance = dx * dx + dy * dy;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    bestIndex = i;
+                }
+            }
+            return bestIndex;
+        }
+
+        // 将参考线上的目标点转换成 SceneRunner controller 更新
+        ActorUpdate BuildActorUpdateFromReferencePoint(
+            const ActorState &ego,
+            const rsim_driver::ReferencePoint &target,
+            double dt) const
+        {
+            ActorUpdate update;
+            update.actor_id = ego.id;
+            update.x = target.x;
+            update.y = target.y;
+            update.z = ego.z;
+            update.h = target.hdg;
+            update.p = ego.p;
+            update.r = ego.r;
+
+            const double dx = target.x - ego.x;
+            const double dy = target.y - ego.y;
+            const double distance = std::sqrt(dx * dx + dy * dy);
+            update.speed = (dt > 1e-6) ? distance / dt : 0.0;
+            update.wheel_angle = 0.0;
+            update.position_valid = 1;
+            update.speed_valid = 1;
+            return update;
+        }
+
+        void OpenReferenceLineDebugCsv()
+        {
+            if (reference_line_csv_fp_ != nullptr)
+            {
+                std::fclose(reference_line_csv_fp_);
+                reference_line_csv_fp_ = nullptr;
+            }
+
+            if (reference_line_csv_path_.empty())
+                return;
+
+            reference_line_csv_fp_ = std::fopen(reference_line_csv_path_.c_str(), "w");
+            if (reference_line_csv_fp_ == nullptr)
+            {
+                std::fprintf(stderr,
+                             "[RSimDriver] WARNING: 无法写入参考线调试 CSV: %s\n",
+                             reference_line_csv_path_.c_str());
+                reference_line_csv_path_.clear();
+                return;
+            }
+
+            std::fprintf(reference_line_csv_fp_,
+                         "frame_id,sim_time,ego_x,ego_y,match_idx,target_idx,"
+                         "point_idx,ref_s,ref_x,ref_y,ref_hdg,target_x,target_y\n");
+            std::fflush(reference_line_csv_fp_);
+        }
+
+        void WriteReferenceLineDebugCsv(const TickContext &ctx,
+                                        const ActorState &ego,
+                                        std::size_t matchIdx,
+                                        std::size_t targetIdx,
+                                        const rsim_driver::ReferencePoint &target)
+        {
+            if (reference_line_csv_fp_ == nullptr || reference_line_ == nullptr)
+                return;
+
+            for (std::size_t i = 0; i < reference_line_->points.size(); ++i)
+            {
+                const rsim_driver::ReferencePoint &point = reference_line_->points[i];
+                std::fprintf(reference_line_csv_fp_,
+                             "%llu,%.9f,%.9f,%.9f,%zu,%zu,%zu,"
+                             "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f\n",
+                             static_cast<unsigned long long>(ctx.frame_id),
+                             ctx.sim_time,
+                             ego.x,
+                             ego.y,
+                             matchIdx,
+                             targetIdx,
+                             i,
+                             point.s,
+                             point.x,
+                             point.y,
+                             point.hdg,
+                             target.x,
+                             target.y);
+            }
+            std::fflush(reference_line_csv_fp_);
+        }
+
         // ========================================================================
         // LatchInitialState() — 首次运行时绑定 ego 到全局路径起点
         // ========================================================================
@@ -684,9 +834,12 @@ namespace
         std::string entity_name_ = "ego";
         std::string route_xosc_path_;
         std::string route_csv_path_;
+        std::string reference_line_csv_path_;
+        std::FILE *reference_line_csv_fp_ = nullptr;
 
         // ---- ego 初始状态 ----
         double set_speed_ = 10.0;
+        int point_step_ = 2;
         double current_speed_ = 0.0;
         double current_s_ = 0.0;
         int32_t current_road_ = 0;
