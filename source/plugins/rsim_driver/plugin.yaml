@@ -2,10 +2,10 @@ apiVersion: rsim/v1
 kind: Plugin
 metadata:
   name: rsim-driver
-  version: 0.2.0
-  description: "Local trajectory driver plugin (sampling/EM + perception + map)"
+  version: 0.3.0
+  description: "Global path acquisition plugin — parses XOSC FollowTrajectoryAction into route segments and world points for downstream modules"
   author: "rsim-driver"
-  tags: ["driver", "sampling", "em-planner"]
+  tags: ["driver", "routing", "path"]
 
 spec:
   language: cpp
@@ -16,8 +16,8 @@ spec:
   capabilities:
     - type: controller
       name: RSimDriver
-      domains: [longitudinal, lateral]
-      mode: override
+      domains: []
+      mode: passive
       max_actors: 1
       tick_frequency_hz: 0
       properties:
@@ -27,45 +27,20 @@ spec:
         - name: routeXoscPath
           type: string
           default: ""
-          description: "Optional runtime OpenSCENARIO path. If set, RSimDriver reads the ego FollowTrajectoryAction as the global route before falling back to GetRoute."
+          description: "Runtime OpenSCENARIO path. RSimDriver reads the ego FollowTrajectoryAction as the global route."
+        - name: entityName
+          type: string
+          default: "ego"
+          description: "Name of the entity whose FollowTrajectoryAction should be used as the global route."
+        - name: routeCsvPath
+          type: string
+          default: ""
+          description: "Optional CSV output path for plugin-generated global path world points."
         - name: setSpeed
           type: double
           default: "10.0"
           description: "Desired cruise speed (m/s)."
-        - name: maxAccel
-          type: double
-          default: "3.0"
-        - name: maxDecel
-          type: double
-          default: "4.0"
-        - name: lateralDist
-          type: double
-          default: "2.0"
-        - name: plannerType
-          type: string
-          default: "sampling"
-          description: "Planner backend: 'sampling' or 'em'."
-        - name: planningHorizonSec
-          type: double
-          default: "5.0"
-          description: "Planner horizon in seconds."
-        - name: enableDebugLog
-          type: bool
-          default: "false"
-          description: "Print planner decisions and failure reasons to stderr."
-        - name: sceneRunnerHost
-          type: string
-          default: "127.0.0.1"
-          description: "Host of the SceneRunner RPC server (used to fetch the global Route)."
-        - name: sceneRunnerPort
-          type: int
-          default: "9110"
-          description: "Port of the SceneRunner RPC server."
-        - name: entityName
-          type: string
-          default: "ego"
-          description: "Name of the entity whose route to fetch via SceneRunnerClient::GetRoute."
 
   resources:
-    tick_timeout_ms: 50
+    tick_timeout_ms: 50 # 单次tick执行时间的超时上限(毫秒)，不是指规划周期
     max_memory_mb: 256

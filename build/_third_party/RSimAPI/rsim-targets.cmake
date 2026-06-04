@@ -738,145 +738,145 @@ set_target_properties(spdlog_header_only PROPERTIES
   INTERFACE_LINK_LIBRARIES "Threads::Threads"
 )
 
-# Import target "rsim-client" for configuration "Release"
-set_property(TARGET rsim-client APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "rsim-client" for configuration "Debug"
+set_property(TARGET rsim-client APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(rsim-client PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/RSimAPI/librsim-client.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/RSimAPI/librsim-client.a"
   )
 
-# Import target "context" for configuration "Release"
-set_property(TARGET context APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "context" for configuration "Debug"
+set_property(TARGET context APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(context PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "ASM;CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/context/libboost_context.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "ASM;CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/context/libboost_context.a"
   )
 
-# Import target "coroutine" for configuration "Release"
-set_property(TARGET coroutine APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "coroutine" for configuration "Debug"
+set_property(TARGET coroutine APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(coroutine PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/coroutine/libboost_coroutine.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/coroutine/libboost_coroutine.a"
   )
 
-# Import target "exception" for configuration "Release"
-set_property(TARGET exception APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "exception" for configuration "Debug"
+set_property(TARGET exception APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(exception PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/exception/libboost_exception.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/exception/libboost_exception.a"
   )
 
-# Import target "date_time" for configuration "Release"
-set_property(TARGET date_time APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "date_time" for configuration "Debug"
+set_property(TARGET date_time APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(date_time PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/date_time/libboost_date_time.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/date_time/libboost_date_time.a"
   )
 
-# Import target "container" for configuration "Release"
-set_property(TARGET container APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "container" for configuration "Debug"
+set_property(TARGET container APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(container PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C;CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/container/libboost_container.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "C;CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/container/libboost_container.a"
   )
 
-# Import target "random" for configuration "Release"
-set_property(TARGET random APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "random" for configuration "Debug"
+set_property(TARGET random APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(random PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/random/libboost_random.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/random/libboost_random.a"
   )
 
-# Import target "serialization" for configuration "Release"
-set_property(TARGET serialization APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "serialization" for configuration "Debug"
+set_property(TARGET serialization APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(serialization PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/serialization/libboost_serialization.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/serialization/libboost_serialization.a"
   )
 
-# Import target "thread" for configuration "Release"
-set_property(TARGET thread APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "thread" for configuration "Debug"
+set_property(TARGET thread APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(thread PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/thread/libboost_thread.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/thread/libboost_thread.a"
   )
 
-# Import target "atomic" for configuration "Release"
-set_property(TARGET atomic APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "atomic" for configuration "Debug"
+set_property(TARGET atomic APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(atomic PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/atomic/libboost_atomic.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/atomic/libboost_atomic.a"
   )
 
-# Import target "chrono" for configuration "Release"
-set_property(TARGET chrono APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "chrono" for configuration "Debug"
+set_property(TARGET chrono APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(chrono PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/chrono/libboost_chrono.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/chrono/libboost_chrono.a"
   )
 
-# Import target "filesystem" for configuration "Release"
-set_property(TARGET filesystem APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "filesystem" for configuration "Debug"
+set_property(TARGET filesystem APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(filesystem PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/filesystem/libboost_filesystem.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/boost/libs/filesystem/libboost_filesystem.a"
   )
 
-# Import target "png_static" for configuration "Release"
-set_property(TARGET png_static APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "png_static" for configuration "Debug"
+set_property(TARGET png_static APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(png_static PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng/libpng16.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "C"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng/libpng16d.a"
   )
 
-# Import target "zlibstatic" for configuration "Release"
-set_property(TARGET zlibstatic APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "zlibstatic" for configuration "Debug"
+set_property(TARGET zlibstatic APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(zlibstatic PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/zlib/libz.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "C"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/zlib/libz.a"
   )
 
-# Import target "rpc" for configuration "Release"
-set_property(TARGET rpc APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "rpc" for configuration "Debug"
+set_property(TARGET rpc APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(rpc PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/rpclib/librpc.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/rpclib/librpc.a"
   )
 
-# Import target "th_util" for configuration "Release"
-set_property(TARGET th_util APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "th_util" for configuration "Debug"
+set_property(TARGET th_util APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(th_util PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/utils/libth_util.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/utils/libth_util.a"
   )
 
-# Import target "spdlog" for configuration "Release"
-set_property(TARGET spdlog APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "spdlog" for configuration "Debug"
+set_property(TARGET spdlog APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(spdlog PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/spdlog/libspdlog.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/spdlog/libspdlogd.a"
   )
 
-# Import target "OpenDriveParser" for configuration "Release"
-set_property(TARGET OpenDriveParser APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "OpenDriveParser" for configuration "Debug"
+set_property(TARGET OpenDriveParser APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(OpenDriveParser PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/OpenDriveParser/src/OpenDriveParser/libOpenDriveParser.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/OpenDriveParser/src/OpenDriveParser/libOpenDriveParser.a"
   )
 
-# Import target "proj" for configuration "Release"
-set_property(TARGET proj APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "proj" for configuration "Debug"
+set_property(TARGET proj APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(proj PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C"
-  IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE "-lm"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/PROJ/lib/libproj.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "C"
+  IMPORTED_LINK_INTERFACE_LIBRARIES_DEBUG "-lm"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/PROJ/lib/libproj.a"
   )
 
-# Import target "static" for configuration "Release"
-set_property(TARGET static APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "static" for configuration "Debug"
+set_property(TARGET static APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(static PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/pugixml/libpugixml.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/pugixml/libpugixml.a"
   )
 
 # This file does not depend on other imported targets which have

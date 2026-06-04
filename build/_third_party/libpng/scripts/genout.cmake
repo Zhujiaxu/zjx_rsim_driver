@@ -13,7 +13,7 @@ set(SRCDIR "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/third_party/libpng")
 set(BINDIR "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng")
 
 set(AWK "/usr/bin/awk")
-set(CMAKE_C_COMPILER "/usr/local/bin/gcc")
+set(CMAKE_C_COMPILER "/usr/bin/gcc-12")
 set(CMAKE_C_FLAGS )
 set(INCDIR "/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/_third_party/libpng")
 set(PNG_PREFIX "")

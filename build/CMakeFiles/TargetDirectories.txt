@@ -777,13 +777,6 @@
 /home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/CMakeFiles/install.dir
 /home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/CMakeFiles/install/local.dir
 /home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/CMakeFiles/install/strip.dir
-/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/default_driver/CMakeFiles/default_driver.dir
-/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/default_driver/CMakeFiles/edit_cache.dir
-/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/default_driver/CMakeFiles/rebuild_cache.dir
-/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/default_driver/CMakeFiles/list_install_components.dir
-/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/default_driver/CMakeFiles/install.dir
-/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/default_driver/CMakeFiles/install/local.dir
-/home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/default_driver/CMakeFiles/install/strip.dir
 /home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/rsim_driver/CMakeFiles/rsim_driver.dir
 /home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/rsim_driver/CMakeFiles/edit_cache.dir
 /home/ubzjx/Proj/Intern_QCen/work/rsim-driver/build/source/plugins/rsim_driver/CMakeFiles/rebuild_cache.dir

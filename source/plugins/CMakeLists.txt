@@ -1,2 +1,1 @@
-add_subdirectory(default_driver)
 add_subdirectory(rsim_driver)
