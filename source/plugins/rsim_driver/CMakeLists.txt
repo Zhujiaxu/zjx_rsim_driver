@@ -6,6 +6,7 @@ target_include_directories(rsim_driver PRIVATE
 
 target_link_libraries(rsim_driver PRIVATE
     map_helper
+    reference_line
     pugixml::pugixml)
 
 set_target_properties(rsim_driver PROPERTIES
