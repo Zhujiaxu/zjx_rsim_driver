@@ -290,8 +290,8 @@ def prepare():
     (PACKAGE_DIR / SO_PATH.name).symlink_to(SO_PATH)
     shutil.copy2(MANIFEST_PATH, PACKAGE_DIR / "plugin.yaml")
 
-    print(f"[prepare] runtime.xosc written ({RUNTIME_XOSC.stat().st_size} bytes)")
-    print(f"[prepare] package dir ready: {PACKAGE_DIR}")
+    print(f"[FILE_Prepare] runtime.xosc written ({RUNTIME_XOSC.stat().st_size} bytes)")
+    print(f"[FILE_Prepare] package dir ready: {PACKAGE_DIR}")
 
 
 def spawn(cmd, label):
@@ -359,19 +359,24 @@ def main():
     try:
         client = rsim.SceneRunnerClient("127.0.0.1", PORT)
         client.set_need_sync_3d(False)
-        print(f"[client] connected to 127.0.0.1:{PORT}; loading xosc {RUNTIME_XOSC}")
+        print(f"[client] 客户端连接场景器 connected to 127.0.0.1:{PORT}; loading xosc {RUNTIME_XOSC}")
         client.load_xodr(str(RUNTIME_XOSC))
-        print("[client] load_xodr returned; waiting for READY (max 15s)...")
+        print("[client] 客户端调用场景器的 RUNTIME_XOS 加载服务 load_xodr returned; waiting for READY (max 15s)...")
 
         last_state = None
         ready = False
         for i in range(150):
             st = client.get_state()
             if st != last_state:
-                print(f"[client] state -> {st} (i={i}, t={i * 0.1:.1f}s)")
+                print(f"[client] 客户端加载状态 state -> {st} (i={i}, t={i * 0.1:.1f}s)")
+                if st == rsim.ModuleState.READY:
+                    last_state = st
+                    ready = True
+                    break
                 last_state = st
             if st == rsim.ModuleState.READY:
                 ready = True
+                print(f"[client] 客户端加载状态 state -> {st} (i={i}, t={i * 0.1:.1f}s)")
                 break
             if i % 10 == 9:
                 sr_alive = sr.poll() is None
@@ -382,22 +387,22 @@ def main():
                     fail(f"subprocess died: sr_rc={sr.poll()} ld_rc={ld.poll()}")
             time.sleep(0.1)
         if not ready:
-            fail(f"READY timeout (last state={last_state})")
+            fail(f"客户端与场景器断连 READY timeout (last state={last_state})")
 
         wait_for_debug_attach()
 
         erect = client.get_actor_transform("ego")
-        print(f"[client] ego initial: x={erect.location.x:.2f} y={erect.location.y:.2f}")
-        print(f"[client] ticking for {SIM_DURATION:.1f}s at dt={STEP:.2f}s")
+        print(f"[client] 场景器加载完成，客户端立即获得主车位置 ego initial: x={erect.location.x:.2f} y={erect.location.y:.2f}")
+        print(f"[client] 仿真周期与步长 ticking for {SIM_DURATION:.1f}s at dt={STEP:.2f}s")
 
         for step in range(int(SIM_DURATION / STEP)):
             client.tick(STEP)
             if step % 40 == 39:
                 transform = client.get_actor_transform("ego")
-                print(f"  step={step + 1:>4}  x={transform.location.x:8.2f}  "
+                print(f"[client] 仿真中 step={step + 1:>4} 位置信息  x={transform.location.x:8.2f} " 
                       f"y={transform.location.y:8.2f}")
             if client.get_state() == rsim.ModuleState.FINISHED:
-                print(f"[client] FINISHED at step={step + 1}")
+                print(f"[client] 仿真完成 FINISHED at step={step + 1}")
                 break
 
         try:

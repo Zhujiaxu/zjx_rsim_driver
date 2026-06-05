@@ -20,13 +20,6 @@ namespace rsim_driver
             return angle;
         }
 
-        double DistanceSquared(const WorldPoint &point, double x, double y)
-        {
-            const double dx = point.x - x;
-            const double dy = point.y - y;
-            return dx * dx + dy * dy;
-        }
-
         ReferencePoint MakeReferencePoint(double x, double y)
         {
             ReferencePoint point;
@@ -42,13 +35,6 @@ namespace rsim_driver
         ReferencePoint MakeReferencePoint(const WorldPoint &point)
         {
             return MakeReferencePoint(point.x, point.y);
-        }
-
-        double DistanceSquared(const ReferencePoint &point, double x, double y)
-        {
-            const double dx = point.x - x;
-            const double dy = point.y - y;
-            return dx * dx + dy * dy;
         }
 
         void RecomputeHeading(std::vector<ReferencePoint> &pts)
@@ -174,9 +160,8 @@ namespace rsim_driver
 
         smoother_.config = Generateconfig.smoother;
 
-        const std::size_t matchIndex = FindMatchIndex(globalPath, egoX, egoY);
+        const std::size_t matchIndex = FindMatchPointIndex(globalPath, egoX, egoY);
         last_match_point_index_ = matchIndex;
-        has_projection_ = true;
 
         std::vector<ReferencePoint> raw = BuildRawWindow(globalPath, matchIndex);
         if (raw.size() < static_cast<std::size_t>(std::max(1, Generateconfig.minPoints)))
@@ -187,16 +172,7 @@ namespace rsim_driver
             return nullptr;
         ReferenceLineGenerator::RecomputeGeometry(&smoothed);
 
-        last_reference_match_point_ = FindMatchPoint(smoothed, egoX, egoY);
-        const double tangentX = std::cos(last_reference_match_point_.hdg);
-        const double tangentY = std::sin(last_reference_match_point_.hdg);
-        const double dx = egoX - last_reference_match_point_.x;
-        const double dy = egoY - last_reference_match_point_.y;
-        const double scalar = dx * tangentX + dy * tangentY;
-
-        last_projection_point_ = last_reference_match_point_;
-        last_projection_point_.x = last_reference_match_point_.x + scalar * tangentX;
-        last_projection_point_.y = last_reference_match_point_.y + scalar * tangentY;
+        last_projection_point_ = FindProjectionPoint(smoothed, egoX, egoY);
         last_projection_point_.s = 0.0;
         last_projection_point_.k = 0.0;
         last_projection_point_.dk = 0.0;
@@ -206,73 +182,6 @@ namespace rsim_driver
         auto result = std::make_unique<ReferenceLine>();
         result->points = std::move(smoothed);
         return result;
-    }
-
-    std::size_t ReferenceLineGenerator::FindMatchIndex(
-        const std::vector<WorldPoint> &globalPath,
-        double egoX,
-        double egoY) const
-    {
-        const std::size_t n = globalPath.size();
-        if (n == 0)
-            return 0;
-
-        const std::size_t begin =
-            has_projection_ ? std::min(last_match_point_index_, n - 1) : 0;
-        const std::size_t confirmCount =
-            std::max<std::size_t>(1, Generateconfig.matchConfirmForwardPoints);
-
-        std::size_t bestIndex = begin;
-        double bestDistance = std::numeric_limits<double>::infinity();
-        std::size_t consecutiveFarther = 0;
-
-        for (std::size_t i = begin; i < n; ++i)
-        {
-            const double distance = DistanceSquared(globalPath[i], egoX, egoY);
-            if (distance < bestDistance)
-            {
-                bestDistance = distance;
-                bestIndex = i;
-                consecutiveFarther = 0;
-                continue;
-            }
-            ++consecutiveFarther;
-            if (consecutiveFarther >= confirmCount)
-                break;
-        }
-
-        return bestIndex;
-    }
-
-    ReferencePoint ReferenceLineGenerator::FindMatchPoint(
-        const std::vector<ReferencePoint> &smoothed,
-        double egoX,
-        double egoY) const
-    {
-        if (smoothed.empty())
-            return {};
-
-        const std::size_t confirmCount =
-            std::max<std::size_t>(1, Generateconfig.matchConfirmForwardPoints);
-        std::size_t bestIndex = 0;
-        double bestDistance = std::numeric_limits<double>::infinity();
-        std::size_t consecutiveFarther = 0;
-        for (std::size_t i = 0; i < smoothed.size(); ++i)
-        {
-            const double distance = DistanceSquared(smoothed[i], egoX, egoY);
-            if (distance < bestDistance)
-            {
-                bestDistance = distance;
-                bestIndex = i;
-                consecutiveFarther = 0;
-                continue;
-            }
-
-            ++consecutiveFarther;
-            if (consecutiveFarther >= confirmCount)
-                break;
-        }
-        return smoothed[bestIndex];
     }
 
     std::vector<ReferencePoint> ReferenceLineGenerator::BuildRawWindow(
@@ -288,13 +197,27 @@ namespace rsim_driver
         const std::size_t forward =
             static_cast<std::size_t>(std::max(0, Generateconfig.forwardPoints));
         const std::size_t targetCount = backward + 1 + forward;
+        const std::size_t desiredCount = std::min(targetCount, n);
 
         const std::size_t center = std::min(matchIndex, n - 1);
         std::size_t start = (center > backward) ? center - backward : 0;
         std::size_t end = std::min(n - 1, center + forward);
+        std::size_t count = end - start + 1;
+
+        if (count < desiredCount)
+        {
+            std::size_t missing = desiredCount - count;
+            const std::size_t rightAvailable = (n - 1) - end;
+            const std::size_t extendRight = std::min(missing, rightAvailable);
+            end += extendRight;
+            missing -= extendRight;
+
+            const std::size_t extendLeft = std::min(missing, start);
+            start -= extendLeft;
+        }
 
         std::vector<ReferencePoint> raw;
-        raw.reserve(targetCount);
+        raw.reserve(desiredCount);
         for (std::size_t i = start; i <= end; ++i)
             raw.push_back(MakeReferencePoint(globalPath[i]));
         return raw;
@@ -321,7 +244,6 @@ namespace rsim_driver
             return;
 
         std::vector<ReferencePoint> &pts = *points;
-        RecomputeHeading(pts);
 
         if (pts.size() < 2)
         {

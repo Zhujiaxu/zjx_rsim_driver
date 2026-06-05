@@ -1,5 +1,6 @@
 #include "ReferenceLineGenerator.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <vector>
@@ -19,6 +20,20 @@ std::vector<rsim_driver::WorldPoint> BuildStraightPath()
     std::vector<rsim_driver::WorldPoint> path;
     path.reserve(60);
     for (int i = 0; i < 60; ++i)
+    {
+        rsim_driver::WorldPoint point;
+        point.x = static_cast<double>(i);
+        point.y = 0.0;
+        path.push_back(point);
+    }
+    return path;
+}
+
+std::vector<rsim_driver::WorldPoint> BuildStraightPath(int count)
+{
+    std::vector<rsim_driver::WorldPoint> path;
+    path.reserve(static_cast<std::size_t>(std::max(0, count)));
+    for (int i = 0; i < count; ++i)
     {
         rsim_driver::WorldPoint point;
         point.x = static_cast<double>(i);
@@ -48,12 +63,6 @@ int main()
         return 1;
     if (!Require(generator.lastMatchPointIndex() == 20,
                  "global match point should be nearest global path point"))
-        return 1;
-
-    const rsim_driver::ReferencePoint matchPoint = generator.lastReferenceMatchPoint();
-    if (!Require(std::fabs(matchPoint.x - 20.0) < 1e-4 &&
-                 std::fabs(matchPoint.y) < 1e-4,
-                 "reference match point should be nearest smoothed reference point"))
         return 1;
 
     const rsim_driver::ReferencePoint projection = generator.lastProjectionPoint();
@@ -92,6 +101,43 @@ int main()
         return 1;
     if (!Require(generator.lastMatchPointIndex() == 25,
                  "second global match point should be nearest global path point"))
+        return 1;
+
+    rsim_driver::ReferenceLineGenerator startGenerator(config);
+    referenceLine = startGenerator.Generate(path, 0.0, 0.0);
+    if (!Require(referenceLine != nullptr, "start reference line should be generated"))
+        return 1;
+    if (!Require(referenceLine->points.size() == 16,
+                 "start reference line should be padded from forward points"))
+        return 1;
+    if (!Require(std::fabs(referenceLine->points.front().x - 0.0) < 1e-4 &&
+                 std::fabs(referenceLine->points.back().x - 15.0) < 1e-4,
+                 "start reference line should cover global window [0, 15]"))
+        return 1;
+
+    rsim_driver::ReferenceLineGenerator endGenerator(config);
+    referenceLine = endGenerator.Generate(path, 59.0, 0.0);
+    if (!Require(referenceLine != nullptr, "end reference line should be generated"))
+        return 1;
+    if (!Require(referenceLine->points.size() == 16,
+                 "end reference line should be padded from backward points"))
+        return 1;
+    if (!Require(std::fabs(referenceLine->points.front().x - 44.0) < 1e-4 &&
+                 std::fabs(referenceLine->points.back().x - 59.0) < 1e-4,
+                 "end reference line should cover global window [44, 59]"))
+        return 1;
+
+    std::vector<rsim_driver::WorldPoint> shortPath = BuildStraightPath(12);
+    rsim_driver::ReferenceLineGenerator shortGenerator(config);
+    referenceLine = shortGenerator.Generate(shortPath, 6.0, 0.0);
+    if (!Require(referenceLine != nullptr, "short reference line should be generated"))
+        return 1;
+    if (!Require(referenceLine->points.size() == shortPath.size(),
+                 "short reference line should contain all available points"))
+        return 1;
+    if (!Require(std::fabs(referenceLine->points.front().x - 0.0) < 1e-4 &&
+                 std::fabs(referenceLine->points.back().x - 11.0) < 1e-4,
+                 "short reference line should cover the full global path"))
         return 1;
 
     std::fprintf(stderr, "PASS reference_line smoke\n");

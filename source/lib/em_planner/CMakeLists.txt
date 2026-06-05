@@ -1,21 +1,17 @@
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    cmake_minimum_required(VERSION 3.16)
+    project(em_planner LANGUAGES CXX)
+endif()
+
 add_library(em_planner STATIC
-    EMPlanner.cpp
-    DpPathOptimizer.cpp
-    QpPathOptimizer.cpp
-    DpSpeedOptimizer.cpp
-    QpSpeedOptimizer.cpp
-    StGraph.cpp
-    PathTimeTrajectory.cpp)
+    planning_start/PlanningStartPoint.cpp)
 
 target_include_directories(em_planner PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(em_planner PUBLIC
-    driver_common
-    reference_line
-    OsqpEigen::OsqpEigen)
+target_compile_features(em_planner PUBLIC cxx_std_17)
 
-add_executable(test_em_planner_smoke EXCLUDE_FROM_ALL
-    test_em_planner_smoke.cpp)
-target_link_libraries(test_em_planner_smoke PRIVATE
+add_executable(test_planning_start_point EXCLUDE_FROM_ALL
+    planning_start/test_planning_start_point.cpp)
+target_link_libraries(test_planning_start_point PRIVATE
     em_planner)

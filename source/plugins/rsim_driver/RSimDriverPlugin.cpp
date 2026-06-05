@@ -202,7 +202,7 @@ namespace
                 xosc_route_installed = true;
             }
 
-            std::fprintf(stderr,
+            /*std::fprintf(stderr,
                          "[RSimDriver] ========================================================\n"
                          "[RSimDriver] Init done:\n"
                          "[RSimDriver]   xodrPath          = %s\n"
@@ -226,6 +226,7 @@ namespace
                          xosc_route_installed ? "yes" : "no",
                          route_segments_.size(),
                          global_path_world_points_.size());
+                         */
         }
 
         // ========================================================================
@@ -472,7 +473,7 @@ namespace
         void DumpXoscTrajectoryRoute(const std::vector<XoscRoutePoint> &points,
                                      const std::string &xoscPath) const
         {
-            std::fprintf(stderr,
+            /*std::fprintf(stderr,
                          "\n"
                          "[RSimDriver] ==============================================================\n"
                          "[RSimDriver] XOSC trajectory route installed\n"
@@ -487,6 +488,7 @@ namespace
                          "[RSimDriver]   世界坐标点总弦长: %.2f m\n"
                          "[RSimDriver] ==============================================================\n\n",
                          ComputeWorldPointsChordLength());
+                         */
         }
 
         // 主入口: 加载 XOSC 文件 → 提取轨迹 → 建路段索引 → 加密世界坐标点 → 写入成员变量
@@ -531,7 +533,7 @@ namespace
             }
 
             closest_global_path_idx_ = 0;
-            DumpXoscTrajectoryRoute(points, xoscPath);
+            //DumpXoscTrajectoryRoute(points, xoscPath);
             WriteGlobalPathCsv();
             return true;
         }
@@ -571,7 +573,7 @@ namespace
             std::fclose(fp);
 
             std::fprintf(stderr,
-                         "[RSimDriver] global_path CSV written: %s (rows=%zu, chord=%.2f m)\n",
+                         "[RSimDriver]###INIT运行 global_path CSV written: %s (rows=%zu, chord=%.2f m)\n",
                          route_csv_path_.c_str(), global_path_world_points_.size(),
                          ComputeWorldPointsChordLength());
         }
@@ -672,7 +674,7 @@ namespace
 
             std::fprintf(reference_line_csv_fp_,
                          "frame_id,sim_time,ego_x,ego_y,global_match_idx,"
-                         "match_x,match_y,match_hdg,projection_x,projection_y,projection_hdg,"
+                         "projection_x,projection_y,projection_hdg,"
                          "target_idx,point_idx,ref_s,ref_x,ref_y,ref_hdg,target_x,target_y\n");
             std::fflush(reference_line_csv_fp_);
         }
@@ -685,8 +687,6 @@ namespace
             if (reference_line_csv_fp_ == nullptr || reference_line_ == nullptr)
                 return;
 
-            const rsim_driver::ReferencePoint matchPoint =
-                reference_line_generator_.lastReferenceMatchPoint();
             const rsim_driver::ReferencePoint projectionPoint =
                 reference_line_generator_.lastProjectionPoint();
             for (std::size_t i = 0; i < reference_line_->points.size(); ++i)
@@ -694,16 +694,13 @@ namespace
                 const rsim_driver::ReferencePoint &point = reference_line_->points[i];
                 std::fprintf(reference_line_csv_fp_,
                              "%llu,%.9f,%.9f,%.9f,%zu,"
-                             "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                             "%.9f,%.9f,%.9f,"
                              "%zu,%zu,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f\n",
                              static_cast<unsigned long long>(ctx.frame_id),
                              ctx.sim_time,
                              ego.x,
                              ego.y,
                              reference_line_generator_.lastMatchPointIndex(),
-                             matchPoint.x,
-                             matchPoint.y,
-                             matchPoint.hdg,
                              projectionPoint.x,
                              projectionPoint.y,
                              projectionPoint.hdg,
@@ -760,8 +757,8 @@ namespace
                 }
 
                 std::fprintf(stderr,
-                             "[RSimDriver] LatchInitialState: ego scene=(%.2f, %.2f) → "
-                             "route start seg[0] road=%lld lane=%d s=%.2f, "
+                             "[RSimDriver]###初始运行 LatchInitialState: ego scene=(%.2f, %.2f) 主车 → "
+                             "绑定到 route start seg[0] road=%lld lane=%d s=%.2f（路段）, "
                              "worldPt[0] (%.2f, %.2f)\n",
                              ego->x, ego->y,
                              static_cast<long long>(current_road_),
@@ -804,18 +801,14 @@ namespace
 
             if (!reference_line_ready_reported_)
             {
-                const double length = reference_line_->points.empty()
-                                          ? 0.0
-                                          : reference_line_->points.back().s -
-                                                reference_line_->points.front().s;
+
                 std::fprintf(stderr,
-                             "[RSimDriver] Reference line ready: points=%zu length=%.2f m "
-                             "globalMatchIdx=%zu \n",
-                             reference_line_->points.size(),
-                             length,
-                             reference_line_generator_.lastMatchPointIndex());
+                             "[RSimDriver]###初始运行 Reference line scale: points=%zu \n",
+                             reference_line_->points.size()
+                             );
                 reference_line_ready_reported_ = true;
             }
+            //std::printf("globalMatchIdx=%zu \n", reference_line_generator_.lastMatchPointIndex());
         }
 
         // ========================================================================

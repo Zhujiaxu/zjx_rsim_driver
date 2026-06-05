@@ -4,8 +4,6 @@
  */
 
 #include "MapHelper.hpp"
-#include "DriverTypes.hpp"
-
 #include "RoadManager.hpp"
 
 #include <algorithm>
@@ -16,6 +14,8 @@ namespace rsim_driver
 
 namespace
 {
+constexpr double kLargeNumber = 1e30;
+
 roadmanager::OpenDrive* GlobalOdr()
 {
     return roadmanager::Position::GetOpenDrive();
@@ -116,17 +116,17 @@ double MapHelper::DistToJunctionAhead(int64_t road_id, double s) const
 {
     auto* odr = GlobalOdr();
     if (!odr)
-        return LARGE_NUMBER;
+        return kLargeNumber;
     auto* road = odr->GetRoadById(road_id);
     if (!road)
-        return LARGE_NUMBER;
+        return kLargeNumber;
     // OpenDRIVE: a road belonging to a junction has junction_id >= 0; otherwise -1.
     // Without a multi-road graph traversal we can only report whether *this* road is in a junction.
     // Q2 will refine using route information.
     if (road->GetJunction() >= 0)
         return std::max(0.0, 0.0 - 0.0);  // already on junction
     (void) s;
-    return LARGE_NUMBER;
+    return kLargeNumber;
 }
 
 double MapHelper::GetRoadLength(int64_t road_id) const
