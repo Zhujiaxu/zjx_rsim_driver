@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "../common/PathMatcher.hpp"
+#include "../common/PathMatcher/PathMatcher.hpp"
 #include "ReferenceLine.hpp"
 #include "ReferenceLineSmoother.hpp"
 
@@ -20,6 +20,7 @@ struct WorldPoint
     double x   = 0.0;
     double y   = 0.0;
 };
+size_t path_matcher_detail::kMatchConfirmLookahead;
 
 class ReferenceLineGenerator
 {
@@ -30,7 +31,7 @@ public:
         int backwardPoints = 30;
         int minPoints      = 4;
 
-        std::size_t matchConfirmForwardPoints = 10;
+        std::size_t matchConfirmForwardPoints = 15;
 
         ReferenceLineSmoother::Config smoother;
     };
@@ -59,6 +60,7 @@ private:
     ReferenceLineSmoother smoother_;
     std::size_t last_match_point_index_ = 0;
     ReferencePoint last_projection_point_;
+    bool isfirst_ = true;
 };
 
 }  // namespace rsim_driver

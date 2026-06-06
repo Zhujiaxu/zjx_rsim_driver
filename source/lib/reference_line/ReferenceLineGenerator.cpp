@@ -159,6 +159,15 @@ namespace rsim_driver
             return nullptr;
 
         smoother_.config = Generateconfig.smoother;
+        if (isfirst_)
+        {
+            path_matcher_detail::kMatchConfirmLookahead = Generateconfig.matchConfirmForwardPoints;
+            isfirst_ = false;
+        }
+        else
+        {
+            path_matcher_detail::kMatchConfirmLookahead = Generateconfig.matchConfirmForwardPoints - 8;
+        }
 
         const std::size_t matchIndex = FindMatchPointIndex(globalPath, egoX, egoY);
         last_match_point_index_ = matchIndex;

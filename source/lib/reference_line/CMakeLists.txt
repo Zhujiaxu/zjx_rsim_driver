@@ -1,4 +1,4 @@
-add_library(reference_line STATIC
+add_library(reference_line SHARED
     ReferenceLineGenerator.cpp
     ReferenceLineSmoother.cpp)
 

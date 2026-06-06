@@ -53,6 +53,53 @@ int main()
                  "xy point projection should lie on the straight path"))
         return 1;
 
+    const std::vector<XYPoint> earlyConfirmPoints = {
+        {5.0, 0.0},
+        {1.0, 0.0},
+        {2.0, 0.0},
+        {3.0, 0.0},
+        {4.0, 0.0},
+        {5.0, 0.0},
+        {6.0, 0.0},
+        {7.0, 0.0},
+        {8.0, 0.0},
+        {9.0, 0.0},
+        {10.0, 0.0},
+        {11.0, 0.0},
+        {12.0, 0.0},
+        {13.0, 0.0},
+        {14.0, 0.0},
+        {15.0, 0.0},
+        {16.0, 0.0},
+        {0.1, 0.0},
+    };
+    if (!Require(rsim_driver::FindMatchPointIndex(earlyConfirmPoints, 0.0, 0.0) == 1,
+                 "match should stop after 15 non-improving points"))
+        return 1;
+
+    const std::vector<XYPoint> resetConfirmPoints = {
+        {5.0, 0.0},
+        {3.0, 0.0},
+        {4.0, 0.0},
+        {5.0, 0.0},
+        {6.0, 0.0},
+        {7.0, 0.0},
+        {8.0, 0.0},
+        {9.0, 0.0},
+        {10.0, 0.0},
+        {11.0, 0.0},
+        {12.0, 0.0},
+        {13.0, 0.0},
+        {14.0, 0.0},
+        {15.0, 0.0},
+        {16.0, 0.0},
+        {17.0, 0.0},
+        {1.0, 0.0},
+    };
+    if (!Require(rsim_driver::FindMatchPointIndex(resetConfirmPoints, 0.0, 0.0) == 16,
+                 "match should reset non-improving count on a better point"))
+        return 1;
+
     const std::vector<HeadingPoint> headingPoints = {
         {0.0, 0.0, 0.0},
         {10.0, 0.0, 1.0},
@@ -60,10 +107,13 @@ int main()
     };
     const HeadingPoint headingProjection =
         rsim_driver::FindProjectionPoint(headingPoints, 12.0, 3.0);
-    if (!Require(Near(headingProjection.x, 12.0) &&
-                 Near(headingProjection.y, 0.0) &&
-                 Near(headingProjection.hdg, 0.0),
-                 "heading point projection should fill tangent heading"))
+    const double headingTangentX = std::cos(1.0);
+    const double headingTangentY = std::sin(1.0);
+    const double headingScalar = 2.0 * headingTangentX + 3.0 * headingTangentY;
+    if (!Require(Near(headingProjection.x, 10.0 + headingScalar * headingTangentX) &&
+                 Near(headingProjection.y, headingScalar * headingTangentY) &&
+                 Near(headingProjection.hdg, 1.0),
+                 "heading point projection should preserve matched point heading"))
         return 1;
 
     const std::vector<XYPoint> empty;
