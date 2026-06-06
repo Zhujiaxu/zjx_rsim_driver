@@ -1,5 +1,6 @@
 add_subdirectory(common/PathMatcher)
 add_subdirectory(map_helper)
+add_subdirectory(global_path)
 add_subdirectory(obstacle_to_csv)
 add_subdirectory(reference_line)
 add_subdirectory(em_planner)

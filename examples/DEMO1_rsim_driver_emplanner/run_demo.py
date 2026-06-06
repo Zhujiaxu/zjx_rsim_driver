@@ -63,7 +63,7 @@
   │             │
   │             └── dlopen("librsim_driver.so")
   │                   └── RSimDriverPlugin::Init()
-  │                         └── TryInstallRouteFromXosc() → WriteGlobalPathCsv()
+  │                         └── global_path 静态库 → global_path_world_points.csv
   │
   └─[主线程]── rsim.SceneRunnerClient (Python RPC 客户端)
                  │
@@ -94,7 +94,7 @@ from xml.sax.saxutils import quoteattr
 try:
     import rsim
 except ImportError:
-    sys.stderr.write("ERROR: cannot 'import rsim'. Run with: conda run -n engine python3 run_demo.py\n")
+    sys.stderr.write("ERROR: cannot 'import rsim'. Run with: conda run -n qc_work python3 run_demo.py\n")
     sys.exit(2)
 
 

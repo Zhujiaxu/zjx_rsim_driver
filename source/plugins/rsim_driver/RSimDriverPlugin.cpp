@@ -10,7 +10,7 @@
  *            │
  *            ▼
  *   RSimDriverPlugin::Init()
- *     └── 解析 routeXoscPath 指向的 runtime XOSC
+ *     └── 调用 global_path 静态库解析 runtime XOSC
  *            └── Init/Private[@entityRef="ego"]/FollowTrajectoryAction
  *            │
  *            ▼
@@ -19,11 +19,7 @@
  *
  * ---- 全局路径数据结构 ----
  *
- *   XOSC FollowTrajectoryAction / Polyline / Vertex:
- *     ├── RoadPosition: roadId, s, t
- *     └── WorldPosition: x, y
- *
- *   插件内部两份数据:
+ *   global_path 静态库输出两份数据:
  *     1. route_segments_[]          — 路段索引 (road_id, lane_id, s区间)
  *                                    用于 road/lane tracking
  *     2. global_path_world_points_[] — 世界坐标点序列 (x, y)
@@ -43,8 +39,7 @@
 
 #include "rsim/worldsim_plugin/PluginInterface.hpp"
 
-#include "pugixml.hpp"
-
+#include "GlobalPathGenerator.hpp"
 #include "MapHelper.hpp"
 #include "ObstacleToCsv.hpp"
 #include "ReferenceLineGenerator.hpp"
@@ -54,8 +49,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
-#include <cstring>
-#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -69,60 +62,6 @@ using rsim_plugin::TickContext;
 
 namespace
 {
-
-    // 判断 XML 节点名称是否匹配 (pugixml 无此内置方法)
-    bool NodeNameIs(const pugi::xml_node &node, const char *name)
-    {
-        return std::strcmp(node.name(), name) == 0;
-    }
-
-    // 深度优先搜索第一个匹配标签名的后代节点
-    pugi::xml_node FindFirstDescendant(const pugi::xml_node &node, const char *name)
-    {
-        for (pugi::xml_node child : node.children())
-        {
-            if (NodeNameIs(child, name))
-                return child;
-            pugi::xml_node nested = FindFirstDescendant(child, name);
-            if (nested)
-                return nested;
-        }
-        return {};
-    }
-
-    // 读取 XML 属性并转为 double, 失败返回 false
-    bool AttrDouble(const pugi::xml_node &node, const char *name, double *out)
-    {
-        pugi::xml_attribute attr = node.attribute(name);
-        if (!attr)
-            return false;
-        try
-        {
-            *out = std::stod(attr.value());
-            return true;
-        }
-        catch (...)
-        {
-            return false;
-        }
-    }
-
-    // 读取 XML 属性并转为 int64, 失败返回 false
-    bool AttrInt64(const pugi::xml_node &node, const char *name, int64_t *out)
-    {
-        pugi::xml_attribute attr = node.attribute(name);
-        if (!attr)
-            return false;
-        try
-        {
-            *out = std::stoll(attr.value());
-            return true;
-        }
-        catch (...)
-        {
-            return false;
-        }
-    }
 
     class RSimDriverPlugin : public IPluginController
     {
@@ -201,7 +140,7 @@ namespace
 
             // ---- 从 runtime XOSC 读取 ego FollowTrajectoryAction ----
             bool xosc_route_installed = false;
-            if (map_loaded_ && TryInstallRouteFromXosc(route_xosc_path_))
+            if (map_loaded_ && InstallGlobalPathFromXosc(route_xosc_path_))
             {
                 xosc_route_installed = true;
             }
@@ -269,338 +208,39 @@ namespace
         }
 
     private:
-        // ========================================================================
-        // 内部数据结构
-        // ========================================================================
-
-        // 路段索引: 由 Route waypoint 按 road_id 合并得来, 用于 road/lane 级 tracking
-        struct RuntimeRouteSegment
+        bool InstallGlobalPathFromXosc(const std::string &xoscPath)
         {
-            int64_t road_id = 0;
-            int lane_id = 0;
-            double s_start = 0.0;
-            double s_end = 0.0;
-            double s_sign = 1.0; // +1 沿 s 正方向, -1 反方向
-            double t = 0.0;      // 道路参考线横向偏移
-            size_t wp_start_idx = 0;
-            size_t wp_end_idx = 0;
-        };
-
-        // XOSC 轨迹顶点: 包含道路坐标和对应的世界坐标
-        struct XoscRoutePoint
-        {
-            bool has_road = false;
-            int64_t road_id = 0;
-            int lane_id = 0;
-            double s = 0.0;
-            double t = 0.0;
-            rsim_driver::WorldPoint world;
-        };
-
-        // ---- XOSC 解析 ----
-
-        // 解析 XOSC RoadPosition 顶点: roadId/s/t → TrackToWorld 转世界坐标 → 填入 XoscRoutePoint
-        bool ParseXoscRoadPosition(const pugi::xml_node &roadPos, XoscRoutePoint *out) const
-        {
-            int64_t road_id = 0;
-            double s = 0.0;
-            double t = 0.0;
-            if (!AttrInt64(roadPos, "roadId", &road_id) ||
-                !AttrDouble(roadPos, "s", &s))
+            rsim_driver::GlobalPathResult result;
+            if (!global_path_generator_.GenerateFromXosc(
+                    xoscPath, entity_name_, map_, &result))
             {
                 return false;
             }
-            AttrDouble(roadPos, "t", &t);
 
-            rsim_driver::WorldPose pose = map_.TrackToWorld(road_id, s, t);
-            if (!pose.valid)
-                return false;
-
-            out->has_road = true;
-            out->road_id = road_id;
-            out->s = s;
-            out->t = t;
-            out->lane_id = map_.TrackTToLane(road_id, s, t);
-            out->world.x = pose.x;
-            out->world.y = pose.y;
-            return true;
-        }
-
-        // 解析 XOSC WorldPosition 顶点: 直接读取 x/y, 无需道路坐标转换
-        bool ParseXoscWorldPosition(const pugi::xml_node &worldPos, XoscRoutePoint *out) const
-        {
-            double x = 0.0;
-            double y = 0.0;
-            if (!AttrDouble(worldPos, "x", &x) ||
-                !AttrDouble(worldPos, "y", &y))
-            {
-                return false;
-            }
-            out->has_road = false;
-            out->world.x = x;
-            out->world.y = y;
-            return true;
-        }
-
-        // 判断两个 XOSC 轨迹顶点是否重复 (世界坐标距离 < 1mm 且道路坐标一致)
-        bool IsDuplicateXoscPoint(const XoscRoutePoint &a, const XoscRoutePoint &b) const
-        {
-            const double dx = a.world.x - b.world.x;
-            const double dy = a.world.y - b.world.y;
-            if (dx * dx + dy * dy > 1e-6)
-                return false;
-            if (a.has_road != b.has_road)
-                return false;
-            if (!a.has_road)
-                return true;
-            return a.road_id == b.road_id &&
-                   std::fabs(a.s - b.s) < 1e-6 &&
-                   std::fabs(a.t - b.t) < 1e-6;
-        }
-
-        // 解析 Polyline 下的 Vertex 列表, 去重后返回; 至少需要 4 个有效顶点
-        bool ParseXoscPolyline(const pugi::xml_node &polyline,
-                               std::vector<XoscRoutePoint> *out) const
-        {
-            std::vector<XoscRoutePoint> parsed;
-            for (pugi::xml_node vertex : polyline.children("Vertex"))
-            {
-                pugi::xml_node position = vertex.child("Position");
-                if (!position)
-                    continue;
-
-                XoscRoutePoint point;
-                if (pugi::xml_node roadPos = position.child("RoadPosition"))
-                {
-                    if (!ParseXoscRoadPosition(roadPos, &point))
-                        continue;
-                }
-                else if (pugi::xml_node worldPos = position.child("WorldPosition"))
-                {
-                    if (!ParseXoscWorldPosition(worldPos, &point))
-                        continue;
-                }
-                else
-                {
-                    continue;
-                }
-
-                if (!parsed.empty() && IsDuplicateXoscPoint(parsed.back(), point))
-                    continue;
-                parsed.push_back(point);
-            }
-
-            if (parsed.size() < 4)
-                return false;
-
-            *out = std::move(parsed);
-            return true;
-        }
-
-        // 递归搜索 FollowTrajectoryAction 节点, 找到后提取其 Polyline 顶点
-        bool TryParseFollowTrajectoryActions(const pugi::xml_node &node,
-                                             std::vector<XoscRoutePoint> *out) const
-        {
-            if (NodeNameIs(node, "FollowTrajectoryAction"))
-            {
-                pugi::xml_node polyline = FindFirstDescendant(node, "Polyline");
-                if (polyline && ParseXoscPolyline(polyline, out))
-                    return true;
-            }
-
-            for (pugi::xml_node child : node.children())
-            {
-                if (TryParseFollowTrajectoryActions(child, out))
-                    return true;
-            }
-            return false;
-        }
-
-        // 从 XOSC 中提取指定实体的 FollowTrajectoryAction 轨迹: 只匹配 Private[@entityRef=entityName]
-        bool TryExtractXoscTrajectory(const pugi::xml_node &node,
-                                      const std::string &entityName,
-                                      std::vector<XoscRoutePoint> *out) const
-        {
-            if (NodeNameIs(node, "Private"))
-            {
-                pugi::xml_attribute entityRef = node.attribute("entityRef");
-                if (entityRef && entityName == entityRef.value() &&
-                    TryParseFollowTrajectoryActions(node, out))
-                {
-                    return true;
-                }
-            }
-
-            for (pugi::xml_node child : node.children())
-            {
-                if (TryExtractXoscTrajectory(child, entityName, out))
-                    return true;
-            }
-            return false;
-        }
-
-        // 将 XOSC 顶点按 road_id 合并为路段索引 route_segments_, 用于 road/lane 级追踪
-        void BuildRouteSegmentsFromXoscPoints(const std::vector<XoscRoutePoint> &points)
-        {
-            route_segments_.clear();
-            std::size_t i = 0;
-            while (i < points.size())
-            {
-                if (!points[i].has_road)
-                {
-                    ++i;
-                    continue;
-                }
-
-                const int64_t road_id = points[i].road_id;
-                std::size_t j = i;
-                int first_nonzero_lane = 0;
-                while (j < points.size() && points[j].has_road &&
-                       points[j].road_id == road_id)
-                {
-                    if (first_nonzero_lane == 0 && points[j].lane_id != 0)
-                        first_nonzero_lane = points[j].lane_id;
-                    ++j;
-                }
-
-                RuntimeRouteSegment r;
-                r.road_id = road_id;
-                r.s_start = points[i].s;
-                r.s_end = points[j - 1].s;
-                r.s_sign = (r.s_end >= r.s_start) ? +1.0 : -1.0;
-                r.t = points[i].t;
-                r.lane_id = (first_nonzero_lane != 0)
-                                ? first_nonzero_lane
-                                : map_.TrackTToLane(r.road_id, r.s_start, r.t);
-                r.wp_start_idx = i;
-                r.wp_end_idx = j;
-                route_segments_.push_back(r);
-                i = j;
-            }
-        }
-
-        // 打印全局路径摘要到 stderr: 原始顶点数 / 路段数 / 世界坐标点数 / 总弦长
-        void DumpXoscTrajectoryRoute(const std::vector<XoscRoutePoint> &points,
-                                     const std::string &xoscPath) const
-        {
-            /*std::fprintf(stderr,
-                         "\n"
-                         "[RSimDriver] ==============================================================\n"
-                         "[RSimDriver] XOSC trajectory route installed\n"
-                         "[RSimDriver]   xoscPath          = %s\n"
-                         "[RSimDriver]   rawTrajectoryPts  = %zu\n"
-                         "[RSimDriver]   routeSegments     = %zu\n"
-                         "[RSimDriver]   worldPoints       = %zu\n",
-                         xoscPath.c_str(), points.size(),
-                         route_segments_.size(), global_path_world_points_.size());
-
-            std::fprintf(stderr,
-                         "[RSimDriver]   世界坐标点总弦长: %.2f m\n"
-                         "[RSimDriver] ==============================================================\n\n",
-                         ComputeWorldPointsChordLength());
-                         */
-        }
-
-        // 主入口: 加载 XOSC 文件 → 提取轨迹 → 建路段索引 → 加密世界坐标点 → 写入成员变量
-        bool TryInstallRouteFromXosc(const std::string &xoscPath)
-        {
-            if (xoscPath.empty())
-                return false;
-
-            pugi::xml_document doc;
-            const pugi::xml_parse_result load = doc.load_file(xoscPath.c_str());
-            if (!load)
-            {
-                std::fprintf(stderr,
-                             "[RSimDriver] WARNING: routeXoscPath 解析失败 '%s': %s\n",
-                             xoscPath.c_str(), load.description());
-                return false;
-            }
-
-            std::vector<XoscRoutePoint> points;
-            if (!TryExtractXoscTrajectory(doc, entity_name_, &points))
-            {
-                std::fprintf(stderr,
-                             "[RSimDriver] WARNING: routeXoscPath 中未找到 entityRef=\"%s\" 的有效 FollowTrajectoryAction\n",
-                             entity_name_.c_str());
-                return false;
-            }
-
-            BuildRouteSegmentsFromXoscPoints(points);
-
+            route_segments_ = std::move(result.route_segments);
             global_path_world_points_.clear();
-            global_path_world_points_.reserve(points.size());
-            for (const auto &point : points)
-                global_path_world_points_.push_back(point.world);
-
-            if (route_segments_.empty() || global_path_world_points_.size() < 4)
+            global_path_world_points_.reserve(result.world_points.size());
+            for (const auto &point : result.world_points)
             {
-                route_segments_.clear();
-                global_path_world_points_.clear();
-                std::fprintf(stderr,
-                             "[RSimDriver] WARNING: XOSC trajectory route 点数/路段不足\n");
-                return false;
+                rsim_driver::WorldPoint worldPoint;
+                worldPoint.x = point.x;
+                worldPoint.y = point.y;
+                global_path_world_points_.push_back(worldPoint);
             }
 
             closest_global_path_idx_ = 0;
-            //DumpXoscTrajectoryRoute(points, xoscPath);
-            WriteGlobalPathCsv();
-            return true;
-        }
+            const bool csvWritten =
+                global_path_generator_.WriteCsv(route_csv_path_, result.world_points);
 
-        // 将 global_path_world_points_ 导出为 CSV
-        void WriteGlobalPathCsv() const
-        {
-            if (route_csv_path_.empty() || global_path_world_points_.empty())
-                return;
-
-            std::FILE *fp = std::fopen(route_csv_path_.c_str(), "w");
-            if (fp == nullptr)
+            if (csvWritten && !route_csv_path_.empty())
             {
                 std::fprintf(stderr,
-                             "[RSimDriver] WARNING: 无法写入全局路径 CSV: %s\n",
-                             route_csv_path_.c_str());
-                return;
+                             "[RSimDriver]###INIT运行 global_path CSV written: %s (rows=%zu, chord=%.2f m)\n",
+                             route_csv_path_.c_str(),
+                             global_path_world_points_.size(),
+                             result.chord_length);
             }
-
-            std::fprintf(fp, "index,arc_s,delta_s,x,y\n");
-            double arcS = 0.0;
-            for (size_t i = 0; i < global_path_world_points_.size(); ++i)
-            {
-                double ds = 0.0;
-                if (i > 0)
-                {
-                    const double dx = global_path_world_points_[i].x - global_path_world_points_[i - 1].x;
-                    const double dy = global_path_world_points_[i].y - global_path_world_points_[i - 1].y;
-                    ds = std::sqrt(dx * dx + dy * dy);
-                    arcS += ds;
-                }
-
-                const auto &pt = global_path_world_points_[i];
-                std::fprintf(fp, "%zu,%.9f,%.9f,%.9f,%.9f\n",
-                             i, arcS, ds, pt.x, pt.y);
-            }
-            std::fclose(fp);
-
-            std::fprintf(stderr,
-                         "[RSimDriver]###INIT运行 global_path CSV written: %s (rows=%zu, chord=%.2f m)\n",
-                         route_csv_path_.c_str(), global_path_world_points_.size(),
-                         ComputeWorldPointsChordLength());
-        }
-
-        // 计算 global_path_world_points_ 的总弦长 (相邻点欧氏距离累加)
-        double ComputeWorldPointsChordLength() const
-        {
-            if (global_path_world_points_.size() < 2)
-                return 0.0;
-            double total = 0.0;
-            for (size_t i = 1; i < global_path_world_points_.size(); ++i)
-            {
-                double dx = global_path_world_points_[i].x - global_path_world_points_[i - 1].x;
-                double dy = global_path_world_points_[i].y - global_path_world_points_[i - 1].y;
-                total += std::sqrt(dx * dx + dy * dy);
-            }
-            return total;
+            return true;
         }
 
         // 从 TickContext 中查找本插件控制的第一个 actor
@@ -767,12 +407,12 @@ namespace
                 }
 
                 std::fprintf(stderr,
-                             "[RSimDriver]###初始运行 LatchInitialState: ego scene=(%.2f, %.2f) 主车 → "
-                             "绑定到 route start seg[0] road=%lld lane=%d s=%.2f（路段）, "
-                             "worldPt[0] (%.2f, %.2f)\n",
+                             "[RSimDriver]###INIT运行    LatchInitialState: 主车（teleportaction）ego scene=(%.2f, %.2f)⬇\n"
+                             "[RSimDriver]全局路径起点   route start seg[0] road=%lld  s=%.2f（路段）, "
+                             "worldPt[0] (%.2f, %.2f)\n[RSimDriver]车辆初始点（scenerunner）与全局路径起点（RsimDriverplugin）一致\n",
                              ego->x, ego->y,
                              static_cast<long long>(current_road_),
-                             current_lane_, current_s_,
+                             current_s_,
                              global_path_world_points_.empty() ? 0.0
                                                                : global_path_world_points_.front().x,
                              global_path_world_points_.empty() ? 0.0
@@ -828,7 +468,7 @@ namespace
         rsim_driver::MapHelper map_;
 
         // ---- 全局路由 — 路段索引 (用于 road/lane tracking) ----
-        std::vector<RuntimeRouteSegment> route_segments_;
+        std::vector<rsim_driver::GlobalPathRouteSegment> route_segments_;
 
         // ---- 全局路由 — 世界坐标点 (供下游规划模块构建参考线) ----
         std::vector<rsim_driver::WorldPoint> global_path_world_points_;
@@ -848,6 +488,7 @@ namespace
         std::string reference_line_csv_path_;
         std::string obstacle_csv_path_;
         std::FILE *reference_line_csv_fp_ = nullptr;
+        rsim_driver::GlobalPathGenerator global_path_generator_;
         rsim_driver::ObstacleCsvWriter obstacle_csv_writer_;
 
         // ---- ego 初始状态 ----
