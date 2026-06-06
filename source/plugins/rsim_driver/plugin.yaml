@@ -40,6 +40,10 @@ spec:
           type: string
           default: ""
           description: "Optional CSV output path for per-frame reference line debug data."
+        - name: obstacleCsvPath
+          type: string
+          default: ""
+          description: "Optional CSV output path for per-frame obstacle snapshots."
         - name: setSpeed
           type: double
           default: "10.0"

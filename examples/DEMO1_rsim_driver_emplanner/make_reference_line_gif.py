@@ -67,6 +67,36 @@ def read_reference_motion(path: Path):
     return ordered
 
 
+def read_obstacles(path: Path):
+    frames = {}
+    if path is None or not path.is_file():
+        return frames
+
+    with path.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                frame_id = int(row["frame_id"])
+                frames.setdefault(frame_id, []).append(
+                    {
+                        "frame_id": frame_id,
+                        "sim_time": float(row["sim_time"]),
+                        "actor_id": int(row["actor_id"]),
+                        "actor_name": row.get("actor_name", ""),
+                        "actor_type": int(row.get("actor_type", "0")),
+                        "x": float(row["x"]),
+                        "y": float(row["y"]),
+                        "h": float(row.get("h", "0")),
+                        "length": float(row.get("length", "0")),
+                        "width": float(row.get("width", "0")),
+                        "distance_to_ego": float(row.get("distance_to_ego", "nan")),
+                    }
+                )
+            except (KeyError, ValueError):
+                continue
+    return frames
+
+
 def sample_frames(frames, max_frames: int):
     if max_frames <= 0 or len(frames) <= max_frames:
         return frames
@@ -116,14 +146,70 @@ def frame_xy(rows):
     return xs, ys
 
 
+def obstacle_label(obstacle):
+    return obstacle["actor_name"] if obstacle["actor_name"] else f"actor_{obstacle['actor_id']}"
+
+
+def obstacle_box_points(obstacle):
+    length = max(obstacle["length"], 0.5)
+    width = max(obstacle["width"], 0.5)
+    half_l = 0.5 * length
+    half_w = 0.5 * width
+    heading = obstacle["h"]
+    cos_h = math.cos(heading)
+    sin_h = math.sin(heading)
+    local = [
+        (half_l, half_w),
+        (half_l, -half_w),
+        (-half_l, -half_w),
+        (-half_l, half_w),
+    ]
+    points = []
+    for lx, ly in local:
+        x = obstacle["x"] + lx * cos_h - ly * sin_h
+        y = obstacle["y"] + lx * sin_h + ly * cos_h
+        points.append((x, y))
+    return points
+
+
+def obstacle_xy(obstacles):
+    xs = []
+    ys = []
+    for obstacle in obstacles:
+        xs.append(obstacle["x"])
+        ys.append(obstacle["y"])
+        for x, y in obstacle_box_points(obstacle):
+            xs.append(x)
+            ys.append(y)
+    return xs, ys
+
+
+def draw_obstacles(ax, obstacles):
+    for index, obstacle in enumerate(obstacles):
+        box = obstacle_box_points(obstacle)
+        closed = box + [box[0]]
+        xs, ys = all_xy(closed)
+        label = "obstacle" if index == 0 else None
+        ax.fill(xs, ys, facecolor="#e8710a", edgecolor="#e8710a",
+                linewidth=1.4, alpha=0.18, label=label, zorder=5)
+        ax.scatter([obstacle["x"]], [obstacle["y"]], s=34,
+                   color="#e8710a", edgecolors="white", linewidths=0.8,
+                   zorder=6)
+        ax.text(obstacle["x"], obstacle["y"] + 0.7, obstacle_label(obstacle),
+                fontsize=7, color="#8a4b08", ha="center", va="bottom",
+                zorder=7)
+
+
 def make_gif(global_csv: Path,
              motion_csv: Path,
+             obstacle_csv: Path,
              output_gif: Path,
              max_frames: int,
              fps: int,
              dpi: int,
              trail: int,
-             full_route: bool):
+             full_route: bool,
+             show_obstacles: bool):
     if not global_csv.is_file():
         raise SystemExit(f"ERROR: global path CSV not found: {global_csv}")
     if not motion_csv.is_file():
@@ -131,6 +217,7 @@ def make_gif(global_csv: Path,
 
     global_points = read_global_path(global_csv)
     frames = read_reference_motion(motion_csv)
+    obstacles_by_frame = read_obstacles(obstacle_csv) if show_obstacles else {}
     if len(global_points) < 2:
         raise SystemExit(f"ERROR: not enough global path points: {global_csv}")
     if not frames:
@@ -142,7 +229,13 @@ def make_gif(global_csv: Path,
     fig, ax = plt.subplots(figsize=(10.5, 6.2))
     aspect = 10.5 / 6.2
     global_xs, global_ys = all_xy(global_points)
+    if obstacles_by_frame:
+        all_obstacles = [obs for rows in obstacles_by_frame.values() for obs in rows]
+        obstacle_xs, obstacle_ys = obstacle_xy(all_obstacles)
+        global_xs.extend(obstacle_xs)
+        global_ys.extend(obstacle_ys)
     route_limits = expand_limits(global_xs, global_ys, aspect, padding=8.0)
+    route_xs, route_ys = all_xy(global_points)
 
     ego_history = [(rows[0]["ego_x"], rows[0]["ego_y"]) for rows in sampled]
 
@@ -151,9 +244,10 @@ def make_gif(global_csv: Path,
         first = rows[0]
         ref_xs = [row["ref_x"] for row in rows]
         ref_ys = [row["ref_y"] for row in rows]
+        current_obstacles = obstacles_by_frame.get(first["frame_id"], [])
 
         ax.clear()
-        ax.plot(global_xs, global_ys, color="#b8bec7", linewidth=1.4,
+        ax.plot(route_xs, route_ys, color="#b8bec7", linewidth=1.4,
                 label="global path", zorder=1)
         ax.plot(ref_xs, ref_ys, color="#188038", linewidth=2.6,
                 label="current reference line", zorder=3)
@@ -180,6 +274,9 @@ def make_gif(global_csv: Path,
                  width=0.16, head_width=0.9, head_length=1.2,
                  length_includes_head=True, color="#202124", zorder=8)
 
+        if current_obstacles:
+            draw_obstacles(ax, current_obstacles)
+
         if full_route:
             limits = route_limits
         else:
@@ -187,6 +284,9 @@ def make_gif(global_csv: Path,
             for x, y in trail_points:
                 xs.append(x)
                 ys.append(y)
+            obstacle_xs, obstacle_ys = obstacle_xy(current_obstacles)
+            xs.extend(obstacle_xs)
+            ys.extend(obstacle_ys)
             limits = expand_limits(xs, ys, aspect, padding=8.0)
 
         ax.set_xlim(limits[0], limits[1])
@@ -216,6 +316,9 @@ def make_gif(global_csv: Path,
 
     print(f"[gif] global points: {len(global_points)}")
     print(f"[gif] reference frames: {len(frames)} sampled: {len(sampled)}")
+    if show_obstacles and obstacle_csv.is_file():
+        obstacle_rows = sum(len(rows) for rows in obstacles_by_frame.values())
+        print(f"[gif] obstacle rows: {obstacle_rows} frames: {len(obstacles_by_frame)}")
     print(f"[gif] output: {output_gif}")
 
 
@@ -231,6 +334,9 @@ def parse_args():
     parser.add_argument("--motion-csv",
                         type=Path,
                         default=csv_dir / "reference_line_motion.csv")
+    parser.add_argument("--obstacle-csv",
+                        type=Path,
+                        default=csv_dir / "obstacles.csv")
     parser.add_argument("--output",
                         type=Path,
                         default=csv_dir / "reference_line_motion.gif")
@@ -251,6 +357,9 @@ def parse_args():
     view_group.add_argument("--full-route",
                             action="store_true",
                             help="Use the fixed global-path view. This is the default.")
+    parser.add_argument("--no-obstacles",
+                        action="store_true",
+                        help="Do not overlay obstacle boxes even if obstacles.csv exists.")
     return parser.parse_args()
 
 
@@ -258,9 +367,11 @@ if __name__ == "__main__":
     args = parse_args()
     make_gif(args.global_csv,
              args.motion_csv,
+             args.obstacle_csv,
              args.output,
              args.max_frames,
              args.fps,
              args.dpi,
              args.trail,
-             not args.follow_reference)
+             not args.follow_reference,
+             not args.no_obstacles)

@@ -111,6 +111,7 @@ CSV_DIR=OUTPUT_DIR / "csv"
 RUNTIME_XOSC = OUTPUT_DIR / CSV_DIR/"scene.runtime.xosc"
 GLOBAL_PATH_CSV = OUTPUT_DIR / CSV_DIR/"global_path_world_points.csv"
 REFERENCE_LINE_CSV = OUTPUT_DIR / CSV_DIR/"reference_line_motion.csv"
+OBSTACLE_CSV = OUTPUT_DIR / CSV_DIR/"obstacles.csv"
 CSV_PATH = OUTPUT_DIR / CSV_DIR/"scene.csv"
 LOG_DIR = OUTPUT_DIR / "logs"
 PACKAGE_DIR = OUTPUT_DIR / "package"
@@ -134,6 +135,7 @@ PLUGIN_PROPS = {
     "routeXoscPath":     str(RUNTIME_XOSC),
     "routeCsvPath":      str(GLOBAL_PATH_CSV),     # 插件 Init 时写入全局路径 CSV
     "referenceLineCsvPath": str(REFERENCE_LINE_CSV),
+    "obstacleCsvPath":   str(OBSTACLE_CSV),
     "setSpeed":          "8",
     "pointStep":         "2",
     "entityName":        "ego",
@@ -336,6 +338,8 @@ def main():
         GLOBAL_PATH_CSV.unlink()
     if REFERENCE_LINE_CSV.exists():
         REFERENCE_LINE_CSV.unlink()
+    if OBSTACLE_CSV.exists():
+        OBSTACLE_CSV.unlink()
 
     sr = spawn(
         [str(sr_bin), "--scene_runner_port", str(PORT),

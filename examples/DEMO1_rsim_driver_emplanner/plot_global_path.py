@@ -7,14 +7,79 @@ plot_global_path.py — 读取 global_path_world_points.csv 生成 SVG 覆盖图
   svg_path  默认: output/global_path_overlay.svg
 """
 
-import colorsys
 import csv
+import html
 import math
 import sys
 from pathlib import Path
 
 
-def plot(csv_path, svg_path):
+def read_obstacles(path):
+    if path is None or not path.is_file():
+        return []
+
+    obstacles = []
+    with path.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                obstacles.append(
+                    {
+                        "frame_id": int(row["frame_id"]),
+                        "sim_time": float(row["sim_time"]),
+                        "actor_id": int(row["actor_id"]),
+                        "actor_name": row.get("actor_name", ""),
+                        "actor_type": int(row.get("actor_type", "0")),
+                        "x": float(row["x"]),
+                        "y": float(row["y"]),
+                        "h": float(row.get("h", "0")),
+                        "length": float(row.get("length", "0")),
+                        "width": float(row.get("width", "0")),
+                        "distance_to_ego": float(row.get("distance_to_ego", "nan")),
+                    }
+                )
+            except (KeyError, ValueError):
+                continue
+    return obstacles
+
+
+def group_obstacles(obstacles):
+    grouped = {}
+    for obstacle in obstacles:
+        key = (obstacle["actor_id"], obstacle["actor_name"])
+        grouped.setdefault(key, []).append(obstacle)
+    for rows in grouped.values():
+        rows.sort(key=lambda item: item["frame_id"])
+    return grouped
+
+
+def obstacle_label(actor_id, actor_name):
+    return actor_name if actor_name else f"actor_{actor_id}"
+
+
+def obstacle_box_points(obstacle):
+    length = max(obstacle["length"], 0.5)
+    width = max(obstacle["width"], 0.5)
+    half_l = 0.5 * length
+    half_w = 0.5 * width
+    heading = obstacle["h"]
+    cos_h = math.cos(heading)
+    sin_h = math.sin(heading)
+    local = [
+        (half_l, half_w),
+        (half_l, -half_w),
+        (-half_l, -half_w),
+        (-half_l, half_w),
+    ]
+    points = []
+    for lx, ly in local:
+        x = obstacle["x"] + lx * cos_h - ly * sin_h
+        y = obstacle["y"] + lx * sin_h + ly * cos_h
+        points.append((x, y))
+    return points
+
+
+def plot(csv_path, svg_path, obstacle_csv_path=None):
     if not csv_path.is_file():
         print(f"ERROR: CSV not found: {csv_path}", file=sys.stderr)
         sys.exit(1)
@@ -29,9 +94,16 @@ def plot(csv_path, svg_path):
         print(f"ERROR: not enough points in {csv_path} ({len(points)})", file=sys.stderr)
         sys.exit(1)
 
+    if obstacle_csv_path is None:
+        obstacle_csv_path = csv_path.parent / "obstacles.csv"
+    obstacles = read_obstacles(obstacle_csv_path)
+    obstacle_groups = group_obstacles(obstacles)
+
     # ---- 布局计算 ----
     xs = [x for x, _ in points]
     ys = [y for _, y in points]
+    xs.extend(obstacle["x"] for obstacle in obstacles)
+    ys.extend(obstacle["y"] for obstacle in obstacles)
     min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
     data_w = max(max_x - min_x, 1e-6)
@@ -62,6 +134,13 @@ def plot(csv_path, svg_path):
     def polyline(pts):
         return " ".join(f"{tx(x):.2f},{ty(y):.2f}" for x, y in pts)
 
+    def polygon(pts):
+        return " ".join(f"{tx(x):.2f},{ty(y):.2f}" for x, y in pts)
+
+    obstacle_note = ""
+    if obstacle_csv_path.is_file():
+        obstacle_note = f", obstacles={len(obstacles)} from {obstacle_csv_path.name}"
+
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
@@ -71,7 +150,7 @@ def plot(csv_path, svg_path):
         f'font-weight="700" fill="#202124">Global Path — World Coordinates</text>',
         f'<text x="{margin_left}" y="56" font-family="Arial" font-size="13" '
         f'fill="#5f6368">source: {csv_path.name}, points={len(points)}, '
-        f'chord≈{_chord_length(points):.1f}m</text>',
+        f'chord≈{_chord_length(points):.1f}m{obstacle_note}</text>',
         f'<rect x="{margin_left:.2f}" y="{margin_top:.2f}" width="{plot_w:.2f}" '
         f'height="{plot_h:.2f}" fill="#fbfbfb" stroke="#c9cdd2" stroke-width="1"/>',
     ]
@@ -130,6 +209,46 @@ def plot(csv_path, svg_path):
         f'stroke="#d93025" stroke-width="2"><title>end</title></line>'
     )
 
+    # ---- 障碍物轨迹与末帧包围框 ----
+    obstacle_colors = [
+        "#e8710a", "#9334e6", "#00acc1", "#c5221f", "#0b8043", "#8e24aa",
+    ]
+    for index, ((actor_id, actor_name), rows) in enumerate(obstacle_groups.items()):
+        color = obstacle_colors[index % len(obstacle_colors)]
+        centers = [(row["x"], row["y"]) for row in rows]
+        label = obstacle_label(actor_id, actor_name)
+        escaped_label = html.escape(label)
+
+        if len(centers) >= 2:
+            lines.append(
+                f'<polyline points="{polyline(centers)}" fill="none" '
+                f'stroke="{color}" stroke-width="2" stroke-opacity="0.82" '
+                f'stroke-dasharray="7 5"><title>{escaped_label} trajectory</title></polyline>'
+            )
+
+        first = rows[0]
+        last = rows[-1]
+        lines.append(
+            f'<circle cx="{tx(first["x"]):.2f}" cy="{ty(first["y"]):.2f}" r="4" '
+            f'fill="{color}" fill-opacity="0.55"><title>{escaped_label} first frame</title></circle>'
+        )
+        box = obstacle_box_points(last)
+        lines.append(
+            f'<polygon points="{polygon(box)}" fill="{color}" fill-opacity="0.13" '
+            f'stroke="{color}" stroke-width="2">'
+            f'<title>{escaped_label} frame {last["frame_id"]}, d={last["distance_to_ego"]:.2f}m</title>'
+            f'</polygon>'
+        )
+        lines.append(
+            f'<circle cx="{tx(last["x"]):.2f}" cy="{ty(last["y"]):.2f}" r="4.5" '
+            f'fill="{color}" stroke="#ffffff" stroke-width="1">'
+            f'<title>{escaped_label} last frame</title></circle>'
+        )
+        lines.append(
+            f'<text x="{tx(last["x"]):.2f}" y="{ty(last["y"]) - 7:.2f}" '
+            f'font-family="Arial" font-size="11" fill="{color}">{escaped_label}</text>'
+        )
+
     # ---- 坐标轴标签 ----
     lines.append(
         f'<text x="{margin_left + plot_w * 0.5 - 18:.2f}" '
@@ -150,6 +269,8 @@ def plot(csv_path, svg_path):
 
     svg_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"[plot] SVG written: {svg_path}")
+    if obstacle_csv_path.is_file():
+        print(f"[plot] obstacles={len(obstacles)} actors={len(obstacle_groups)}")
 
 
 def _chord_length(points):
@@ -171,5 +292,6 @@ if __name__ == "__main__":
 
     csv_arg = Path(sys.argv[1]) if len(sys.argv) > 1 else default_csv
     svg_arg = Path(sys.argv[2]) if len(sys.argv) > 2 else default_svg
+    obstacle_arg = Path(sys.argv[3]) if len(sys.argv) > 3 else None
 
-    plot(csv_arg, svg_arg)
+    plot(csv_arg, svg_arg, obstacle_arg)

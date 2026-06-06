@@ -37,6 +37,7 @@
  *   setSpeed     : 期望巡航速度 m/s (默认 10.0, 预留)
  *   pointStep    : 每帧沿当前参考线向前推进的离散点数 (默认 2)
  *   referenceLineCsvPath: 参考线运动调试 CSV 输出路径 (可选)
+ *   obstacleCsvPath: 障碍物转化 CSV 输出路径 (可选)
  * ============================================================================
  */
 
@@ -45,6 +46,7 @@
 #include "pugixml.hpp"
 
 #include "MapHelper.hpp"
+#include "ObstacleToCsv.hpp"
 #include "ReferenceLineGenerator.hpp"
 
 #include <algorithm>
@@ -177,10 +179,12 @@ namespace
             route_xosc_path_ = getStr("routeXoscPath", "");
             route_csv_path_ = getStr("routeCsvPath", "");
             reference_line_csv_path_ = getStr("referenceLineCsvPath", "");
+            obstacle_csv_path_ = getStr("obstacleCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
             set_speed_ = getDouble("setSpeed", 10.0);
             point_step_ = std::max(1, getInt("pointStep", 2));
             OpenReferenceLineDebugCsv();
+            obstacle_csv_writer_.Open(obstacle_csv_path_);
 
             // ---- 加载 OpenDRIVE 地图 (用于 lane/track 查询) ----
             if (xodr_path.empty() || !map_.Load(xodr_path))
@@ -241,6 +245,12 @@ namespace
             const ActorState *ego = FindControlledActor(ctx);
             if (ego == nullptr)
                 return updates;
+
+            obstacle_csv_writer_.WriteFrame(ctx.frame_id,
+                                            ctx.sim_time,
+                                            *ego,
+                                            ctx.actors,
+                                            controlled_ids_);
 
             LatchInitialState(ego);
             UpdateReferenceLine(*ego);
@@ -836,7 +846,9 @@ namespace
         std::string route_xosc_path_;
         std::string route_csv_path_;
         std::string reference_line_csv_path_;
+        std::string obstacle_csv_path_;
         std::FILE *reference_line_csv_fp_ = nullptr;
+        rsim_driver::ObstacleCsvWriter obstacle_csv_writer_;
 
         // ---- ego 初始状态 ----
         double set_speed_ = 10.0;
