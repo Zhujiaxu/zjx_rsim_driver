@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "../common/PathMatcher/PathMatcher.hpp"
+#include "PathMatcher.hpp"
 #include "ReferenceLine.hpp"
 #include "ReferenceLineSmoother.hpp"
 
@@ -20,7 +20,6 @@ struct WorldPoint
     double x   = 0.0;
     double y   = 0.0;
 };
-size_t path_matcher_detail::kMatchConfirmLookahead;
 
 class ReferenceLineGenerator
 {

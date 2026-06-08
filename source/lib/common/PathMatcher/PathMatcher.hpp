@@ -24,8 +24,7 @@ namespace rsim_driver
         {
         };
 
-        // inline std::size_t kMatchConfirmLookahead;记住静态库
-        extern std::size_t kMatchConfirmLookahead;
+        inline std::size_t kMatchConfirmLookahead = 15;
         inline double DistanceSquared(double x0, double y0, double x1, double y1)
         {
             const double dx = x0 - x1;
