@@ -196,6 +196,7 @@ namespace
 
             if (reference_line_ == nullptr || reference_line_->points.empty())
                 return updates;
+            
 
             const std::size_t target_idx =
                 FindForwardReferencePointIndex(*reference_line_, point_step_);

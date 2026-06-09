@@ -14,8 +14,8 @@ struct DpPlannerConfig
     double s_step = 0.5;
     double total_length = 20.0;
     double l_step = 0.4;
-    double left_width = 2.0;
-    double right_width = 2.0;
+    double left_width = 3.0;
+    double right_width = 3.0;
 
     double weight_l_prime = 1.0;
     double weight_l_double_prime = 1.0;
