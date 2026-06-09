@@ -1,5 +1,7 @@
 add_subdirectory(common/PathMatcher)
 add_subdirectory(common/CartesianToFrenet)
+add_subdirectory(common/QuinticPolynomial)
+add_subdirectory(common/CollisionCost)
 add_subdirectory(map_helper)
 add_subdirectory(global_path)
 add_subdirectory(obstacle_to_csv)

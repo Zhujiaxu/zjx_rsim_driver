@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../PathMatcher/PathMatcher.hpp"
+#include "PathMatcher.hpp"
 
 #include <cmath>
 #include <cstddef>
@@ -44,6 +44,43 @@ namespace rsim_driver
                    std::isfinite(state.l_double_prime);
         }
 
+        template <typename RefPointT>
+        RefPointT InterpolateReferenceStateByS(const std::vector<RefPointT> &referencePoints,
+                                               double s)
+        {
+            if (referencePoints.empty())
+                return RefPointT{};
+            if (referencePoints.size() == 1 || s <= referencePoints.front().s)
+                return referencePoints.front();
+            if (s >= referencePoints.back().s)
+                return referencePoints.back();
+
+            for (std::size_t i = 1; i < referencePoints.size(); ++i)
+            {
+                const RefPointT &previous = referencePoints[i - 1];
+                const RefPointT &next = referencePoints[i];
+                if (s > next.s)
+                    continue;
+
+                const double ds = next.s - previous.s;
+                const double ratio = std::fabs(ds) > kEpsilon
+                                         ? (s - previous.s) / ds
+                                         : 0.0;
+
+                RefPointT interpolated = previous;
+                interpolated.x = previous.x + (next.x - previous.x) * ratio;
+                interpolated.y = previous.y + (next.y - previous.y) * ratio;
+                interpolated.hdg = NormalizeAngle(
+                    previous.hdg + NormalizeAngle(next.hdg - previous.hdg) * ratio);
+                interpolated.k = previous.k + (next.k - previous.k) * ratio;
+                interpolated.dk = previous.dk + (next.dk - previous.dk) * ratio;
+                interpolated.s = s;
+                return interpolated;
+            }
+
+            return referencePoints.back();
+        }
+
     } // namespace cartesian_to_frenet_detail
 
     template <typename RefPointT, typename CartesianPointT>
@@ -74,16 +111,12 @@ namespace rsim_driver
         const double dx = cartesianPoint.x - matchedPoint.x;
         const double dy = cartesianPoint.y - matchedPoint.y;
         const double l = dx * refNormalX + dy * refNormalY;
-        if (dx * refTangentX + dy * refTangentY > 0)
-        {
-            const double projectionHeading = matchIndex + 1 == referencePoints.size()
-                                                 ? referencePoints[matchIndex].hdg
-                                                 : refHeading + (refHeading + referencePoints[matchIndex + 1].hdg) * 0.5;
-        }
-        const double projectionHeading = projectionPoint.hdg;
+        const RefPointT projectionReference =
+            cartesian_to_frenet_detail::InterpolateReferenceStateByS(referencePoints,
+                                                                     refinedS);
 
         const double deltaTheta = cartesian_to_frenet_detail::NormalizeAngle(
-            cartesianPoint.heading - projectionHeading);
+            cartesianPoint.heading - projectionReference.hdg);
         const double cosDeltaTheta = std::cos(deltaTheta);
         if (std::fabs(cosDeltaTheta) <= cartesian_to_frenet_detail::kEpsilon)
             return false;
@@ -93,24 +126,39 @@ namespace rsim_driver
         if (std::fabs(oneMinusKappaRefL) <= cartesian_to_frenet_detail::kEpsilon)
             return false;
 
+        const double sinDeltaTheta = std::sin(deltaTheta);
         const double lPrime = oneMinusKappaRefL * tanDeltaTheta;
-        const double kappaRefLPrime = matchedPoint.dk * l + matchedPoint.k * lPrime;
-        const double deltaThetaPrime =
-            oneMinusKappaRefL * cartesianPoint.curvature / cosDeltaTheta - matchedPoint.k;
+        /****************************************** */
+        const double sDot =
+            cartesianPoint.speed * cosDeltaTheta / oneMinusKappaRefL;
+
+        const double lDot = cartesianPoint.speed * sinDeltaTheta;
+        /******************************************  */
+
+        // sDdot ;
+        const double sDdot =
+            ((cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * matchedPoint.dk * cosDeltaTheta +
+             matchedPoint.k * cartesianPoint.speed * sDot * sinDeltaTheta) *
+                (1 - matchedPoint.k * l) +
+            cartesianPoint.speed * cosDeltaTheta *
+                (matchedPoint.k * lDot + matchedPoint.dk * l)) /
+            (oneMinusKappaRefL * oneMinusKappaRefL);
+        // lDdot ;
+        const double lDdot =
+            cartesianPoint.accel * sinDeltaTheta +
+            matchedPoint.dk * cosDeltaTheta * cartesianPoint.speed * cartesianPoint.speed -
+            matchedPoint.k * sDot * cartesianPoint.speed;
+
+        const double sDotSquared = sDot * sDot;
         const double lDoublePrime =
-            -kappaRefLPrime * tanDeltaTheta +
-            oneMinusKappaRefL / (cosDeltaTheta * cosDeltaTheta) *
-                (cartesianPoint.curvature * oneMinusKappaRefL / cosDeltaTheta -
-                 matchedPoint.k);
+            sDotSquared <= cartesian_to_frenet_detail::kEpsilon
+                ? 0.0
+                : (lDdot - lPrime * sDdot) / sDotSquared;
 
         CartesianFrenetState state;
         state.s = refinedS;
-        state.s_dot = cartesianPoint.speed * cosDeltaTheta / oneMinusKappaRefL;
-        state.s_ddot =
-            (cartesianPoint.accel * cosDeltaTheta -
-             state.s_dot * state.s_dot *
-                 (lPrime * deltaThetaPrime - kappaRefLPrime)) /
-            oneMinusKappaRefL;
+        state.s_dot = sDot;
+        state.s_ddot = sDdot;
         state.l = l;
         state.l_prime = lPrime;
         state.l_double_prime = lDoublePrime;
