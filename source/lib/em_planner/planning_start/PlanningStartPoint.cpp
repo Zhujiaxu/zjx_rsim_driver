@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdio>
 #include <limits>
 
@@ -10,15 +11,23 @@ namespace rsim_driver
     namespace
     {
 
+        constexpr double kPi = 3.14159265358979323846;
         constexpr double kTimeEpsilon = 1e-9;
-        constexpr double kCurvatureEpsilon = 1e-9;
+        constexpr std::size_t kMaxStitchingTrajectoryPoints = 30;
+
+        struct PreviousTrajectoryReuseCheck
+        {
+            bool has_current_point = false;
+            bool reusable = false;
+            double match_distance = std::numeric_limits<double>::infinity();
+        };
 
         double NormalizeAngle(double angle)
         {
-            while (angle > M_PI)
-                angle -= 2.0 * M_PI;
-            while (angle < -M_PI)
-                angle += 2.0 * M_PI;
+            while (angle > kPi)
+                angle -= 2.0 * kPi;
+            while (angle < -kPi)
+                angle += 2.0 * kPi;
             return angle;
         }
 
@@ -42,7 +51,6 @@ namespace rsim_driver
             start.x = point.x;
             start.y = point.y;
             start.heading = point.heading;
-            start.curvature = point.curvature;
             start.speed = point.speed;
             start.accel = point.accel;
             start.time = point.time;
@@ -61,63 +69,113 @@ namespace rsim_driver
                                      : 1.0;
 
             PlanningTrajectoryPoint point;
-            point.x = a.x + a.speed + (b.speed - a.speed) * ratio*0.5 * dt * std::cos(a.heading);
-            point.y = a.y + a.speed + (b.speed - a.speed) * ratio*0.5 * dt * std::sin(a.heading);
+            point.x = a.x + (b.x - a.x) * ratio;
+            point.y = a.y + (b.y - a.y) * ratio;
             point.heading = InterpolateAngle(a.heading, b.heading, ratio);
-            point.curvature = a.curvature;
+            point.curvature = a.curvature + (b.curvature - a.curvature) * ratio;
             point.speed = a.speed + (b.speed - a.speed) * ratio;
-            point.accel = a.accel;
+            point.accel = a.accel + (b.accel - a.accel) * ratio;
             point.time = time;
             return point;
         }
 
-        bool FindTrajectoryPointAtTime(const std::vector<PlanningTrajectoryPoint> &previoustrajectory,
-                                       double time,
-                                       PlanningTrajectoryPoint *point)
+        bool FindTrajectoryPointAtTime(
+            const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
+            double curtime,
+            PlanningTrajectoryPoint *point)
         {
-            if (point == nullptr || previoustrajectory.empty())
+            if (point == nullptr || previousTrajectory.empty())
                 return false;
 
-            if (previoustrajectory.size() == 1)
+            if (previousTrajectory.size() == 1)
             {
-                if (std::fabs(time - previoustrajectory.front().time) <= kTimeEpsilon)
+                if (std::fabs(curtime - previousTrajectory.front().time) <= kTimeEpsilon)
                 {
-                    *point = previoustrajectory.front();
-                    point->time = time;
+                    *point = previousTrajectory.front();
+                    point->time = curtime;
                     return true;
                 }
                 return false;
             }
 
-            if (time < previoustrajectory.front().time - kTimeEpsilon ||
-                time > previoustrajectory.back().time + kTimeEpsilon)
+            if (curtime < previousTrajectory.front().time - kTimeEpsilon ||
+                curtime > previousTrajectory.back().time + kTimeEpsilon)
             {
                 return false;
             }
 
-            if (time <= previoustrajectory.front().time + kTimeEpsilon)
+            if (curtime <= previousTrajectory.front().time + kTimeEpsilon)
             {
-                *point = previoustrajectory.front();
-                point->time = time;
+                *point = previousTrajectory.front();
+                point->time = curtime;
                 return true;
             }
 
-            for (std::size_t i = 1; i < previoustrajectory.size(); ++i)
+            for (std::size_t i = 1; i < previousTrajectory.size(); ++i)
             {
-                const PlanningTrajectoryPoint &previous = previoustrajectory[i - 1];
-                const PlanningTrajectoryPoint &current = previoustrajectory[i];
-                if (time > current.time + kTimeEpsilon)
+                const PlanningTrajectoryPoint &previous = previousTrajectory[i - 1];
+                const PlanningTrajectoryPoint &current = previousTrajectory[i];
+                if (curtime > current.time + kTimeEpsilon)
                     continue;
-                if (time < previous.time - kTimeEpsilon)
+                if (curtime < previous.time - kTimeEpsilon)
                     return false;
 
-                *point = InterpolatePoint(previous, current, time);
+                *point = InterpolatePoint(previous, current, curtime);
                 return true;
             }
 
-            *point = previoustrajectory.back();
-            point->time = time;
+            *point = previousTrajectory.back();
+            point->time = curtime;
             return true;
+        }
+
+        PreviousTrajectoryReuseCheck EvaluatePreviousTrajectoryReuse(
+            const VehicleState &vehicle,
+            double currentTime,
+            const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
+            const PlanningStartConfig &config)
+        {
+            PreviousTrajectoryReuseCheck check;
+            PlanningTrajectoryPoint currentTrajectoryPoint;
+            if (!FindTrajectoryPointAtTime(previousTrajectory,
+                                           currentTime,
+                                           &currentTrajectoryPoint))
+            {
+                return check;
+            }
+
+            check.has_current_point = true;
+            check.match_distance = Distance(vehicle.x,
+                                            vehicle.y,
+                                            currentTrajectoryPoint.x,
+                                            currentTrajectoryPoint.y);
+            check.reusable =
+                check.match_distance <= std::max(0.0, config.mismatchDistanceThreshold);
+            return check;
+        }
+
+        std::vector<PlanningTrajectoryPoint> CollectStitchingTrajectory(
+            const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
+            double targetTime)
+        {
+            std::vector<PlanningTrajectoryPoint> stitching;
+            stitching.reserve(std::min(kMaxStitchingTrajectoryPoints,
+                                       previousTrajectory.size()));
+
+            for (auto iter = previousTrajectory.rbegin();
+                 iter != previousTrajectory.rend() &&
+                 stitching.size() < kMaxStitchingTrajectoryPoints;
+                 ++iter)
+            {
+                if (iter->time >= targetTime - kTimeEpsilon)
+                    continue;
+
+                stitching.push_back(*iter);
+            }
+
+            std::reverse(stitching.begin(), stitching.end());
+
+            return stitching;
         }
 
         PlanningStartPoint ExtrapolateByKinematics(const VehicleState &vehicle,
@@ -125,32 +183,17 @@ namespace rsim_driver
                                                    double planningPeriod)
         {
             const double dt = std::max(0.0, planningPeriod);
-            const double ds = std::max(0.0, vehicle.speed * dt + 0.5 * vehicle.accel * dt * dt);
+            const double ds =
+                std::max(0.0, vehicle.speed * dt + 0.5 * vehicle.accel * dt * dt);
             const double targetTime = currentTime + dt;
 
             PlanningTrajectoryPoint point;
+            point.x = vehicle.x + ds * std::cos(vehicle.heading);
+            point.y = vehicle.y + ds * std::sin(vehicle.heading);
             point.heading = vehicle.heading;
-            point.curvature = vehicle.curvature;
             point.speed = std::max(0.0, vehicle.speed + vehicle.accel * dt);
             point.accel = vehicle.accel;
             point.time = targetTime;
-
-            if (std::fabs(vehicle.curvature) <= kCurvatureEpsilon)
-            {
-                point.x = vehicle.x + ds * std::cos(vehicle.heading);
-                point.y = vehicle.y + ds * std::sin(vehicle.heading);
-            }
-            else
-            {
-                const double deltaHeading = vehicle.curvature * ds;
-                const double nextHeading = vehicle.heading + deltaHeading;
-                point.heading = NormalizeAngle(nextHeading);
-                point.x = vehicle.x +
-                          ((nextHeading - vehicle.heading) / vehicle.curvature)*std::cos(nextHeading);
-                point.y = vehicle.y +
-                          ((nextHeading - vehicle.heading) / vehicle.curvature)*std::sin(nextHeading);
-                
-            }
 
             return ToStartPoint(point,
                                 PlanningStartSource::KinematicExtrapolation,
@@ -167,7 +210,7 @@ namespace rsim_driver
 
     } // namespace
 
-    PlanningStartPoint ComputePlanningStartPoint(
+    PlanningStartResult ComputePlanningStartResult(
         const VehicleState &vehicle,
         double currentTime,
         const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
@@ -175,38 +218,43 @@ namespace rsim_driver
     {
         const double planningPeriod = std::max(0.0, config.planningPeriod);
         const double targetTime = currentTime + planningPeriod;
-        const double mismatchThreshold = std::max(0.0, config.mismatchDistanceThreshold);
 
-        PlanningStartPoint extrapolated =
+        PlanningStartResult result;
+        result.start_point =
             ExtrapolateByKinematics(vehicle, currentTime, planningPeriod);
-
+        result.start_curvature = 0.0;
+        result.stitching_trajectory.clear();
         if (previousTrajectory.empty())
-            return extrapolated;
+            return result;
 
-        PlanningTrajectoryPoint currentTrajectoryPoint;
-        if (!FindTrajectoryPointAtTime(previousTrajectory, currentTime, &currentTrajectoryPoint))
+        PreviousTrajectoryReuseCheck check = EvaluatePreviousTrajectoryReuse(
+            vehicle, currentTime, previousTrajectory, config);
+        if (!check.has_current_point)
         {
-            LogTrajectoryTooShort("无法覆盖当前时间", currentTime);
-            return extrapolated;
+            LogTrajectoryTooShort("无法找到当前时间点的轨迹点", currentTime);
+            return result;
         }
-
-        const double trackingDistance =
-            Distance(vehicle.x, vehicle.y, currentTrajectoryPoint.x, currentTrajectoryPoint.y);
-        extrapolated.matchDistance = trackingDistance;
-
-        if (trackingDistance > mismatchThreshold)
-            return extrapolated;
-
-        PlanningTrajectoryPoint targetTrajectoryPoint;
-        if (!FindTrajectoryPointAtTime(previousTrajectory, targetTime, &targetTrajectoryPoint))
+        result.start_point.matchDistance = check.match_distance;
+        if (!check.reusable)
         {
-            LogTrajectoryTooShort("无法覆盖目标规划时间", targetTime);
-            return extrapolated;
+            LogTrajectoryTooShort("跟踪延迟——距离过大", currentTime);
+            return result;
         }
-
-        return ToStartPoint(targetTrajectoryPoint,
-                            PlanningStartSource::PreviousTrajectory,
-                            trackingDistance);
+        else
+        {
+            PlanningTrajectoryPoint startPoint;
+            if (!FindTrajectoryPointAtTime(previousTrajectory, targetTime, &startPoint))
+            {
+                LogTrajectoryTooShort("无法找到目标时间点的轨迹点", targetTime);
+                return result;
+            }
+            result.start_point = ToStartPoint(startPoint,
+                                              PlanningStartSource::PreviousTrajectory,
+                                              check.match_distance);
+            result.start_curvature = startPoint.curvature;
+            result.stitching_trajectory = CollectStitchingTrajectory(previousTrajectory, targetTime);
+        }
+        return result;
     }
 
 } // namespace rsim_driver

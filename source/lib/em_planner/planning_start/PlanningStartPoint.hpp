@@ -16,7 +16,6 @@ struct VehicleState
     double x = 0.0;
     double y = 0.0;
     double heading = 0.0;
-    double curvature = 0.0;
     double speed = 0.0;
     double accel = 0.0;
 };
@@ -37,7 +36,6 @@ struct PlanningStartPoint
     double x = 0.0;
     double y = 0.0;
     double heading = 0.0;
-    double curvature = 0.0;
     double speed = 0.0;
     double accel = 0.0;
     double time = 0.0;
@@ -51,7 +49,14 @@ struct PlanningStartConfig
     double mismatchDistanceThreshold = 0.3;
 };
 
-PlanningStartPoint ComputePlanningStartPoint(
+struct PlanningStartResult
+{
+    PlanningStartPoint start_point;
+    double start_curvature = 0.0;
+    std::vector<PlanningTrajectoryPoint> stitching_trajectory;
+};
+
+PlanningStartResult ComputePlanningStartResult(
     const VehicleState& vehicle,
     double currentTime,
     const std::vector<PlanningTrajectoryPoint>& previousTrajectory,
