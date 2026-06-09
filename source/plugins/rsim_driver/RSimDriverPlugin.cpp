@@ -454,11 +454,10 @@ namespace
 
                 std::fprintf(stderr,
                              "[RSimDriver]###初始运行 Reference line scale: points=%zu \n",
-                             reference_line_->points.size()
-                             );
+                             reference_line_->points.size());
                 reference_line_ready_reported_ = true;
             }
-            //std::printf("globalMatchIdx=%zu \n", reference_line_generator_.lastMatchPointIndex());
+            // std::printf("globalMatchIdx=%zu \n", reference_line_generator_.lastMatchPointIndex());
         }
 
         // ========================================================================

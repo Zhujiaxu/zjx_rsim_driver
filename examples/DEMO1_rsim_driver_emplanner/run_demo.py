@@ -153,7 +153,7 @@ def resolve_bin(name):
     rp = os.environ.get("RSIM_PATH")
     if rp:
         cs.append(Path(rp) / name)
-    cs.append(Path.home() / "work" / "rsim-package" / "rsim" / "linux" / "bin" / name)
+    cs.append(Path.home() / "proj" / "qc_intern" / "work" / "rsim-package" / "rsim" / "linux" / "bin" / name)
     for c in cs:
         if c.is_file() and os.access(c, os.X_OK):
             return c
