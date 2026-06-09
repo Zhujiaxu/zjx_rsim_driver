@@ -44,7 +44,7 @@
 #include "MapHelper.hpp"
 #include "ObstacleToCsv.hpp"
 #include "ReferenceLineGenerator.hpp"
-#include "planning_start_sl/PlanningStartSl.hpp"
+#include "planning_start/PlanningStartPoint.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -258,9 +258,8 @@ namespace
 
             rsim_driver::PlanningStartFrenetState frenet;
             const bool slSuccess =
-                rsim_driver::ComputePlanningStartSl(startResult.start_point,
-                                                    reference_line_->points,
-                                                    &frenet);
+                startResult.ToFrenet(reference_line_->points,
+                                     &frenet);
 
             last_planning_start_ = startResult.start_point;
             planning_start_frenet_valid_ = slSuccess;
@@ -462,8 +461,8 @@ namespace
                          "frame_id,sim_time,time_step,"
                          "ego_x,ego_y,ego_h,ego_speed,ego_acc_x,ego_acc_y,ego_accel,"
                          "start_x,start_y,start_heading,start_speed,start_accel,start_time,"
-                         "start_source,match_distance,start_curvature,sl_success,"
-                         "s,s_dot,s_ddot,l,l_prime,l_double_prime,"
+                         "start_source,match_distance,start_curvature,start_point_curvature,"
+                         "sl_success,s,s_dot,s_ddot,l,l_prime,l_double_prime,frenet_curvature,"
                          "previous_trajectory_size,stitching_trajectory_size\n");
             std::fflush(planning_start_sl_csv_fp_);
         }
@@ -484,8 +483,8 @@ namespace
                          "%llu,%.9f,%.9f,"
                          "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
                          "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
-                         "%s,%.9f,%.9f,%d,"
-                         "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                         "%s,%.9f,%.9f,%.9f,"
+                         "%d,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
                          "%zu,%zu\n",
                          static_cast<unsigned long long>(ctx.frame_id),
                          ctx.sim_time,
@@ -506,6 +505,7 @@ namespace
                          PlanningStartSourceName(start.source),
                          start.matchDistance,
                          startResult.start_curvature,
+                         start.curvature,
                          slSuccess ? 1 : 0,
                          frenet.s,
                          frenet.s_dot,
@@ -513,6 +513,7 @@ namespace
                          frenet.l,
                          frenet.l_prime,
                          frenet.l_double_prime,
+                         frenet.curvature,
                          previous_trajectory_.size(),
                          startResult.stitching_trajectory.size());
             std::fflush(planning_start_sl_csv_fp_);

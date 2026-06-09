@@ -51,6 +51,7 @@ namespace rsim_driver
             start.x = point.x;
             start.y = point.y;
             start.heading = point.heading;
+            start.curvature = point.curvature;
             start.speed = point.speed;
             start.accel = point.accel;
             start.time = point.time;
@@ -208,6 +209,21 @@ namespace rsim_driver
                          queryTime);
         }
 
+        void ApplyPlanningStartCurvature(PlanningStartResult *result)
+        {
+            if (result == nullptr)
+                return;
+
+            if (result->start_point.source ==
+                PlanningStartSource::KinematicExtrapolation)
+            {
+                result->start_point.curvature = 0.0;
+                return;
+            }
+
+            result->start_point.curvature = result->start_curvature;
+        }
+
     } // namespace
 
     PlanningStartResult ComputePlanningStartResult(
@@ -225,19 +241,24 @@ namespace rsim_driver
         result.start_curvature = 0.0;
         result.stitching_trajectory.clear();
         if (previousTrajectory.empty())
+        {
+            ApplyPlanningStartCurvature(&result);
             return result;
+        }
 
         PreviousTrajectoryReuseCheck check = EvaluatePreviousTrajectoryReuse(
             vehicle, currentTime, previousTrajectory, config);
         if (!check.has_current_point)
         {
             LogTrajectoryTooShort("无法找到当前时间点的轨迹点", currentTime);
+            ApplyPlanningStartCurvature(&result);
             return result;
         }
         result.start_point.matchDistance = check.match_distance;
         if (!check.reusable)
         {
             LogTrajectoryTooShort("跟踪延迟——距离过大", currentTime);
+            ApplyPlanningStartCurvature(&result);
             return result;
         }
         else
@@ -246,6 +267,7 @@ namespace rsim_driver
             if (!FindTrajectoryPointAtTime(previousTrajectory, targetTime, &startPoint))
             {
                 LogTrajectoryTooShort("无法找到目标时间点的轨迹点", targetTime);
+                ApplyPlanningStartCurvature(&result);
                 return result;
             }
             result.start_point = ToStartPoint(startPoint,
@@ -254,6 +276,7 @@ namespace rsim_driver
             result.start_curvature = startPoint.curvature;
             result.stitching_trajectory = CollectStitchingTrajectory(previousTrajectory, targetTime);
         }
+        ApplyPlanningStartCurvature(&result);
         return result;
     }
 

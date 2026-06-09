@@ -2,7 +2,7 @@
 
 #include "CollisionCost.hpp"
 #include "obstacle_sl/SlObstacle.hpp"
-#include "planning_start_sl/PlanningStartFrenetState.hpp"
+#include "planning_start/PlanningStartFrenetState.hpp"
 
 #include <vector>
 

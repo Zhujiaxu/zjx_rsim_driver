@@ -24,8 +24,8 @@ struct HasCurvature<T, std::void_t<decltype(std::declval<T&>().curvature)>>
 
 static_assert(!HasCurvature<rsim_driver::VehicleState>::value,
               "VehicleState should not expose curvature");
-static_assert(!HasCurvature<rsim_driver::PlanningStartPoint>::value,
-              "PlanningStartPoint should not expose curvature");
+static_assert(HasCurvature<rsim_driver::PlanningStartPoint>::value,
+              "PlanningStartPoint should carry selected planning-start curvature");
 static_assert(HasCurvature<rsim_driver::PlanningTrajectoryPoint>::value,
               "PlanningTrajectoryPoint keeps historical curvature");
 
@@ -111,6 +111,7 @@ int main()
         return 1;
     if (!Require(Near(start.heading, vehicle.heading, 1e-9) &&
                      Near(start.accel, vehicle.accel, 1e-9) &&
+                     Near(start.curvature, 0.0, 1e-9) &&
                      Near(start.speed, 10.2, 1e-9),
                  "kinematic extrapolation should keep heading/accel and update speed"))
         return 1;
@@ -133,6 +134,7 @@ int main()
                  "trajectory that does not cover current time should fall back"))
         return 1;
     if (!Require(Near(result.start_curvature, 0.0, 1e-9) &&
+                     Near(result.start_point.curvature, 0.0, 1e-9) &&
                      result.stitching_trajectory.empty(),
                  "current-time fallback should not output curvature or stitching"))
         return 1;
@@ -150,6 +152,7 @@ int main()
                  "tracking mismatch should use extrapolated point"))
         return 1;
     if (!Require(Near(result.start_point.matchDistance, 1.0, 1e-9) &&
+                     Near(result.start_point.curvature, 0.0, 1e-9) &&
                      Near(result.start_curvature, 0.0, 1e-9) &&
                      result.stitching_trajectory.empty(),
                  "tracking mismatch should report distance and no curvature or stitching"))
@@ -168,6 +171,7 @@ int main()
                  "trajectory that does not cover target time should fall back"))
         return 1;
     if (!Require(Near(result.start_point.matchDistance, 0.0, 1e-9) &&
+                     Near(result.start_point.curvature, 0.0, 1e-9) &&
                      Near(result.start_curvature, 0.0, 1e-9) &&
                      result.stitching_trajectory.empty(),
                  "target-time fallback should keep match distance and no curvature or stitching"))
@@ -188,6 +192,7 @@ int main()
     if (!Require(Near(result.start_point.x, 1.05, 1e-9) &&
                      Near(result.start_point.y, 2.10, 1e-9) &&
                      Near(result.start_point.heading, 0.105, 1e-9) &&
+                     Near(result.start_point.curvature, 0.0105, 1e-9) &&
                      Near(result.start_point.speed, 18.5, 1e-9) &&
                      Near(result.start_point.accel, 1.05, 1e-9) &&
                      Near(result.start_point.time, 1.105, 1e-9) &&

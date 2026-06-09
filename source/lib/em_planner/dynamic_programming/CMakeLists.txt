@@ -10,7 +10,7 @@ target_link_libraries(dynamic_programming PUBLIC
     collision_cost
     quintic_polynomial
     obstacle_sl
-    planning_start_sl)
+    planning_start)
 
 add_executable(test_dynamic_programming_planner_smoke EXCLUDE_FROM_ALL
     test_dynamic_programming_planner_smoke.cpp)

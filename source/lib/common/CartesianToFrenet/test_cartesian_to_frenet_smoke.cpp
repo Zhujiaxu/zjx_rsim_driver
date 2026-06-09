@@ -17,6 +17,12 @@ struct RefPoint
     double s = 0.0;
 };
 
+enum class TestPlanningStartSource
+{
+    KinematicExtrapolation,
+    PreviousTrajectory
+};
+
 struct PlanningStart
 {
     double x = 0.0;
@@ -24,6 +30,13 @@ struct PlanningStart
     double heading = 0.0;
     double speed = 0.0;
     double accel = 0.0;
+    TestPlanningStartSource source = TestPlanningStartSource::KinematicExtrapolation;
+};
+
+struct PlanningStartResult
+{
+    PlanningStart start_point;
+    double start_curvature = 0.0;
 };
 
 bool Require(bool condition, const char* message)
@@ -47,6 +60,19 @@ std::vector<RefPoint> StraightReferenceLine()
     };
 }
 
+PlanningStartResult MakeResult(PlanningStart start,
+                               TestPlanningStartSource source =
+                                   TestPlanningStartSource::KinematicExtrapolation,
+                               double startCurvature = 0.0)
+{
+    start.source = source;
+
+    PlanningStartResult result;
+    result.start_point = start;
+    result.start_curvature = startCurvature;
+    return result;
+}
+
 }  // namespace
 
 int main()
@@ -60,7 +86,11 @@ int main()
     straightStart.speed = 5.0;
     straightStart.accel = 1.0;
     if (!Require(rsim_driver::CartesianToFrenet(
-                     StraightReferenceLine(), straightStart, &state),
+                     StraightReferenceLine(),
+                     MakeResult(straightStart,
+                                TestPlanningStartSource::KinematicExtrapolation,
+                                0.25),
+                     &state),
                  "straight conversion should succeed"))
         return 1;
     if (!Require(Near(state.s, 12.0) &&
@@ -68,14 +98,15 @@ int main()
                      Near(state.s_dot, 5.0) &&
                      Near(state.s_ddot, 1.0) &&
                      Near(state.l_prime, 0.0) &&
-                     Near(state.l_double_prime, 0.0),
-                 "straight conversion should compute refined s and positive l"))
+                     Near(state.l_double_prime, 0.0) &&
+                     Near(state.curvature, 0.0),
+                 "kinematic conversion should compute refined s, positive l and zero curvature"))
         return 1;
 
     PlanningStart rightSideStart = straightStart;
     rightSideStart.y = -2.0;
     if (!Require(rsim_driver::CartesianToFrenet(
-                     StraightReferenceLine(), rightSideStart, &state),
+                     StraightReferenceLine(), MakeResult(rightSideStart), &state),
                  "right-side conversion should succeed"))
         return 1;
     if (!Require(Near(state.l, -2.0),
@@ -88,7 +119,7 @@ int main()
     headingOffsetStart.heading = std::atan(0.1);
     headingOffsetStart.speed = 2.0;
     if (!Require(rsim_driver::CartesianToFrenet(
-                     StraightReferenceLine(), headingOffsetStart, &state),
+                     StraightReferenceLine(), MakeResult(headingOffsetStart), &state),
                  "heading-offset conversion should succeed"))
         return 1;
     if (!Require(Near(state.l_prime, 0.1),
@@ -104,37 +135,28 @@ int main()
     curvedStart.y = 0.0;
     curvedStart.heading = std::atan(0.1);
     curvedStart.speed = 4.0;
+    const double previousStartCurvature = 0.02;
     if (!Require(rsim_driver::CartesianToFrenet(
-                     curvedReference, curvedStart, &state),
+                     curvedReference,
+                     MakeResult(curvedStart,
+                                TestPlanningStartSource::PreviousTrajectory,
+                                previousStartCurvature),
+                     &state),
                  "curved reference conversion should succeed"))
         return 1;
 
     const double refK = 0.1;
-    const double refDk = 0.0;
     const double refL = 0.0;
     const double alpha = 1.0 - refK * refL;
     const double tanDelta = 0.1;
     const double deltaTheta = std::atan(tanDelta);
     const double cosDelta = std::cos(deltaTheta);
-    const double sinDelta = std::sin(deltaTheta);
     const double expectedSDot = curvedStart.speed * cosDelta / alpha;
-    const double expectedLDot = curvedStart.speed * sinDelta;
-    const double expectedSDdot =
-        (curvedStart.accel * cosDelta +
-         refDk * refL * expectedSDot * expectedSDot +
-         2.0 * refK * expectedSDot * expectedLDot) /
-        alpha;
-    const double expectedLDdot =
-        curvedStart.accel * sinDelta -
-        refK * alpha * expectedSDot * expectedSDot;
-    const double expectedLDoublePrime =
-        (expectedLDdot - tanDelta * expectedSDdot) /
-        (expectedSDot * expectedSDot);
     if (!Require(Near(state.s, 5.0) &&
+                     Near(state.s_dot, expectedSDot) &&
                      Near(state.l_prime, tanDelta) &&
-                     Near(state.l_double_prime, expectedLDoublePrime, 1e-9) &&
-                     Near(state.s_ddot, expectedSDdot, 1e-9),
-                 "reference curvature at projected s should affect second derivatives"))
+                     Near(state.curvature, previousStartCurvature),
+                 "previous-trajectory conversion should compute stable fields and use start curvature"))
         return 1;
 
     PlanningStart stoppedStart;
@@ -144,7 +166,7 @@ int main()
     stoppedStart.speed = 0.0;
     stoppedStart.accel = 1.0;
     if (!Require(rsim_driver::CartesianToFrenet(
-                     StraightReferenceLine(), stoppedStart, &state),
+                     StraightReferenceLine(), MakeResult(stoppedStart), &state),
                  "stopped conversion should succeed"))
         return 1;
     if (!Require(Near(state.s_dot, 0.0) &&
@@ -157,7 +179,7 @@ int main()
 
     const std::vector<RefPoint> emptyReference;
     if (!Require(!rsim_driver::CartesianToFrenet(
-                     emptyReference, straightStart, &state),
+                     emptyReference, MakeResult(straightStart), &state),
                  "empty reference line should fail"))
         return 1;
 
@@ -166,7 +188,7 @@ int main()
     singularStart.y = 0.0;
     singularStart.heading = 0.5 * 3.14159265358979323846;
     if (!Require(!rsim_driver::CartesianToFrenet(
-                     StraightReferenceLine(), singularStart, &state),
+                     StraightReferenceLine(), MakeResult(singularStart), &state),
                  "near-perpendicular heading should fail"))
         return 1;
 

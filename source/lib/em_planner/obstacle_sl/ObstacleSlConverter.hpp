@@ -44,7 +44,8 @@ bool ConvertStaticObstaclesToSl(
         point.heading = obstacle.heading;
 
         CartesianFrenetState frenet;
-        if (!CartesianToFrenet(referencePoints, point, &frenet))
+        if (!cartesian_to_frenet_detail::CartesianPointToFrenet(
+                referencePoints, point, 0.0, &frenet))
             return false;
 
         SlObstacle slObstacle;
