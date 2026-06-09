@@ -100,21 +100,21 @@ namespace rsim_driver
         const double refHeading = matchedPoint.hdg;
         const double refTangentX = std::cos(refHeading);
         const double refTangentY = std::sin(refHeading);
-        const double refNormalX = -std::sin(refHeading);
-        const double refNormalY = std::cos(refHeading);
 
         const double projectionDx = projectionPoint.x - matchedPoint.x;
         const double projectionDy = projectionPoint.y - matchedPoint.y;
         const double refinedS = matchedPoint.s +
                                 projectionDx * refTangentX +
                                 projectionDy * refTangentY;
-        const double dx = cartesianPoint.x - matchedPoint.x;
-        const double dy = cartesianPoint.y - matchedPoint.y;
-        const double l = dx * refNormalX + dy * refNormalY;
         const RefPointT projectionReference =
             cartesian_to_frenet_detail::InterpolateReferenceStateByS(referencePoints,
                                                                      refinedS);
 
+        const double projectionNormalX = -std::sin(projectionReference.hdg);
+        const double projectionNormalY = std::cos(projectionReference.hdg);
+        const double lateralDx = cartesianPoint.x - projectionPoint.x;
+        const double lateralDy = cartesianPoint.y - projectionPoint.y;
+        const double l = lateralDx * projectionNormalX + lateralDy * projectionNormalY;
         const double deltaTheta = cartesian_to_frenet_detail::NormalizeAngle(
             cartesianPoint.heading - projectionReference.hdg);
         const double cosDeltaTheta = std::cos(deltaTheta);
@@ -122,32 +122,29 @@ namespace rsim_driver
             return false;
 
         const double tanDeltaTheta = std::tan(deltaTheta);
-        const double oneMinusKappaRefL = 1.0 - matchedPoint.k * l;
+        const double referenceKappa = projectionReference.k;
+        const double referenceDkappa = projectionReference.dk;
+        const double oneMinusKappaRefL = 1.0 - referenceKappa * l;
         if (std::fabs(oneMinusKappaRefL) <= cartesian_to_frenet_detail::kEpsilon)
             return false;
 
         const double sinDeltaTheta = std::sin(deltaTheta);
         const double lPrime = oneMinusKappaRefL * tanDeltaTheta;
-        /****************************************** */
         const double sDot =
             cartesianPoint.speed * cosDeltaTheta / oneMinusKappaRefL;
-
         const double lDot = cartesianPoint.speed * sinDeltaTheta;
-        /******************************************  */
-
-        // sDdot ;
         const double sDdot =
-            ((cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * matchedPoint.dk * cosDeltaTheta +
-             matchedPoint.k * cartesianPoint.speed * sDot * sinDeltaTheta) *
-                (1 - matchedPoint.k * l) +
+            ((cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * referenceKappa * cosDeltaTheta +
+             referenceKappa * cartesianPoint.speed * sDot * sinDeltaTheta) *
+                (1 - referenceKappa * l) +
             cartesianPoint.speed * cosDeltaTheta *
-                (matchedPoint.k * lDot + matchedPoint.dk * l)) /
+                (referenceKappa * lDot + referenceDkappa * l)) /
             (oneMinusKappaRefL * oneMinusKappaRefL);
         // lDdot ;
         const double lDdot =
             cartesianPoint.accel * sinDeltaTheta +
-            matchedPoint.dk * cosDeltaTheta * cartesianPoint.speed * cartesianPoint.speed -
-            matchedPoint.k * sDot * cartesianPoint.speed;
+            referenceKappa * cosDeltaTheta * cartesianPoint.speed * cartesianPoint.speed -
+            referenceKappa * sDot * cartesianPoint.speed;
 
         const double sDotSquared = sDot * sDot;
         const double lDoublePrime =

@@ -44,6 +44,10 @@ spec:
           type: string
           default: ""
           description: "Optional CSV output path for per-frame obstacle snapshots."
+        - name: planningStartSlCsvPath
+          type: string
+          default: ""
+          description: "Optional CSV output path for per-frame planning-start Frenet state."
         - name: setSpeed
           type: double
           default: "10.0"

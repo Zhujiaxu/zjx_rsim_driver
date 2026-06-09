@@ -34,6 +34,7 @@
  *   pointStep    : 每帧沿当前参考线向前推进的离散点数 (默认 2)
  *   referenceLineCsvPath: 参考线运动调试 CSV 输出路径 (可选)
  *   obstacleCsvPath: 障碍物转化 CSV 输出路径 (可选)
+ *   planningStartSlCsvPath: 规划起点 Frenet 调试 CSV 输出路径 (可选)
  * ============================================================================
  */
 
@@ -43,6 +44,7 @@
 #include "MapHelper.hpp"
 #include "ObstacleToCsv.hpp"
 #include "ReferenceLineGenerator.hpp"
+#include "planning_start_sl/PlanningStartSl.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -70,6 +72,8 @@ namespace
         {
             if (reference_line_csv_fp_ != nullptr)
                 std::fclose(reference_line_csv_fp_);
+            if (planning_start_sl_csv_fp_ != nullptr)
+                std::fclose(planning_start_sl_csv_fp_);
         }
 
         // ========================================================================
@@ -119,10 +123,12 @@ namespace
             route_csv_path_ = getStr("routeCsvPath", "");
             reference_line_csv_path_ = getStr("referenceLineCsvPath", "");
             obstacle_csv_path_ = getStr("obstacleCsvPath", "");
+            planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
             set_speed_ = getDouble("setSpeed", 10.0);
             point_step_ = std::max(1, getInt("pointStep", 2));
             OpenReferenceLineDebugCsv();
+            OpenPlanningStartSlDebugCsv();
             obstacle_csv_writer_.Open(obstacle_csv_path_);
 
             // ---- 加载 OpenDRIVE 地图 (用于 lane/track 查询) ----
@@ -196,7 +202,8 @@ namespace
 
             if (reference_line_ == nullptr || reference_line_->points.empty())
                 return updates;
-            
+
+            ComputePlanningStartFrenet(ctx, *ego);
 
             const std::size_t target_idx =
                 FindForwardReferencePointIndex(*reference_line_, point_step_);
@@ -209,6 +216,68 @@ namespace
         }
 
     private:
+        const char *PlanningStartSourceName(
+            rsim_driver::PlanningStartSource source) const
+        {
+            switch (source)
+            {
+            case rsim_driver::PlanningStartSource::KinematicExtrapolation:
+                return "KinematicExtrapolation";
+            case rsim_driver::PlanningStartSource::PreviousTrajectory:
+                return "PreviousTrajectory";
+            }
+            return "Unknown";
+        }
+
+        rsim_driver::VehicleState BuildVehicleState(const ActorState &ego) const
+        {
+            rsim_driver::VehicleState vehicle;
+            vehicle.x = ego.x;
+            vehicle.y = ego.y;
+            vehicle.heading = ego.h;
+            vehicle.speed = ego.speed;
+            vehicle.accel = ego.acc_x * std::cos(ego.h) + ego.acc_y * std::sin(ego.h);
+            return vehicle;
+        }
+
+        bool ComputePlanningStartFrenet(const TickContext &ctx,
+                                        const ActorState &ego)
+        {
+            if (reference_line_ == nullptr || reference_line_->points.empty())
+                return false;
+
+            const rsim_driver::VehicleState vehicle = BuildVehicleState(ego);
+            rsim_driver::PlanningStartConfig config;
+            config.planningPeriod = (ctx.time_step > 0.0) ? ctx.time_step : 0.01;
+
+            const rsim_driver::PlanningStartResult startResult =
+                rsim_driver::ComputePlanningStartResult(vehicle,
+                                                        ctx.sim_time,
+                                                        previous_trajectory_,
+                                                        config);
+
+            rsim_driver::PlanningStartFrenetState frenet;
+            const bool slSuccess =
+                rsim_driver::ComputePlanningStartSl(startResult.start_point,
+                                                    reference_line_->points,
+                                                    &frenet);
+
+            last_planning_start_ = startResult.start_point;
+            planning_start_frenet_valid_ = slSuccess;
+            if (slSuccess)
+                last_planning_start_frenet_ = frenet;
+            else
+                last_planning_start_frenet_ = rsim_driver::PlanningStartFrenetState{};
+
+            WritePlanningStartSlDebugCsv(ctx,
+                                         ego,
+                                         vehicle,
+                                         startResult,
+                                         frenet,
+                                         slSuccess);
+            return slSuccess;
+        }
+
         bool InstallGlobalPathFromXosc(const std::string &xoscPath)
         {
             rsim_driver::GlobalPathResult result;
@@ -367,6 +436,88 @@ namespace
             std::fflush(reference_line_csv_fp_);
         }
 
+        void OpenPlanningStartSlDebugCsv()
+        {
+            if (planning_start_sl_csv_fp_ != nullptr)
+            {
+                std::fclose(planning_start_sl_csv_fp_);
+                planning_start_sl_csv_fp_ = nullptr;
+            }
+
+            if (planning_start_sl_csv_path_.empty())
+                return;
+
+            planning_start_sl_csv_fp_ =
+                std::fopen(planning_start_sl_csv_path_.c_str(), "w");
+            if (planning_start_sl_csv_fp_ == nullptr)
+            {
+                std::fprintf(stderr,
+                             "[RSimDriver] WARNING: 无法写入规划起点 Frenet 调试 CSV: %s\n",
+                             planning_start_sl_csv_path_.c_str());
+                planning_start_sl_csv_path_.clear();
+                return;
+            }
+
+            std::fprintf(planning_start_sl_csv_fp_,
+                         "frame_id,sim_time,time_step,"
+                         "ego_x,ego_y,ego_h,ego_speed,ego_acc_x,ego_acc_y,ego_accel,"
+                         "start_x,start_y,start_heading,start_speed,start_accel,start_time,"
+                         "start_source,match_distance,start_curvature,sl_success,"
+                         "s,s_dot,s_ddot,l,l_prime,l_double_prime,"
+                         "previous_trajectory_size,stitching_trajectory_size\n");
+            std::fflush(planning_start_sl_csv_fp_);
+        }
+
+        void WritePlanningStartSlDebugCsv(
+            const TickContext &ctx,
+            const ActorState &ego,
+            const rsim_driver::VehicleState &vehicle,
+            const rsim_driver::PlanningStartResult &startResult,
+            const rsim_driver::PlanningStartFrenetState &frenet,
+            bool slSuccess)
+        {
+            if (planning_start_sl_csv_fp_ == nullptr)
+                return;
+
+            const rsim_driver::PlanningStartPoint &start = startResult.start_point;
+            std::fprintf(planning_start_sl_csv_fp_,
+                         "%llu,%.9f,%.9f,"
+                         "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                         "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                         "%s,%.9f,%.9f,%d,"
+                         "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                         "%zu,%zu\n",
+                         static_cast<unsigned long long>(ctx.frame_id),
+                         ctx.sim_time,
+                         ctx.time_step,
+                         ego.x,
+                         ego.y,
+                         ego.h,
+                         ego.speed,
+                         ego.acc_x,
+                         ego.acc_y,
+                         vehicle.accel,
+                         start.x,
+                         start.y,
+                         start.heading,
+                         start.speed,
+                         start.accel,
+                         start.time,
+                         PlanningStartSourceName(start.source),
+                         start.matchDistance,
+                         startResult.start_curvature,
+                         slSuccess ? 1 : 0,
+                         frenet.s,
+                         frenet.s_dot,
+                         frenet.s_ddot,
+                         frenet.l,
+                         frenet.l_prime,
+                         frenet.l_double_prime,
+                         previous_trajectory_.size(),
+                         startResult.stitching_trajectory.size());
+            std::fflush(planning_start_sl_csv_fp_);
+        }
+
         // ========================================================================
         // LatchInitialState() — 首次运行时绑定 ego 到全局路径起点
         // ========================================================================
@@ -487,9 +638,17 @@ namespace
         std::string route_csv_path_;
         std::string reference_line_csv_path_;
         std::string obstacle_csv_path_;
+        std::string planning_start_sl_csv_path_;
         std::FILE *reference_line_csv_fp_ = nullptr;
+        std::FILE *planning_start_sl_csv_fp_ = nullptr;
         rsim_driver::GlobalPathGenerator global_path_generator_;
         rsim_driver::ObstacleCsvWriter obstacle_csv_writer_;
+
+        // ---- 规划起点 ----
+        std::vector<rsim_driver::PlanningTrajectoryPoint> previous_trajectory_;
+        rsim_driver::PlanningStartPoint last_planning_start_;
+        rsim_driver::PlanningStartFrenetState last_planning_start_frenet_;
+        bool planning_start_frenet_valid_ = false;
 
         // ---- ego 初始状态 ----
         double set_speed_ = 10.0;

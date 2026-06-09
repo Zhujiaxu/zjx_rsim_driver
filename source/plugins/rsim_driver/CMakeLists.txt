@@ -8,6 +8,7 @@ target_link_libraries(rsim_driver PRIVATE
     global_path
     map_helper
     obstacle_to_csv
+    planning_start_sl
     reference_line)
 
 set_target_properties(rsim_driver PROPERTIES
