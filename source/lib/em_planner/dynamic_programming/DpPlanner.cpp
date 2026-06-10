@@ -253,7 +253,7 @@ bool Plan(const CartesianFrenetState& start,
     reversedPath.push_back({start.s, start.l});
     std::reverse(reversedPath.begin(), reversedPath.end());
 
-    output.success = true;
+    output.dpsuccess = true;
     output.total_cost = bestCost;
     output.path = std::move(reversedPath);
     *result = std::move(output);

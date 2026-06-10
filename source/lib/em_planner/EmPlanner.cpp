@@ -5,8 +5,8 @@ namespace rsim_driver
 
 EmPlanner::EmPlanner(const EmPlannerConfig& config)
     : EMconfig_(config),
-      perception_(config.perception),
-      planning_start_(config.planning_start)
+      perception_(config.perception_config),
+      planning_start_(config.planning_start_config)
 {
 }
 
@@ -18,16 +18,16 @@ const EmPlannerConfig& EmPlanner::config() const
 void EmPlanner::SetConfig(const EmPlannerConfig& config)
 {
     EMconfig_ = config;
-    perception_.SetConfig(config.perception);
-    planning_start_.SetConfig(config.planning_start);
+    perception_.SetConfig(config.perception_config);
+    planning_start_.SetConfig(config.planning_start_config);
 }
 
-const FrenetObstaclePerception& EmPlanner::perception() const
+const FrenetObstaclePerception& EmPlanner::get_perception() const
 {
     return perception_;
 }
 
-const PlanningStart& EmPlanner::planning_start() const
+const PlanningStart& EmPlanner::get_planning_start() const
 {
     return planning_start_;
 }

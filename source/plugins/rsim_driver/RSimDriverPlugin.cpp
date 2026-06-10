@@ -211,8 +211,8 @@ namespace
                 {
                     WritePlanningStartSlDebugCsv(ctx,
                                                  *ego,
-                                                 plannerResult.planning_start,
-                                                 plannerResult.frenet_start,
+                                                 plannerResult.planning_start_result,
+                                                 plannerResult.frenet_start_result,
                                                  plannerResult.frenet_start_success);
                 }
                 ReportPlanningFailure(ctx, *ego, "EM planner failed");
@@ -222,12 +222,12 @@ namespace
             CachePlannerResult(plannerResult);
             WritePlanningStartSlDebugCsv(ctx,
                                          *ego,
-                                         plannerResult.planning_start,
-                                         plannerResult.frenet_start,
+                                         plannerResult.planning_start_result,
+                                         plannerResult.frenet_start_result,
                                          plannerResult.frenet_start_success);
 
             if (!rsim_driver::FrenetPathToCartesian(reference_line_->points,
-                                                    plannerResult.dp.path,
+                                                    plannerResult.dp_result.path,
                                                     &cartesian_plan_path_))
             {
                 ReportPlanningFailure(ctx, *ego, "Frenet path to Cartesian failed");
@@ -268,12 +268,12 @@ namespace
 
         void CachePlannerResult(const rsim_driver::EmPlannerResult &result)
         {
-            frenet_obstacles_ = result.perception;
+            frenet_obstacles_ = result.perception_result;
             frenet_obstacles_valid_ = result.perception_success;
-            planning_start_result_ = result.planning_start;
-            planning_start_frenet_ = result.frenet_start;
+            planning_start_result_ = result.planning_start_result;
+            planning_start_frenet_ = result.frenet_start_result;
             planning_start_frenet_valid_ = result.frenet_start_success;
-            dp_planner_result_ = result.dp;
+            dp_planning_result_ = result.dp_result;
         }
 
         void ReportPlanningFailure(const TickContext &ctx,
@@ -343,7 +343,7 @@ namespace
             if (path.empty())
                 return 0;
 
-            constexpr std::size_t kTargetForwardPointCount = 4;
+            constexpr std::size_t kTargetForwardPointCount = 1;
             std::size_t forwardCount = 0;
             const double startS = path.front().s;
             for (std::size_t i = 1; i < path.size(); ++i)
@@ -684,7 +684,7 @@ namespace
         rsim_driver::PlanningStartResult planning_start_result_;
         rsim_driver::CartesianFrenetState planning_start_frenet_;
         bool planning_start_frenet_valid_ = false;
-        rsim_driver::DpPlannerResult dp_planner_result_;
+        rsim_driver::DpPlannerResult dp_planning_result_;
         std::vector<rsim_driver::CartesianPathPoint> cartesian_plan_path_;
 
         // ---- ego 初始状态 ----

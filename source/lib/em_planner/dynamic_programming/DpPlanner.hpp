@@ -33,7 +33,7 @@ struct DpPathPoint
 
 struct DpPlannerResult
 {
-    bool success = false;
+    bool dpsuccess = false;
     double total_cost = 0.0;
     std::vector<DpPathPoint> path;
 };
