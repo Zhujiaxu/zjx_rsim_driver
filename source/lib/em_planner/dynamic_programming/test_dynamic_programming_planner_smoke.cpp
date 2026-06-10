@@ -19,9 +19,9 @@ bool Near(double actual, double expected, double tolerance = 1e-9)
     return std::fabs(actual - expected) <= tolerance;
 }
 
-rsim_driver::PlanningStartFrenetState MakeStart()
+rsim_driver::CartesianFrenetState MakeStart()
 {
-    rsim_driver::PlanningStartFrenetState start;
+    rsim_driver::CartesianFrenetState start;
     start.s = 0.0;
     start.l = 0.0;
     start.l_prime = 0.0;
@@ -70,7 +70,7 @@ int main()
             return 1;
     }
 
-    const std::vector<rsim_driver::SlObstacle> centerObstacle = {
+    const std::vector<rsim_driver::StaticFrenetObstacle> centerObstacle = {
         {1, 0.5, 0.0},
     };
     if (!Require(rsim_driver::Plan(MakeStart(), centerObstacle, config, &result) &&

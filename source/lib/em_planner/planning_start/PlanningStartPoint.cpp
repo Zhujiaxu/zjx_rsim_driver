@@ -43,6 +43,12 @@ namespace rsim_driver
             return std::sqrt(dx * dx + dy * dy);
         }
 
+        double EgoPlanarAccel(const rsim_plugin::ActorState &actor)
+        {
+            return std::sqrt(actor.acc_x * actor.acc_x +
+                             actor.acc_y * actor.acc_y);
+        }
+
         PlanningStartPoint ToStartPoint(const PlanningTrajectoryPoint &point,
                                         PlanningStartSource source,
                                         double matchDistance)
@@ -51,7 +57,6 @@ namespace rsim_driver
             start.x = point.x;
             start.y = point.y;
             start.heading = point.heading;
-            start.curvature = point.curvature;
             start.speed = point.speed;
             start.accel = point.accel;
             start.time = point.time;
@@ -131,7 +136,7 @@ namespace rsim_driver
         }
 
         PreviousTrajectoryReuseCheck EvaluatePreviousTrajectoryReuse(
-            const VehicleState &vehicle,
+            const rsim_plugin::ActorState &ego,
             double currentTime,
             const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
             const PlanningStartConfig &config)
@@ -146,8 +151,8 @@ namespace rsim_driver
             }
 
             check.has_current_point = true;
-            check.match_distance = Distance(vehicle.x,
-                                            vehicle.y,
+            check.match_distance = Distance(ego.x,
+                                            ego.y,
                                             currentTrajectoryPoint.x,
                                             currentTrajectoryPoint.y);
             check.reusable =
@@ -179,21 +184,22 @@ namespace rsim_driver
             return stitching;
         }
 
-        PlanningStartPoint ExtrapolateByKinematics(const VehicleState &vehicle,
+        PlanningStartPoint ExtrapolateByKinematics(const rsim_plugin::ActorState &ego,
                                                    double currentTime,
                                                    double planningPeriod)
         {
             const double dt = std::max(0.0, planningPeriod);
+            const double accel = EgoPlanarAccel(ego);
             const double ds =
-                std::max(0.0, vehicle.speed * dt + 0.5 * vehicle.accel * dt * dt);
+                std::max(0.0, ego.speed * dt + 0.5 * accel * dt * dt);
             const double targetTime = currentTime + dt;
 
             PlanningTrajectoryPoint point;
-            point.x = vehicle.x + ds * std::cos(vehicle.heading);
-            point.y = vehicle.y + ds * std::sin(vehicle.heading);
-            point.heading = vehicle.heading;
-            point.speed = std::max(0.0, vehicle.speed + vehicle.accel * dt);
-            point.accel = vehicle.accel;
+            point.x = ego.x + ds * std::cos(ego.h);
+            point.y = ego.y + ds * std::sin(ego.h);
+            point.heading = ego.h;
+            point.speed = std::max(0.0, ego.speed + accel * dt);
+            point.accel = accel;
             point.time = targetTime;
 
             return ToStartPoint(point,
@@ -209,7 +215,7 @@ namespace rsim_driver
                          queryTime);
         }
 
-        void ApplyPlanningStartCurvature(PlanningStartResult *result)
+        /*void ApplyPlanningStartCurvature(PlanningStartResult *result)
         {
             if (result == nullptr)
                 return;
@@ -222,43 +228,54 @@ namespace rsim_driver
             }
 
             result->start_point.curvature = result->start_curvature;
-        }
+        }*/
 
     } // namespace
 
-    PlanningStartResult ComputePlanningStartResult(
-        const VehicleState &vehicle,
-        double currentTime,
-        const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
-        const PlanningStartConfig &config)
+    PlanningStart::PlanningStart(const PlanningStartConfig &config)
+        : planningStartPointConfig_(config)
     {
-        const double planningPeriod = std::max(0.0, config.planningPeriod);
+    }
+
+    const PlanningStartConfig& PlanningStart::config() const
+    {
+        return planningStartPointConfig_;
+    }
+
+    void PlanningStart::SetConfig(const PlanningStartConfig &config)
+    {
+        planningStartPointConfig_ = config;
+    }
+
+    PlanningStartResult PlanningStart::Compute(
+        const rsim_plugin::ActorState &ego,
+        double currentTime,
+        const std::vector<PlanningTrajectoryPoint> &previousTrajectory) const
+    {
+        const double planningPeriod = std::max(0.0, planningStartPointConfig_.planningPeriod);
         const double targetTime = currentTime + planningPeriod;
 
         PlanningStartResult result;
         result.start_point =
-            ExtrapolateByKinematics(vehicle, currentTime, planningPeriod);
+            ExtrapolateByKinematics(ego, currentTime, planningPeriod);
         result.start_curvature = 0.0;
         result.stitching_trajectory.clear();
         if (previousTrajectory.empty())
         {
-            ApplyPlanningStartCurvature(&result);
             return result;
         }
 
         PreviousTrajectoryReuseCheck check = EvaluatePreviousTrajectoryReuse(
-            vehicle, currentTime, previousTrajectory, config);
+            ego, currentTime, previousTrajectory, planningStartPointConfig_);
         if (!check.has_current_point)
         {
             LogTrajectoryTooShort("无法找到当前时间点的轨迹点", currentTime);
-            ApplyPlanningStartCurvature(&result);
             return result;
         }
         result.start_point.matchDistance = check.match_distance;
         if (!check.reusable)
         {
             LogTrajectoryTooShort("跟踪延迟——距离过大", currentTime);
-            ApplyPlanningStartCurvature(&result);
             return result;
         }
         else
@@ -267,7 +284,6 @@ namespace rsim_driver
             if (!FindTrajectoryPointAtTime(previousTrajectory, targetTime, &startPoint))
             {
                 LogTrajectoryTooShort("无法找到目标时间点的轨迹点", targetTime);
-                ApplyPlanningStartCurvature(&result);
                 return result;
             }
             result.start_point = ToStartPoint(startPoint,
@@ -276,7 +292,6 @@ namespace rsim_driver
             result.start_curvature = startPoint.curvature;
             result.stitching_trajectory = CollectStitchingTrajectory(previousTrajectory, targetTime);
         }
-        ApplyPlanningStartCurvature(&result);
         return result;
     }
 

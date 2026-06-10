@@ -15,7 +15,8 @@
  *            │
  *            ▼
  *   RSimDriverPlugin::Step() (每帧)
- *     └── 预留规划扩展点 (当前为空壳)
+
+ *     └── EmPlanner 输出 DP s/l 路径 → FrenetToCartesian → 控制目标点
  *
  * ---- 全局路径数据结构 ----
  *
@@ -31,7 +32,6 @@
  *   routeXoscPath: runtime OpenSCENARIO 路径, 用于读取 ego FollowTrajectory
  *   entityName   : 要读取 FollowTrajectory 的实体名 (默认 "ego")
  *   setSpeed     : 期望巡航速度 m/s (默认 10.0, 预留)
- *   pointStep    : 每帧沿当前参考线向前推进的离散点数 (默认 2)
  *   referenceLineCsvPath: 参考线运动调试 CSV 输出路径 (可选)
  *   obstacleCsvPath: 障碍物转化 CSV 输出路径 (可选)
  *   planningStartSlCsvPath: 规划起点 Frenet 调试 CSV 输出路径 (可选)
@@ -40,11 +40,12 @@
 
 #include "rsim/worldsim_plugin/PluginInterface.hpp"
 
+#include "EmPlanner.hpp"
+#include "FrenetToCartesian.hpp"
 #include "GlobalPathGenerator.hpp"
 #include "MapHelper.hpp"
 #include "ObstacleToCsv.hpp"
 #include "ReferenceLineGenerator.hpp"
-#include "planning_start/PlanningStartPoint.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -103,21 +104,6 @@ namespace
                     return def;
                 }
             };
-            auto getInt = [&](const char *key, int def) -> int
-            {
-                auto it = properties.find(key);
-                if (it == properties.end())
-                    return def;
-                try
-                {
-                    return std::stoi(it->second);
-                }
-                catch (...)
-                {
-                    return def;
-                }
-            };
-
             std::string xodr_path = getStr("xodrPath", "");
             route_xosc_path_ = getStr("routeXoscPath", "");
             route_csv_path_ = getStr("routeCsvPath", "");
@@ -126,7 +112,6 @@ namespace
             planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
             set_speed_ = getDouble("setSpeed", 10.0);
-            point_step_ = std::max(1, getInt("pointStep", 2));
             OpenReferenceLineDebugCsv();
             OpenPlanningStartSlDebugCsv();
             obstacle_csv_writer_.Open(obstacle_csv_path_);
@@ -158,7 +143,6 @@ namespace
                          "[RSimDriver]   routeXoscPath     = %s\n"
                          "[RSimDriver]   entityName        = %s\n"
                          "[RSimDriver]   setSpeed          = %.2f m/s\n"
-                         "[RSimDriver]   pointStep         = %d\n"
                          "[RSimDriver]   refLineCsvPath    = %s\n"
                          "[RSimDriver]   mapLoaded          = %s\n"
                          "[RSimDriver]   routeInstalled     = %s\n"
@@ -169,7 +153,6 @@ namespace
                          route_xosc_path_.empty() ? "(none)" : route_xosc_path_.c_str(),
                          entity_name_.c_str(),
                          set_speed_,
-                         point_step_,
                          reference_line_csv_path_.empty() ? "(none)" : reference_line_csv_path_.c_str(),
                          map_loaded_ ? "ok" : "FAILED",
                          xosc_route_installed ? "yes" : "no",
@@ -179,17 +162,24 @@ namespace
         }
 
         // ========================================================================
-        // Step() — 每帧调用 (当前为空壳, 预留规划扩展点)
+        // Step() — 每帧调用: EMPlanner → FrenetToCartesian → ActorUpdate
         // ========================================================================
         std::vector<ActorUpdate> Step(const TickContext &ctx) override
         {
             std::vector<ActorUpdate> updates;
-            if (!map_loaded_ || controlled_ids_.empty())
+            if (controlled_ids_.empty())
                 return updates;
 
             const ActorState *ego = FindControlledActor(ctx);
             if (ego == nullptr)
                 return updates;
+
+            if (!map_loaded_)
+            {
+                ReportPlanningFailure(ctx, *ego, "map is not loaded");
+                updates.push_back(BuildStopActorUpdate(*ego));
+                return updates;
+            }
 
             obstacle_csv_writer_.WriteFrame(ctx.frame_id,
                                             ctx.sim_time,
@@ -201,15 +191,62 @@ namespace
             UpdateReferenceLine(*ego);
 
             if (reference_line_ == nullptr || reference_line_->points.empty())
+            {
+                ReportPlanningFailure(ctx, *ego, "reference line is empty");
+                updates.push_back(BuildStopActorUpdate(*ego));
                 return updates;
+            }
 
-            ComputePlanningStartFrenet(ctx, *ego);
+            rsim_driver::EmPlannerResult plannerResult;
+            if (!em_planner_.EMPlanDetailed(ctx.actors,
+                                            ego->id,
+                                            *ego,
+                                            ctx.sim_time,
+                                            previous_trajectory_,
+                                            reference_line_->points,
+                                            &plannerResult))
+            {
+                CachePlannerResult(plannerResult);
+                if (plannerResult.planning_start_success)
+                {
+                    WritePlanningStartSlDebugCsv(ctx,
+                                                 *ego,
+                                                 plannerResult.planning_start,
+                                                 plannerResult.frenet_start,
+                                                 plannerResult.frenet_start_success);
+                }
+                ReportPlanningFailure(ctx, *ego, "EM planner failed");
+                updates.push_back(BuildStopActorUpdate(*ego));
+                return updates;
+            }
+            CachePlannerResult(plannerResult);
+            WritePlanningStartSlDebugCsv(ctx,
+                                         *ego,
+                                         plannerResult.planning_start,
+                                         plannerResult.frenet_start,
+                                         plannerResult.frenet_start_success);
+
+            if (!rsim_driver::FrenetPathToCartesian(reference_line_->points,
+                                                    plannerResult.dp.path,
+                                                    &cartesian_plan_path_))
+            {
+                ReportPlanningFailure(ctx, *ego, "Frenet path to Cartesian failed");
+                updates.push_back(BuildStopActorUpdate(*ego));
+                return updates;
+            }
 
             const std::size_t target_idx =
-                FindForwardReferencePointIndex(*reference_line_, point_step_);
-            const rsim_driver::ReferencePoint &target = reference_line_->points[target_idx];
+                SelectForwardPlanTargetIndex(cartesian_plan_path_);
+            if (target_idx >= cartesian_plan_path_.size())
+            {
+                ReportPlanningFailure(ctx, *ego, "Cartesian plan path has no target point");
+                updates.push_back(BuildStopActorUpdate(*ego));
+                return updates;
+            }
+            const rsim_driver::CartesianPathPoint &target =
+                cartesian_plan_path_[target_idx];
 
-            updates.push_back(BuildActorUpdateFromReferencePoint(*ego, target, ctx.time_step));
+            updates.push_back(BuildActorUpdateFromCartesianPoint(*ego, target, ctx.time_step));
             WriteReferenceLineDebugCsv(ctx, *ego, target_idx, target);
 
             return updates;
@@ -229,52 +266,30 @@ namespace
             return "Unknown";
         }
 
-        rsim_driver::VehicleState BuildVehicleState(const ActorState &ego) const
+        void CachePlannerResult(const rsim_driver::EmPlannerResult &result)
         {
-            rsim_driver::VehicleState vehicle;
-            vehicle.x = ego.x;
-            vehicle.y = ego.y;
-            vehicle.heading = ego.h;
-            vehicle.speed = ego.speed;
-            vehicle.accel = ego.acc_x * std::cos(ego.h) + ego.acc_y * std::sin(ego.h);
-            return vehicle;
+            frenet_obstacles_ = result.perception;
+            frenet_obstacles_valid_ = result.perception_success;
+            planning_start_result_ = result.planning_start;
+            planning_start_frenet_ = result.frenet_start;
+            planning_start_frenet_valid_ = result.frenet_start_success;
+            dp_planner_result_ = result.dp;
         }
 
-        bool ComputePlanningStartFrenet(const TickContext &ctx,
-                                        const ActorState &ego)
+        void ReportPlanningFailure(const TickContext &ctx,
+                                   const ActorState &ego,
+                                   const char *reason) const
         {
-            if (reference_line_ == nullptr || reference_line_->points.empty())
-                return false;
-
-            const rsim_driver::VehicleState vehicle = BuildVehicleState(ego);
-            rsim_driver::PlanningStartConfig config;
-            config.planningPeriod = (ctx.time_step > 0.0) ? ctx.time_step : 0.01;
-
-            const rsim_driver::PlanningStartResult startResult =
-                rsim_driver::ComputePlanningStartResult(vehicle,
-                                                        ctx.sim_time,
-                                                        previous_trajectory_,
-                                                        config);
-
-            rsim_driver::PlanningStartFrenetState frenet;
-            const bool slSuccess =
-                startResult.ToFrenet(reference_line_->points,
-                                     &frenet);
-
-            last_planning_start_ = startResult.start_point;
-            planning_start_frenet_valid_ = slSuccess;
-            if (slSuccess)
-                last_planning_start_frenet_ = frenet;
-            else
-                last_planning_start_frenet_ = rsim_driver::PlanningStartFrenetState{};
-
-            WritePlanningStartSlDebugCsv(ctx,
-                                         ego,
-                                         vehicle,
-                                         startResult,
-                                         frenet,
-                                         slSuccess);
-            return slSuccess;
+            std::fprintf(stderr,
+                         "[RSimDriver] ERROR: %s, stop ego id=%d frame=%llu time=%.6f "
+                         "ego=(%.3f, %.3f, h=%.3f)\n",
+                         reason,
+                         ego.id,
+                         static_cast<unsigned long long>(ctx.frame_id),
+                         ctx.sim_time,
+                         ego.x,
+                         ego.y,
+                         ego.h);
         }
 
         bool InstallGlobalPathFromXosc(const std::string &xoscPath)
@@ -321,34 +336,51 @@ namespace
             return nullptr;
         }
 
-        // 在 signed s 参考线上, 从 s=0 后第一个正向点开始数 pointStep 个点作为目标点
-        std::size_t FindForwardReferencePointIndex(const rsim_driver::ReferenceLine &line,
-                                                   int pointStep) const
+        // DP path[0] is the planning start. Pick the 4th point after it.
+        std::size_t SelectForwardPlanTargetIndex(
+            const std::vector<rsim_driver::CartesianPathPoint> &path) const
         {
-            if (line.points.empty())
+            if (path.empty())
                 return 0;
 
-            std::size_t firstForward = line.points.size();
-            for (std::size_t i = 0; i < line.points.size(); ++i)
+            constexpr std::size_t kTargetForwardPointCount = 4;
+            std::size_t forwardCount = 0;
+            const double startS = path.front().s;
+            for (std::size_t i = 1; i < path.size(); ++i)
             {
-                if (line.points[i].s > 1e-6)
+                if (path[i].s <= startS + 1e-6)
+                    continue;
+                ++forwardCount;
+                if (forwardCount == kTargetForwardPointCount)
                 {
-                    firstForward = i;
-                    break;
+                    return i;
                 }
             }
 
-            if (firstForward >= line.points.size())
-                return line.points.size() - 1;
-
-            const std::size_t step = static_cast<std::size_t>(std::max(1, pointStep));
-            return std::min(firstForward + step - 1, line.points.size() - 1);
+            return path.size() - 1;
         }
 
-        // 将参考线上的目标点转换成 SceneRunner controller 更新
-        ActorUpdate BuildActorUpdateFromReferencePoint(
+        ActorUpdate BuildStopActorUpdate(const ActorState &ego) const
+        {
+            ActorUpdate update;
+            update.actor_id = ego.id;
+            update.x = ego.x;
+            update.y = ego.y;
+            update.z = ego.z;
+            update.h = ego.h;
+            update.p = ego.p;
+            update.r = ego.r;
+            update.speed = 0.0;
+            update.wheel_angle = 0.0;
+            update.position_valid = 1;
+            update.speed_valid = 1;
+            return update;
+        }
+
+        // 将规划出的 Cartesian 目标点转换成 SceneRunner controller 更新
+        ActorUpdate BuildActorUpdateFromCartesianPoint(
             const ActorState &ego,
-            const rsim_driver::ReferencePoint &target,
+            const rsim_driver::CartesianPathPoint &target,
             double dt) const
         {
             ActorUpdate update;
@@ -356,7 +388,7 @@ namespace
             update.x = target.x;
             update.y = target.y;
             update.z = ego.z;
-            update.h = target.hdg;
+            update.h = target.heading;
             update.p = ego.p;
             update.r = ego.r;
 
@@ -401,7 +433,7 @@ namespace
         void WriteReferenceLineDebugCsv(const TickContext &ctx,
                                         const ActorState &ego,
                                         std::size_t targetIdx,
-                                        const rsim_driver::ReferencePoint &target)
+                                        const rsim_driver::CartesianPathPoint &target)
         {
             if (reference_line_csv_fp_ == nullptr || reference_line_ == nullptr)
                 return;
@@ -461,8 +493,8 @@ namespace
                          "frame_id,sim_time,time_step,"
                          "ego_x,ego_y,ego_h,ego_speed,ego_acc_x,ego_acc_y,ego_accel,"
                          "start_x,start_y,start_heading,start_speed,start_accel,start_time,"
-                         "start_source,match_distance,start_curvature,start_point_curvature,"
-                         "sl_success,s,s_dot,s_ddot,l,l_prime,l_double_prime,frenet_curvature,"
+                         "start_source,match_distance,start_curvature,"
+                         "sl_success,s,s_dot,s_ddot,l,l_prime,l_double_prime,"
                          "previous_trajectory_size,stitching_trajectory_size\n");
             std::fflush(planning_start_sl_csv_fp_);
         }
@@ -470,21 +502,22 @@ namespace
         void WritePlanningStartSlDebugCsv(
             const TickContext &ctx,
             const ActorState &ego,
-            const rsim_driver::VehicleState &vehicle,
             const rsim_driver::PlanningStartResult &startResult,
-            const rsim_driver::PlanningStartFrenetState &frenet,
+            const rsim_driver::CartesianFrenetState &frenet,
             bool slSuccess)
         {
             if (planning_start_sl_csv_fp_ == nullptr)
                 return;
 
             const rsim_driver::PlanningStartPoint &start = startResult.start_point;
+            const double egoAccel =
+                std::sqrt(ego.acc_x * ego.acc_x + ego.acc_y * ego.acc_y);
             std::fprintf(planning_start_sl_csv_fp_,
                          "%llu,%.9f,%.9f,"
                          "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
                          "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
-                         "%s,%.9f,%.9f,%.9f,"
-                         "%d,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                         "%s,%.9f,%.9f,"
+                         "%d,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
                          "%zu,%zu\n",
                          static_cast<unsigned long long>(ctx.frame_id),
                          ctx.sim_time,
@@ -495,7 +528,7 @@ namespace
                          ego.speed,
                          ego.acc_x,
                          ego.acc_y,
-                         vehicle.accel,
+                         egoAccel,
                          start.x,
                          start.y,
                          start.heading,
@@ -505,7 +538,6 @@ namespace
                          PlanningStartSourceName(start.source),
                          start.matchDistance,
                          startResult.start_curvature,
-                         start.curvature,
                          slSuccess ? 1 : 0,
                          frenet.s,
                          frenet.s_dot,
@@ -513,7 +545,6 @@ namespace
                          frenet.l,
                          frenet.l_prime,
                          frenet.l_double_prime,
-                         frenet.curvature,
                          previous_trajectory_.size(),
                          startResult.stitching_trajectory.size());
             std::fflush(planning_start_sl_csv_fp_);
@@ -645,15 +676,19 @@ namespace
         rsim_driver::GlobalPathGenerator global_path_generator_;
         rsim_driver::ObstacleCsvWriter obstacle_csv_writer_;
 
-        // ---- 规划起点 ----
+        // ---- EM planner pipeline ----
+        rsim_driver::EmPlanner em_planner_;
+        rsim_driver::FrenetObstaclePerceptionResult frenet_obstacles_;
+        bool frenet_obstacles_valid_ = false;
         std::vector<rsim_driver::PlanningTrajectoryPoint> previous_trajectory_;
-        rsim_driver::PlanningStartPoint last_planning_start_;
-        rsim_driver::PlanningStartFrenetState last_planning_start_frenet_;
+        rsim_driver::PlanningStartResult planning_start_result_;
+        rsim_driver::CartesianFrenetState planning_start_frenet_;
         bool planning_start_frenet_valid_ = false;
+        rsim_driver::DpPlannerResult dp_planner_result_;
+        std::vector<rsim_driver::CartesianPathPoint> cartesian_plan_path_;
 
         // ---- ego 初始状态 ----
         double set_speed_ = 10.0;
-        int point_step_ = 2;
         double current_speed_ = 0.0;
         double current_s_ = 0.0;
         int32_t current_road_ = 0;

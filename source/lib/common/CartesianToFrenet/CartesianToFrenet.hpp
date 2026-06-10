@@ -18,7 +18,6 @@ namespace rsim_driver
         double ldot= 0.0;   
         double l_prime = 0.0;
         double l_double_prime = 0.0;
-        double curvature = 0.0;
     };
 
     namespace cartesian_to_frenet_detail
@@ -43,8 +42,7 @@ namespace rsim_driver
                    std::isfinite(state.s_ddot) &&
                    std::isfinite(state.l) &&
                    std::isfinite(state.l_prime) &&
-                   std::isfinite(state.l_double_prime) &&
-                   std::isfinite(state.curvature);
+                   std::isfinite(state.l_double_prime);
         }
 
         template <typename RefPointT>
@@ -146,8 +144,9 @@ namespace rsim_driver
             const double sDot =
                 cartesianPoint.speed * cosDeltaTheta / oneMinusKappaRefL;
             const double lDot = cartesianPoint.speed * sinDeltaTheta;
+            // sDdot ;
             const double sDdot =
-                ((cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * referenceKappa * cosDeltaTheta +
+                ((cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * curvature * sinDeltaTheta +
                  referenceKappa * cartesianPoint.speed * sDot * sinDeltaTheta) *
                     (1 - referenceKappa * l) +
                 cartesianPoint.speed * cosDeltaTheta *
@@ -156,7 +155,7 @@ namespace rsim_driver
             // lDdot ;
             const double lDdot =
                 cartesianPoint.accel * sinDeltaTheta +
-                referenceKappa * cosDeltaTheta * cartesianPoint.speed * cartesianPoint.speed -
+                curvature * cosDeltaTheta * cartesianPoint.speed * cartesianPoint.speed -
                 referenceKappa * sDot * cartesianPoint.speed;
 
             const double sDotSquared = sDot * sDot;
@@ -173,7 +172,6 @@ namespace rsim_driver
             state.ldot = lDot;
             state.l_prime = lPrime;
             state.l_double_prime = lDoublePrime;
-            state.curvature = curvature;
 
             if (!IsFinite(state))
                 return false;

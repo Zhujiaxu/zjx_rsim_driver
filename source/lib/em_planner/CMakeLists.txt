@@ -10,14 +10,17 @@ endif()
 
 add_subdirectory(planning_start)
 add_subdirectory(perception)
-add_subdirectory(obstacle_sl)
 add_subdirectory(dynamic_programming)
 
 add_library(em_planner STATIC
     EmPlanner.cpp)
 
+target_include_directories(em_planner PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR})
+
+target_compile_features(em_planner PUBLIC cxx_std_17)
+
 target_link_libraries(em_planner PUBLIC
     planning_start
     em_planner_perception
-    obstacle_sl
     dynamic_programming)

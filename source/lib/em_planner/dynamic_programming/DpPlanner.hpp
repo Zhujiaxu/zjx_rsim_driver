@@ -1,8 +1,8 @@
 #pragma once
 
+#include "CartesianToFrenet.hpp"
 #include "CollisionCost.hpp"
-#include "obstacle_sl/SlObstacle.hpp"
-#include "planning_start/PlanningStartFrenetState.hpp"
+#include "perception/FrenetObstaclePerception.hpp"
 
 #include <vector>
 
@@ -38,8 +38,8 @@ struct DpPlannerResult
     std::vector<DpPathPoint> path;
 };
 
-bool Plan(const PlanningStartFrenetState& start,
-          const std::vector<SlObstacle>& obstacles,
+bool Plan(const CartesianFrenetState& start,
+          const std::vector<StaticFrenetObstacle>& obstacles,
           const DpPlannerConfig& config,
           DpPlannerResult* result);
 

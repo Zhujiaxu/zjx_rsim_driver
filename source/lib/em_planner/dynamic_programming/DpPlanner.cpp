@@ -76,11 +76,12 @@ std::vector<double> BuildLSamples(const DpPlannerConfig& config)
     return samples;
 }
 
-std::vector<SlPoint> ToSlPoints(const std::vector<SlObstacle>& obstacles)
+std::vector<SlPoint> ToSlPoints(
+    const std::vector<StaticFrenetObstacle>& obstacles)
 {
     std::vector<SlPoint> points;
     points.reserve(obstacles.size());
-    for (const SlObstacle& obstacle : obstacles)
+    for (const StaticFrenetObstacle& obstacle : obstacles)
         points.push_back({obstacle.s, obstacle.l});
     return points;
 }
@@ -136,8 +137,8 @@ bool ValidConfig(const DpPlannerConfig& config)
 
 }  // namespace
 
-bool Plan(const PlanningStartFrenetState& start,
-          const std::vector<SlObstacle>& obstacles,
+bool Plan(const CartesianFrenetState& start,
+          const std::vector<StaticFrenetObstacle>& obstacles,
           const DpPlannerConfig& config,
           DpPlannerResult* result)
 {

@@ -82,6 +82,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import shutil
 import signal
@@ -103,46 +104,34 @@ REPO_ROOT = HERE.parents[1]
 BUILD_DIR = os.environ.get("RSIM_DRIVER_BUILD_DIR", "build")
 SO_PATH = REPO_ROOT / BUILD_DIR / "source" / "plugins" / "rsim_driver" / "librsim_driver.so"
 MANIFEST_PATH = REPO_ROOT / "source" / "plugins" / "rsim_driver" / "plugin.yaml"
-XODR_PATH = HERE / "resource" / "xodr" / "map.xodr"
-SOURCE_XOSC = HERE / "resource" / "xosc" / "scene.xosc"
-CATALOG_ROOT = HERE / "resource" / "xosc" / "CataLogs"
-OUTPUT_DIR = HERE / "output"
-CSV_DIR=OUTPUT_DIR / "csv"
-RUNTIME_XOSC = OUTPUT_DIR / CSV_DIR/"scene.runtime.xosc"
-GLOBAL_PATH_CSV = OUTPUT_DIR / CSV_DIR/"global_path_world_points.csv"
-REFERENCE_LINE_CSV = OUTPUT_DIR / CSV_DIR/"reference_line_motion.csv"
-OBSTACLE_CSV = OUTPUT_DIR / CSV_DIR/"obstacles.csv"
-PLANNING_START_SL_CSV = OUTPUT_DIR / CSV_DIR/"planning_start_sl.csv"
-CSV_PATH = OUTPUT_DIR / CSV_DIR/"scene.csv"
-LOG_DIR = OUTPUT_DIR / "logs"
-PACKAGE_DIR = OUTPUT_DIR / "package"
+DEFAULT_SCENARIO = "resource"
+SCENARIO_ROOTS = {
+    "resource": HERE / "resource",
+    "staticobstacles": HERE / "staticobstacles",
+}
+
+XODR_PATH = Path()
+SOURCE_XOSC = Path()
+CATALOG_ROOT = Path()
+OUTPUT_DIR = Path()
+CSV_DIR = Path()
+RUNTIME_XOSC = Path()
+GLOBAL_PATH_CSV = Path()
+REFERENCE_LINE_CSV = Path()
+OBSTACLE_CSV = Path()
+PLANNING_START_SL_CSV = Path()
+EGO_TRAJECTORY_CSV = Path()
+EGO_TRAJECTORY_GIF = Path()
+CSV_PATH = Path()
+LOG_DIR = Path()
+PACKAGE_DIR = Path()
+PLUGIN_PROPS = {}
 
 
 PORT = 9080
 STREAMING_PORT = 9081
 STEP = 0.05
-SIM_DURATION = 20.0  # 仿真 — 验证插件沿参考线推动车辆并记录参考线
-
-# ---- RSimDriver 插件配置 -------------------------------------------------
-PLUGIN_PROPS = {
-    # 插件加载元信息 (必须)
-    "esminiController":  "PluginController",
-    "pluginCapability":  "RSimDriver",
-    "pluginPath":        str(SO_PATH),
-    "pluginManifest":    str(MANIFEST_PATH),
-
-    # 基本参数
-    "xodrPath":          str(XODR_PATH),
-    "routeXoscPath":     str(RUNTIME_XOSC),
-    "routeCsvPath":      str(GLOBAL_PATH_CSV),     # 插件 Init 时写入全局路径 CSV
-    "referenceLineCsvPath": str(REFERENCE_LINE_CSV),
-    "obstacleCsvPath":   str(OBSTACLE_CSV),
-    "planningStartSlCsvPath": str(PLANNING_START_SL_CSV),
-    "setSpeed":          "8",
-    "pointStep":         "2",
-    "entityName":        "ego",
-}
-# -------------------------------------------------------------------------
+SIM_DURATION = 20.0  # 仿真 — 验证插件沿 EMPlanner 输出路径推动车辆并记录参考线
 
 
 def fail(msg):
@@ -150,11 +139,78 @@ def fail(msg):
     sys.exit(1)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run the 06_emplanner_rsim_driver demo with a selected scenario."
+    )
+    parser.add_argument(
+        "--scenario",
+        choices=sorted(SCENARIO_ROOTS),
+        default=DEFAULT_SCENARIO,
+        help="Scenario resource set to run. Defaults to resource.",
+    )
+    return parser.parse_args()
+
+
+def configure_scenario(scenario):
+    global XODR_PATH, SOURCE_XOSC, CATALOG_ROOT
+    global OUTPUT_DIR, CSV_DIR, RUNTIME_XOSC, GLOBAL_PATH_CSV, REFERENCE_LINE_CSV
+    global OBSTACLE_CSV, PLANNING_START_SL_CSV, EGO_TRAJECTORY_CSV, EGO_TRAJECTORY_GIF
+    global CSV_PATH, LOG_DIR, PACKAGE_DIR, PLUGIN_PROPS
+
+    scenario_root = SCENARIO_ROOTS[scenario]
+    XODR_PATH = scenario_root / "xodr" / "map.xodr"
+    SOURCE_XOSC = scenario_root / "xosc" / "scene.xosc"
+    CATALOG_ROOT = scenario_root / "xosc" / "CataLogs"
+
+    OUTPUT_DIR = HERE / "output"
+    if scenario != DEFAULT_SCENARIO:
+        OUTPUT_DIR = OUTPUT_DIR / scenario
+    CSV_DIR = OUTPUT_DIR / "csv"
+    RUNTIME_XOSC = CSV_DIR / "scene.runtime.xosc"
+    GLOBAL_PATH_CSV = CSV_DIR / "global_path_world_points.csv"
+    REFERENCE_LINE_CSV = CSV_DIR / "reference_line_motion.csv"
+    OBSTACLE_CSV = CSV_DIR / "obstacles.csv"
+    PLANNING_START_SL_CSV = CSV_DIR / "planning_start_sl.csv"
+    EGO_TRAJECTORY_CSV = CSV_DIR / "ego_trajectory.csv"
+    EGO_TRAJECTORY_GIF = CSV_DIR / "ego_trajectory.gif"
+    CSV_PATH = CSV_DIR / "scene.csv"
+    LOG_DIR = OUTPUT_DIR / "logs"
+    PACKAGE_DIR = OUTPUT_DIR / "package"
+
+    # ---- RSimDriver 插件配置 ---------------------------------------------
+    PLUGIN_PROPS = {
+        # 插件加载元信息 (必须)
+        "esminiController":  "PluginController",
+        "pluginCapability":  "RSimDriver",
+        "pluginPath":        str(SO_PATH),
+        "pluginManifest":    str(MANIFEST_PATH),
+
+        # 基本参数
+        "xodrPath":          str(XODR_PATH),
+        "routeXoscPath":     str(RUNTIME_XOSC),
+        "routeCsvPath":      str(GLOBAL_PATH_CSV),     # 插件 Init 时写入全局路径 CSV
+        "referenceLineCsvPath": str(REFERENCE_LINE_CSV),
+        "obstacleCsvPath":   str(OBSTACLE_CSV),
+        "planningStartSlCsvPath": str(PLANNING_START_SL_CSV),
+        "setSpeed":          "8",
+        "entityName":        "ego",
+    }
+
+    if not SOURCE_XOSC.is_file():
+        fail(f"scene.xosc not found: {SOURCE_XOSC}")
+    if not XODR_PATH.is_file():
+        fail(f"map.xodr not found: {XODR_PATH}")
+    if not CATALOG_ROOT.is_dir():
+        fail(f"catalog root not found: {CATALOG_ROOT}")
+
+
 def resolve_bin(name):
     cs = []
     rp = os.environ.get("RSIM_PATH")
     if rp:
         cs.append(Path(rp) / name)
+    cs.append(Path.home() / "work" / "rsim-package" / "rsim" / "linux" / "bin" / name)
     cs.append(Path.home() / "proj" / "qc_intern" / "work" / "rsim-package" / "rsim" / "linux" / "bin" / name)
     for c in cs:
         if c.is_file() and os.access(c, os.X_OK):
@@ -329,9 +385,34 @@ def wait_for_debug_attach():
     input("[debug] Attach VSCode/gdb to plugin_loader_cpp, then press Enter to continue...")
 
 
+def make_trajectory_gif():
+    script = HERE / "make_trajectory_gif.py"
+    cmd = [
+        sys.executable,
+        str(script),
+        "--global-csv", str(GLOBAL_PATH_CSV),
+        "--motion-csv", str(REFERENCE_LINE_CSV),
+        "--obstacle-csv", str(OBSTACLE_CSV),
+        "--trajectory-csv", str(EGO_TRAJECTORY_CSV),
+        "--output", str(EGO_TRAJECTORY_GIF),
+    ]
+    print("[post]", " ".join(cmd))
+    try:
+        subprocess.run(cmd, cwd=HERE, check=True)
+    except Exception as exc:
+        print(f"[post] WARNING: trajectory GIF generation failed: {exc}", file=sys.stderr)
+        return
+    print(f"[post] ego trajectory CSV: {EGO_TRAJECTORY_CSV}")
+    print(f"[post] ego trajectory GIF: {EGO_TRAJECTORY_GIF}")
+
+
 def main():
+    args = parse_args()
+    configure_scenario(args.scenario)
+
     sr_bin = resolve_bin("scene_runner")
     ld_bin = resolve_bin("plugin_loader_cpp")
+    print(f"[scenario] {args.scenario}: {SOURCE_XOSC}")
     prepare()
 
     if CSV_PATH.exists():
@@ -344,6 +425,10 @@ def main():
         OBSTACLE_CSV.unlink()
     if PLANNING_START_SL_CSV.exists():
         PLANNING_START_SL_CSV.unlink()
+    if EGO_TRAJECTORY_CSV.exists():
+        EGO_TRAJECTORY_CSV.unlink()
+    if EGO_TRAJECTORY_GIF.exists():
+        EGO_TRAJECTORY_GIF.unlink()
 
     sr = spawn(
         [str(sr_bin), "--scene_runner_port", str(PORT),
@@ -418,6 +503,7 @@ def main():
         except Exception:
             pass
 
+        make_trajectory_gif()
         print("PASS")
     finally:
         kill_pg(ld)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CartesianToFrenet.hpp"
-#include "planning_start/PlanningStartFrenetState.hpp"
+#include "rsim/worldsim_plugin/PluginInterface.hpp"
 
 #include <vector>
 
@@ -12,15 +12,6 @@ enum class PlanningStartSource
 {
     KinematicExtrapolation,
     PreviousTrajectory
-};
-
-struct VehicleState
-{
-    double x = 0.0;
-    double y = 0.0;
-    double heading = 0.0;
-    double speed = 0.0;
-    double accel = 0.0;
 };
 
 struct PlanningTrajectoryPoint
@@ -39,7 +30,6 @@ struct PlanningStartPoint
     double x = 0.0;
     double y = 0.0;
     double heading = 0.0;
-    double curvature = 0.0;
     double speed = 0.0;
     double accel = 0.0;
     double time = 0.0;
@@ -58,36 +48,32 @@ struct PlanningStartResult
     PlanningStartPoint start_point;
     double start_curvature = 0.0;
     std::vector<PlanningTrajectoryPoint> stitching_trajectory;
-
-    template <typename RefPointT>
-    bool ToFrenet(const std::vector<RefPointT>& referencePoints,
-                  PlanningStartFrenetState* frenetState) const
-    {
-        if (frenetState == nullptr)
-            return false;
-
-        CartesianFrenetState cartesianFrenet;
-        if (!CartesianToFrenet(referencePoints, *this, &cartesianFrenet))
-            return false;
-
-        PlanningStartFrenetState state;
-        state.s = cartesianFrenet.s;
-        state.s_dot = cartesianFrenet.s_dot;
-        state.s_ddot = cartesianFrenet.s_ddot;
-        state.l = cartesianFrenet.l;
-        state.l_prime = cartesianFrenet.l_prime;
-        state.l_double_prime = cartesianFrenet.l_double_prime;
-        state.curvature = cartesianFrenet.curvature;
-
-        *frenetState = state;
-        return true;
-    }
 };
 
-PlanningStartResult ComputePlanningStartResult(
-    const VehicleState& vehicle,
-    double currentTime,
-    const std::vector<PlanningTrajectoryPoint>& previousTrajectory,
-    const PlanningStartConfig& config = {});
+class PlanningStart
+{
+public:
+    explicit PlanningStart(const PlanningStartConfig& config = {});
+
+    const PlanningStartConfig& config() const;
+    void SetConfig(const PlanningStartConfig& config);
+
+    PlanningStartResult Compute(
+        const rsim_plugin::ActorState& ego,
+        double currentTime,
+        const std::vector<PlanningTrajectoryPoint>& previousTrajectory) const;
+
+    template <typename RefPointT>
+    bool ToFrenet(
+        const PlanningStartResult& result,
+        const std::vector<RefPointT>& referencePoints,
+        CartesianFrenetState* frenetState) const
+    {
+        return CartesianToFrenet(referencePoints, result, frenetState);
+    }
+
+private:
+    PlanningStartConfig planningStartPointConfig_;
+};
 
 }  // namespace rsim_driver
