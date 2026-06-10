@@ -16,8 +16,8 @@ struct SlPoint
 
 struct CollisionCostConfig
 {
-    double collision_distance = 0.3;
-    double risk_distance = 1.0;
+    double collision_distance = 1.6;
+    double risk_distance = 3.0;
     double infinity_cost = std::numeric_limits<double>::infinity();
 };
 

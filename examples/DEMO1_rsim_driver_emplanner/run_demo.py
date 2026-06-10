@@ -92,6 +92,13 @@ import time
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
 
+try:
+    import rsim
+except ImportError:
+    sys.stderr.write("ERROR: cannot 'import rsim'. Run with: conda run -n qc_work python3 run_demo.py\n")
+    sys.exit(2)
+
+
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 BUILD_DIR = os.environ.get("RSIM_DRIVER_BUILD_DIR", "build")
@@ -118,7 +125,6 @@ CSV_PATH = Path()
 LOG_DIR = Path()
 PACKAGE_DIR = Path()
 PLUGIN_PROPS = {}
-rsim = None
 
 
 PORT = 9080
@@ -130,18 +136,6 @@ SIM_DURATION = 20.0  # 仿真 — 验证插件沿 EMPlanner 输出路径推动�
 def fail(msg):
     print(f"FAIL: {msg}", file=sys.stderr)
     sys.exit(1)
-
-
-def load_rsim():
-    global rsim
-    if rsim is not None:
-        return
-    try:
-        import rsim as rsim_module
-    except ImportError:
-        sys.stderr.write("ERROR: cannot 'import rsim'. Run with: conda run -n qc_work python3 run_demo.py\n")
-        sys.exit(2)
-    rsim = rsim_module
 
 
 def parse_args():
@@ -390,7 +384,6 @@ def wait_for_debug_attach():
 
 def main():
     args = parse_args()
-    load_rsim()
     configure_scenario(args.scenario)
 
     sr_bin = resolve_bin("scene_runner")

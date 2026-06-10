@@ -20,7 +20,7 @@ struct DpPlannerConfig
     double weight_l_prime = 1.0;
     double weight_l_double_prime = 1.0;
     double weight_ref_l = 1.0;
-    double weight_collision = 1.0;
+    double weight_collision = 30.0;
 
     CollisionCostConfig collision;
 };

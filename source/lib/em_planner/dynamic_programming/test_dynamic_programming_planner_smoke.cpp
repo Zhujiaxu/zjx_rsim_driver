@@ -54,7 +54,7 @@ int main()
     rsim_driver::DpPlannerConfig config = MakeConfig();
 
     if (!Require(rsim_driver::Plan(MakeStart(), {}, config, &result) &&
-                     result.success,
+                     result.dpsuccess,
                  "planner should succeed without obstacles"))
         return 1;
     if (!Require(result.path.size() == 3 &&
@@ -74,7 +74,7 @@ int main()
         {1, 0.5, 0.0},
     };
     if (!Require(rsim_driver::Plan(MakeStart(), centerObstacle, config, &result) &&
-                     result.success,
+                     result.dpsuccess,
                  "planner should find side path around center obstacle"))
         return 1;
     if (!Require(result.path.size() == 3 &&
@@ -86,7 +86,7 @@ int main()
     config.right_width = 0.0;
     config.total_length = 0.5;
     if (!Require(!rsim_driver::Plan(MakeStart(), centerObstacle, config, &result) &&
-                     !result.success &&
+                     !result.dpsuccess &&
                      result.path.empty(),
                  "planner should fail when every target node collides"))
         return 1;
