@@ -92,19 +92,12 @@ import time
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
 
-try:
-    import rsim
-except ImportError:
-    sys.stderr.write("ERROR: cannot 'import rsim'. Run with: conda run -n qc_work python3 run_demo.py\n")
-    sys.exit(2)
-
-
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 BUILD_DIR = os.environ.get("RSIM_DRIVER_BUILD_DIR", "build")
 SO_PATH = REPO_ROOT / BUILD_DIR / "source" / "plugins" / "rsim_driver" / "librsim_driver.so"
 MANIFEST_PATH = REPO_ROOT / "source" / "plugins" / "rsim_driver" / "plugin.yaml"
-DEFAULT_SCENARIO = "resource"
+DEFAULT_SCENARIO = "staticobstacles"
 SCENARIO_ROOTS = {
     "resource": HERE / "resource",
     "staticobstacles": HERE / "staticobstacles",
@@ -125,6 +118,7 @@ CSV_PATH = Path()
 LOG_DIR = Path()
 PACKAGE_DIR = Path()
 PLUGIN_PROPS = {}
+rsim = None
 
 
 PORT = 9080
@@ -138,6 +132,18 @@ def fail(msg):
     sys.exit(1)
 
 
+def load_rsim():
+    global rsim
+    if rsim is not None:
+        return
+    try:
+        import rsim as rsim_module
+    except ImportError:
+        sys.stderr.write("ERROR: cannot 'import rsim'. Run with: conda run -n qc_work python3 run_demo.py\n")
+        sys.exit(2)
+    rsim = rsim_module
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Run the 06_emplanner_rsim_driver demo with a selected scenario."
@@ -146,7 +152,7 @@ def parse_args():
         "--scenario",
         choices=sorted(SCENARIO_ROOTS),
         default=DEFAULT_SCENARIO,
-        help="Scenario resource set to run. Defaults to resource.",
+        help="Scenario resource set to run. Defaults to staticobstacles.",
     )
     return parser.parse_args()
 
@@ -162,9 +168,7 @@ def configure_scenario(scenario):
     SOURCE_XOSC = scenario_root / "xosc" / "scene.xosc"
     CATALOG_ROOT = scenario_root / "xosc" / "CataLogs"
 
-    OUTPUT_DIR = HERE / "output"
-    if scenario != DEFAULT_SCENARIO:
-        OUTPUT_DIR = OUTPUT_DIR / scenario
+    OUTPUT_DIR = HERE / "output" / scenario
     CSV_DIR = OUTPUT_DIR / "csv"
     RUNTIME_XOSC = CSV_DIR / "scene.runtime.xosc"
     GLOBAL_PATH_CSV = CSV_DIR / "global_path_world_points.csv"
@@ -386,6 +390,7 @@ def wait_for_debug_attach():
 
 def main():
     args = parse_args()
+    load_rsim()
     configure_scenario(args.scenario)
 
     sr_bin = resolve_bin("scene_runner")
