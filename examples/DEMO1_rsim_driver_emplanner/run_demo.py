@@ -121,7 +121,6 @@ REFERENCE_LINE_CSV = Path()
 OBSTACLE_CSV = Path()
 PLANNING_START_SL_CSV = Path()
 EGO_TRAJECTORY_CSV = Path()
-EGO_TRAJECTORY_GIF = Path()
 CSV_PATH = Path()
 LOG_DIR = Path()
 PACKAGE_DIR = Path()
@@ -155,7 +154,7 @@ def parse_args():
 def configure_scenario(scenario):
     global XODR_PATH, SOURCE_XOSC, CATALOG_ROOT
     global OUTPUT_DIR, CSV_DIR, RUNTIME_XOSC, GLOBAL_PATH_CSV, REFERENCE_LINE_CSV
-    global OBSTACLE_CSV, PLANNING_START_SL_CSV, EGO_TRAJECTORY_CSV, EGO_TRAJECTORY_GIF
+    global OBSTACLE_CSV, PLANNING_START_SL_CSV, EGO_TRAJECTORY_CSV
     global CSV_PATH, LOG_DIR, PACKAGE_DIR, PLUGIN_PROPS
 
     scenario_root = SCENARIO_ROOTS[scenario]
@@ -173,7 +172,6 @@ def configure_scenario(scenario):
     OBSTACLE_CSV = CSV_DIR / "obstacles.csv"
     PLANNING_START_SL_CSV = CSV_DIR / "planning_start_sl.csv"
     EGO_TRAJECTORY_CSV = CSV_DIR / "ego_trajectory.csv"
-    EGO_TRAJECTORY_GIF = CSV_DIR / "ego_trajectory.gif"
     CSV_PATH = CSV_DIR / "scene.csv"
     LOG_DIR = OUTPUT_DIR / "logs"
     PACKAGE_DIR = OUTPUT_DIR / "package"
@@ -193,6 +191,7 @@ def configure_scenario(scenario):
         "referenceLineCsvPath": str(REFERENCE_LINE_CSV),
         "obstacleCsvPath":   str(OBSTACLE_CSV),
         "planningStartSlCsvPath": str(PLANNING_START_SL_CSV),
+        "egoTrajectoryCsvPath": str(EGO_TRAJECTORY_CSV),
         "setSpeed":          "8",
         "entityName":        "ego",
     }
@@ -385,27 +384,6 @@ def wait_for_debug_attach():
     input("[debug] Attach VSCode/gdb to plugin_loader_cpp, then press Enter to continue...")
 
 
-def make_trajectory_gif():
-    script = HERE / "make_trajectory_gif.py"
-    cmd = [
-        sys.executable,
-        str(script),
-        "--global-csv", str(GLOBAL_PATH_CSV),
-        "--motion-csv", str(REFERENCE_LINE_CSV),
-        "--obstacle-csv", str(OBSTACLE_CSV),
-        "--trajectory-csv", str(EGO_TRAJECTORY_CSV),
-        "--output", str(EGO_TRAJECTORY_GIF),
-    ]
-    print("[post]", " ".join(cmd))
-    try:
-        subprocess.run(cmd, cwd=HERE, check=True)
-    except Exception as exc:
-        print(f"[post] WARNING: trajectory GIF generation failed: {exc}", file=sys.stderr)
-        return
-    print(f"[post] ego trajectory CSV: {EGO_TRAJECTORY_CSV}")
-    print(f"[post] ego trajectory GIF: {EGO_TRAJECTORY_GIF}")
-
-
 def main():
     args = parse_args()
     configure_scenario(args.scenario)
@@ -427,8 +405,6 @@ def main():
         PLANNING_START_SL_CSV.unlink()
     if EGO_TRAJECTORY_CSV.exists():
         EGO_TRAJECTORY_CSV.unlink()
-    if EGO_TRAJECTORY_GIF.exists():
-        EGO_TRAJECTORY_GIF.unlink()
 
     sr = spawn(
         [str(sr_bin), "--scene_runner_port", str(PORT),
@@ -503,7 +479,6 @@ def main():
         except Exception:
             pass
 
-        make_trajectory_gif()
         print("PASS")
     finally:
         kill_pg(ld)

@@ -35,6 +35,7 @@
  *   referenceLineCsvPath: 参考线运动调试 CSV 输出路径 (可选)
  *   obstacleCsvPath: 障碍物转化 CSV 输出路径 (可选)
  *   planningStartSlCsvPath: 规划起点 Frenet 调试 CSV 输出路径 (可选)
+ *   egoTrajectoryCsvPath: DP Frenet 路径转 Cartesian 后的规划轨迹 CSV 输出路径 (可选)
  * ============================================================================
  */
 
@@ -75,6 +76,8 @@ namespace
                 std::fclose(reference_line_csv_fp_);
             if (planning_start_sl_csv_fp_ != nullptr)
                 std::fclose(planning_start_sl_csv_fp_);
+            if (ego_trajectory_csv_fp_ != nullptr)
+                std::fclose(ego_trajectory_csv_fp_);
         }
 
         // ========================================================================
@@ -110,10 +113,12 @@ namespace
             reference_line_csv_path_ = getStr("referenceLineCsvPath", "");
             obstacle_csv_path_ = getStr("obstacleCsvPath", "");
             planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
+            ego_trajectory_csv_path_ = getStr("egoTrajectoryCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
             set_speed_ = getDouble("setSpeed", 10.0);
             OpenReferenceLineDebugCsv();
             OpenPlanningStartSlDebugCsv();
+            OpenEgoTrajectoryCsv();
             obstacle_csv_writer_.Open(obstacle_csv_path_);
 
             // ---- 加载 OpenDRIVE 地图 (用于 lane/track 查询) ----
@@ -246,6 +251,7 @@ namespace
             const rsim_driver::CartesianPathPoint &target =
                 cartesian_plan_path_[target_idx];
 
+            WriteEgoTrajectoryCsv(ctx, *ego, target_idx, cartesian_plan_path_);
             updates.push_back(BuildActorUpdateFromCartesianPoint(*ego, target, ctx.time_step));
             WriteReferenceLineDebugCsv(ctx, *ego, target_idx, target);
 
@@ -550,6 +556,67 @@ namespace
             std::fflush(planning_start_sl_csv_fp_);
         }
 
+        void OpenEgoTrajectoryCsv()
+        {
+            if (ego_trajectory_csv_fp_ != nullptr)
+            {
+                std::fclose(ego_trajectory_csv_fp_);
+                ego_trajectory_csv_fp_ = nullptr;
+            }
+
+            if (ego_trajectory_csv_path_.empty())
+                return;
+
+            ego_trajectory_csv_fp_ =
+                std::fopen(ego_trajectory_csv_path_.c_str(), "w");
+            if (ego_trajectory_csv_fp_ == nullptr)
+            {
+                std::fprintf(stderr,
+                             "[RSimDriver] WARNING: cannot write ego trajectory CSV: %s\n",
+                             ego_trajectory_csv_path_.c_str());
+                ego_trajectory_csv_path_.clear();
+                return;
+            }
+
+            std::fprintf(ego_trajectory_csv_fp_,
+                         "frame_id,sim_time,time_step,ego_x,ego_y,ego_h,"
+                         "target_idx,point_idx,x,y,heading,s,l,is_target\n");
+            std::fflush(ego_trajectory_csv_fp_);
+        }
+
+        void WriteEgoTrajectoryCsv(
+            const TickContext &ctx,
+            const ActorState &ego,
+            std::size_t targetIdx,
+            const std::vector<rsim_driver::CartesianPathPoint> &path)
+        {
+            if (ego_trajectory_csv_fp_ == nullptr)
+                return;
+
+            for (std::size_t i = 0; i < path.size(); ++i)
+            {
+                const rsim_driver::CartesianPathPoint &point = path[i];
+                std::fprintf(ego_trajectory_csv_fp_,
+                             "%llu,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                             "%zu,%zu,%.9f,%.9f,%.9f,%.9f,%.9f,%d\n",
+                             static_cast<unsigned long long>(ctx.frame_id),
+                             ctx.sim_time,
+                             ctx.time_step,
+                             ego.x,
+                             ego.y,
+                             ego.h,
+                             targetIdx,
+                             i,
+                             point.x,
+                             point.y,
+                             point.heading,
+                             point.s,
+                             point.l,
+                             i == targetIdx ? 1 : 0);
+            }
+            std::fflush(ego_trajectory_csv_fp_);
+        }
+
         // ========================================================================
         // LatchInitialState() — 首次运行时绑定 ego 到全局路径起点
         // ========================================================================
@@ -671,8 +738,10 @@ namespace
         std::string reference_line_csv_path_;
         std::string obstacle_csv_path_;
         std::string planning_start_sl_csv_path_;
+        std::string ego_trajectory_csv_path_;
         std::FILE *reference_line_csv_fp_ = nullptr;
         std::FILE *planning_start_sl_csv_fp_ = nullptr;
+        std::FILE *ego_trajectory_csv_fp_ = nullptr;
         rsim_driver::GlobalPathGenerator global_path_generator_;
         rsim_driver::ObstacleCsvWriter obstacle_csv_writer_;
 
