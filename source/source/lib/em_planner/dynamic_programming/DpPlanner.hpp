@@ -38,7 +38,7 @@ struct DpPlannerResult
     std::vector<DpPathPoint> path;
 };
 
-bool Plan(const CartesianFrenetState& start,
+bool DpPlan(const CartesianFrenetState& start,
           const std::vector<StaticFrenetObstacle>& obstacles,
           const DpPlannerConfig& config,
           DpPlannerResult* result);

@@ -41,18 +41,6 @@
                 <Property name="isEgo" value="true"/>
             </Properties>
         </ScenarioObject>
-        <ScenarioObject name="motorbike1">
-            <CatalogReference catalogName="VehicleCatalog" entryName="motorbike"/>
-            <Properties>
-                <Property name="isEgo" value="false"/>
-            </Properties>
-        </ScenarioObject>
-        <ScenarioObject name="bicycle2">
-            <CatalogReference catalogName="VehicleCatalog" entryName="bicycle"/>
-            <Properties>
-                <Property name="isEgo" value="false"/>
-            </Properties>
-        </ScenarioObject>
         <ScenarioObject name="ego_GroundTruthObject">
             <Sensor name="ego_GroundTruthObject" horizontalFOV="0" verticalFOV="0" sensorCategory="camera">
                 <Properties>
@@ -68,7 +56,7 @@
                     <PrivateAction>
                         <TeleportAction>
                             <Position>
-                                <WorldPosition h="-0.025618114146397128" p="0" r="0" x="4.725468828374895" y="0.7122101857949141" z="0"/>
+                                <WorldPosition h="-0.025618114146397128" p="0" r="0" x="0.8465128923461931" y="1.4735008730102084" z="0"/>
                             </Position>
                         </TeleportAction>
                     </PrivateAction>
@@ -6733,44 +6721,6 @@
                         </RoutingAction>
                     </PrivateAction>
                 </Private>
-                <Private entityRef="motorbike1">
-                    <PrivateAction>
-                        <TeleportAction>
-                            <Position>
-                                <WorldPosition h="-0.025621433419276758" p="0" r="0" x="-14.68" y="0.831" z="0"/>
-                            </Position>
-                        </TeleportAction>
-                    </PrivateAction>
-                    <PrivateAction>
-                        <LongitudinalAction>
-                            <SpeedAction name="motorbike1_targetspeedaction">
-                                <SpeedActionDynamics dynamicsShape="step" value="0.0" dynamicsDimension="time"/>
-                                <SpeedActionTarget>
-                                    <AbsoluteTargetSpeed value="0"/>
-                                </SpeedActionTarget>
-                            </SpeedAction>
-                        </LongitudinalAction>
-                    </PrivateAction>
-                </Private>
-                <Private entityRef="bicycle2">
-                    <PrivateAction>
-                        <TeleportAction>
-                            <Position>
-                                <WorldPosition h="-0.24604417839262108" p="0" r="0" x="-4.775030837245538" y="2.7665427493446275" z="0"/>
-                            </Position>
-                        </TeleportAction>
-                    </PrivateAction>
-                    <PrivateAction>
-                        <LongitudinalAction>
-                            <SpeedAction name="bicycle2_targetspeedaction">
-                                <SpeedActionDynamics dynamicsShape="step" value="0.0" dynamicsDimension="time"/>
-                                <SpeedActionTarget>
-                                    <AbsoluteTargetSpeed value="0"/>
-                                </SpeedActionTarget>
-                            </SpeedAction>
-                        </LongitudinalAction>
-                    </PrivateAction>
-                </Private>
                 <GlobalAction>
                     <RsimEnvironmentAction>
                         <Environment name="Environment">
@@ -7008,17 +6958,17 @@
                 </StartTrigger>
                 <StopTrigger name="Act1_stoptrigger">
                     <ConditionGroup>
-                        <Condition name="Time_to_Actor" conditionEdge="none" delay="0">
+                        <Condition name="Distance_to_Point" conditionEdge="none" delay="0">
                             <ByEntityCondition>
                                 <TriggeringEntities triggeringEntitiesRule="any">
-                                    <EntityRef entityRef="bicycle1"/>
+                                    <EntityRef entityRef="ego"/>
                                 </TriggeringEntities>
                                 <EntityCondition>
-                                    <TimeToCollisionCondition value="0" freespace="false" rule="lessOrEqual" coordinateSystem="road" relativeDistanceType="longitudinal">
-                                        <TimeToCollisionConditionTarget>
-                                            <EntityRef entityRef="motorbike1"/>
-                                        </TimeToCollisionConditionTarget>
-                                    </TimeToCollisionCondition>
+                                    <DistanceCondition value="20" rule="lessOrEqual" freespace="true" coordinateSystem="entity" relativeDistanceType="euclidianDistance">
+                                        <Position>
+                                            <WorldPosition x="-12.556897703220065" y="2.434510890725959" z="0" h="0" p="0" r="0"/>
+                                        </Position>
+                                    </DistanceCondition>
                                 </EntityCondition>
                             </ByEntityCondition>
                         </Condition>
@@ -7026,18 +6976,20 @@
                 </StopTrigger>
             </Act>
             <Act name="Act2">
-                <ManeuverGroup name="GlobalGroup" maximumExecutionCount="1">
-                    <Actors selectTriggeringEntities="false"/>
-                    <Maneuver name="GlobalGroup_Maneuver">
-                        <Event name="GlobalGroup_Event" priority="parallel">
-                            <Action name="GlobalGroup_Wait">
+                <ManeuverGroup name="Act2_ManeuverGroup1" maximumExecutionCount="1">
+                    <Actors selectTriggeringEntities="false">
+                        <EntityRef entityRef="bicycle1"/>
+                    </Actors>
+                    <Maneuver name="Act2_ManeuverGroup1_Maneuver1">
+                        <Event maximumExecutionCount="1" name="Act2_ManeuverGroup1_Maneuver1_Event1" priority="parallel">
+                            <Action name="Act2_ManeuverGroup1_Maneuver1_Event1_wait">
                                 <UserDefinedAction>
                                     <CustomCommandAction type="MW_WaitAction"></CustomCommandAction>
                                 </UserDefinedAction>
                             </Action>
                             <StartTrigger>
                                 <ConditionGroup>
-                                    <Condition name="EnclosingActRunning" conditionEdge="none" delay="0.0000000000000000e+00">
+                                    <Condition name="" conditionEdge="none" delay="0.0000000000000000e+00">
                                         <ByValueCondition>
                                             <StoryboardElementStateCondition storyboardElementType="act" storyboardElementRef="Act2" state="runningState"/>
                                         </ByValueCondition>
@@ -7047,106 +6999,16 @@
                         </Event>
                     </Maneuver>
                 </ManeuverGroup>
-                <ManeuverGroup name="GlobalGroup2" maximumExecutionCount="1">
-                    <Actors selectTriggeringEntities="false"/>
-                    <Maneuver name="GlobalGroup2_Maneuver">
-                        <Event name="ForceActToExecuteUntilStopTrigger" priority="parallel">
-                            <Action name="NeverExecutedAction">
-                                <UserDefinedAction>
-                                    <CustomCommandAction type="MW_WaitAction"></CustomCommandAction>
-                                </UserDefinedAction>
-                            </Action>
-                            <StartTrigger>
-                                <ConditionGroup>
-                                    <Condition name="NeverSatisfiedCondition" conditionEdge="none" delay="0.0000000000000000e+00">
-                                        <ByValueCondition>
-                                            <StoryboardElementStateCondition storyboardElementType="story" storyboardElementRef="RootStory" state="completeState"/>
-                                        </ByValueCondition>
-                                    </Condition>
-                                </ConditionGroup>
-                            </StartTrigger>
-                        </Event>
-                    </Maneuver>
-                </ManeuverGroup>
                 <StartTrigger>
                     <ConditionGroup>
                         <Condition name="" conditionEdge="none" delay="0.0000000000000000e+00">
                             <ByValueCondition>
-                                <SimulationTimeCondition value="0" rule="greaterThan"/>
+                                <StoryboardElementStateCondition storyboardElementType="act" storyboardElementRef="Act1" state="completeState"/>
                             </ByValueCondition>
                         </Condition>
                     </ConditionGroup>
                 </StartTrigger>
                 <StopTrigger name="Act2_stoptrigger">
-                    <ConditionGroup>
-                        <Condition name="" conditionEdge="none" delay="0">
-                            <ByValueCondition>
-                                <SimulationTimeCondition value="60" rule="greaterThan"/>
-                            </ByValueCondition>
-                        </Condition>
-                    </ConditionGroup>
-                </StopTrigger>
-            </Act>
-            <Act name="Act3">
-                <ManeuverGroup name="GlobalGroup" maximumExecutionCount="1">
-                    <Actors selectTriggeringEntities="false"/>
-                    <Maneuver name="GlobalGroup_Maneuver">
-                        <Event name="GlobalGroup_Event" priority="parallel">
-                            <Action name="GlobalGroup_Wait">
-                                <UserDefinedAction>
-                                    <CustomCommandAction type="MW_WaitAction"></CustomCommandAction>
-                                </UserDefinedAction>
-                            </Action>
-                            <StartTrigger>
-                                <ConditionGroup>
-                                    <Condition name="EnclosingActRunning" conditionEdge="none" delay="0.0000000000000000e+00">
-                                        <ByValueCondition>
-                                            <StoryboardElementStateCondition storyboardElementType="act" storyboardElementRef="Act3" state="runningState"/>
-                                        </ByValueCondition>
-                                    </Condition>
-                                </ConditionGroup>
-                            </StartTrigger>
-                        </Event>
-                    </Maneuver>
-                </ManeuverGroup>
-                <ManeuverGroup name="GlobalGroup2" maximumExecutionCount="1">
-                    <Actors selectTriggeringEntities="false"/>
-                    <Maneuver name="GlobalGroup2_Maneuver">
-                        <Event name="ForceActToExecuteUntilStopTrigger" priority="parallel">
-                            <Action name="NeverExecutedAction">
-                                <UserDefinedAction>
-                                    <CustomCommandAction type="MW_WaitAction"></CustomCommandAction>
-                                </UserDefinedAction>
-                            </Action>
-                            <StartTrigger>
-                                <ConditionGroup>
-                                    <Condition name="NeverSatisfiedCondition" conditionEdge="none" delay="0.0000000000000000e+00">
-                                        <ByValueCondition>
-                                            <StoryboardElementStateCondition storyboardElementType="story" storyboardElementRef="RootStory" state="completeState"/>
-                                        </ByValueCondition>
-                                    </Condition>
-                                </ConditionGroup>
-                            </StartTrigger>
-                        </Event>
-                    </Maneuver>
-                </ManeuverGroup>
-                <StartTrigger>
-                    <ConditionGroup>
-                        <Condition name="" conditionEdge="none" delay="0.0000000000000000e+00">
-                            <ByValueCondition>
-                                <SimulationTimeCondition value="0" rule="greaterThan"/>
-                            </ByValueCondition>
-                        </Condition>
-                    </ConditionGroup>
-                </StartTrigger>
-                <StopTrigger name="Act3_stoptrigger">
-                    <ConditionGroup>
-                        <Condition name="" conditionEdge="none" delay="0">
-                            <ByValueCondition>
-                                <SimulationTimeCondition value="60" rule="greaterThan"/>
-                            </ByValueCondition>
-                        </Condition>
-                    </ConditionGroup>
                 </StopTrigger>
             </Act>
         </Story>
