@@ -12,10 +12,10 @@ namespace rsim_driver
 struct DpPlannerConfig
 {
     double s_step = 0.5;
-    double total_length = 20.0;
+    int s_step_count = 40;
     double l_step = 0.4;
-    double left_width = 3.0;
-    double right_width = 3.0;
+    int left_l_step_count = 8;
+    int right_l_step_count = 8;
 
     double weight_l_prime = 1.0;
     double weight_l_double_prime = 1.0;
@@ -29,6 +29,8 @@ struct DpPathPoint
 {
     double s = 0.0;
     double l = 0.0;
+    double l_prime = 0.0;
+    double l_double_prime = 0.0;
 };
 
 struct DpPlannerResult

@@ -23,54 +23,36 @@ struct DpNode
     int previous_index = -1;
 };
 
-bool Near(double a, double b)
-{
-    return std::fabs(a - b) <= 1e-8;
-}
-
-void AppendUnique(std::vector<double>* values, double value)
-{
-    if (values == nullptr || !std::isfinite(value))
-        return;
-    for (double existing : *values)
-    {
-        if (Near(existing, value))
-            return;
-    }
-    values->push_back(value);
-}
-
 std::vector<double> BuildSValues(double startS, const DpPlannerConfig& config)
 {
     std::vector<double> values;
-    if (config.s_step <= kEpsilon || config.total_length <= kEpsilon)
+    if (config.s_step <= kEpsilon || config.s_step_count <= 0)
         return values;
 
-    const double endS = startS + config.total_length;
-    values.push_back(startS);
-    for (double s = startS + config.s_step; s < endS - 1e-8; s += config.s_step)
-        values.push_back(s);
-    AppendUnique(&values, endS);
+    values.reserve(static_cast<std::size_t>(config.s_step_count) + 1);
+    for (int i = 0; i <= config.s_step_count; ++i)
+        values.push_back(startS + static_cast<double>(i) * config.s_step);
     return values;
 }
 
-std::vector<double> BuildLSamples(const DpPlannerConfig& config)
+std::vector<double> BuildLSamples(double centerL, const DpPlannerConfig& config)
 {
     std::vector<double> samples;
-    if (config.l_step <= kEpsilon || config.left_width < -kEpsilon ||
-        config.right_width < -kEpsilon)
+    if (!std::isfinite(centerL) ||
+        config.l_step <= kEpsilon ||
+        config.left_l_step_count < 0 ||
+        config.right_l_step_count < 0)
     {
         return samples;
     }
 
-    samples.push_back(0.0);
-    for (double l = config.l_step; l <= config.left_width + 1e-8; l += config.l_step)
-        AppendUnique(&samples, l);
-    AppendUnique(&samples, std::max(0.0, config.left_width));
-
-    for (double l = -config.l_step; l >= -config.right_width - 1e-8; l -= config.l_step)
-        AppendUnique(&samples, l);
-    AppendUnique(&samples, -std::max(0.0, config.right_width));
+    samples.reserve(static_cast<std::size_t>(
+        config.left_l_step_count + config.right_l_step_count + 1));
+    samples.push_back(centerL);
+    for (int i = 1; i <= config.left_l_step_count; ++i)
+        samples.push_back(centerL + static_cast<double>(i) * config.l_step);
+    for (int i = 1; i <= config.right_l_step_count; ++i)
+        samples.push_back(centerL - static_cast<double>(i) * config.l_step);
 
     std::sort(samples.begin(), samples.end());
     return samples;
@@ -129,10 +111,10 @@ double SmoothSegmentCost(double deltaS,
 bool ValidConfig(const DpPlannerConfig& config)
 {
     return config.s_step > kEpsilon &&
-           config.total_length > kEpsilon &&
+           config.s_step_count > 0 &&
            config.l_step > kEpsilon &&
-           config.left_width >= -kEpsilon &&
-           config.right_width >= -kEpsilon;
+           config.left_l_step_count >= 0 &&
+           config.right_l_step_count >= 0;
 }
 
 }  // namespace
@@ -153,7 +135,7 @@ bool DpPlan(const CartesianFrenetState& start,
     }
 
     const std::vector<double> sValues = BuildSValues(start.s, config);
-    const std::vector<double> lSamples = BuildLSamples(config);
+    const std::vector<double> lSamples = BuildLSamples(start.l, config);
     if (sValues.size() < 2 || lSamples.empty())
     {
         *result = output;
@@ -162,12 +144,17 @@ bool DpPlan(const CartesianFrenetState& start,
 
     std::vector<std::vector<DpNode>> layers(sValues.size());
     const double startCost = ReferenceNodeCost(start.l, config);
-    layers.front().push_back({{start.s, start.l}, startCost, -1});
+    layers.front().push_back({{start.s,
+                               start.l,
+                               start.l_prime,
+                               start.l_double_prime},
+                              startCost,
+                              -1});
     for (std::size_t layerIndex = 1; layerIndex < sValues.size(); ++layerIndex)
     {
         layers[layerIndex].reserve(lSamples.size());
         for (double l : lSamples)
-            layers[layerIndex].push_back({{sValues[layerIndex], l},
+            layers[layerIndex].push_back({{sValues[layerIndex], l, 0.0, 0.0},
                                           std::numeric_limits<double>::infinity(),
                                           -1});
     }
@@ -250,7 +237,7 @@ bool DpPlan(const CartesianFrenetState& start,
             return false;
         }
     }
-    reversedPath.push_back({start.s, start.l});
+    reversedPath.push_back({start.s, start.l, start.l_prime, start.l_double_prime});
     std::reverse(reversedPath.begin(), reversedPath.end());
 
     output.dpsuccess = true;

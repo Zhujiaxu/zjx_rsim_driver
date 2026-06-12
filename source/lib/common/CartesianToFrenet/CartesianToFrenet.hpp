@@ -15,7 +15,7 @@ namespace rsim_driver
         double s_dot = 0.0;
         double s_ddot = 0.0;
         double l = 0.0;
-        double ldot= 0.0;   
+        double ldot = 0.0;
         double l_prime = 0.0;
         double l_double_prime = 0.0;
     };
@@ -146,17 +146,15 @@ namespace rsim_driver
             const double lDot = cartesianPoint.speed * sinDeltaTheta;
             // sDdot ;
             const double sDdot =
-                ((cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * curvature * sinDeltaTheta +
-                 referenceKappa * cartesianPoint.speed * sDot * sinDeltaTheta) *
-                    (1 - referenceKappa * l) +
-                cartesianPoint.speed * cosDeltaTheta *
-                    (referenceKappa * lDot + referenceDkappa * l)) /
-                (oneMinusKappaRefL * oneMinusKappaRefL);
+                (cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * curvature * sinDeltaTheta) / (oneMinusKappaRefL) +
+                (referenceKappa * sDot * sDot * lPrime) / (oneMinusKappaRefL) +
+                (referenceDkappa * sDot * l + referenceKappa * lDot) * sDot / oneMinusKappaRefL;
+
             // lDdot ;
             const double lDdot =
                 cartesianPoint.accel * sinDeltaTheta +
                 curvature * cosDeltaTheta * cartesianPoint.speed * cartesianPoint.speed -
-                referenceKappa * sDot * cartesianPoint.speed;
+                referenceKappa * sDot * cartesianPoint.speed * cosDeltaTheta;
 
             const double sDotSquared = sDot * sDot;
             const double lDoublePrime =

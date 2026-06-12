@@ -143,7 +143,7 @@ namespace rsim_driver
         output.frenet_start_success = true;
 
         // Step 4: Dynamic Programming — plan path
-        if (!rsim_driver::Plan(output.frenet_start_result,
+        if (!rsim_driver::DpPlan(output.frenet_start_result,
                                output.perception_result.static_obstacles,
                                EMconfig_.dp_config,
                                &output.dp_result))
