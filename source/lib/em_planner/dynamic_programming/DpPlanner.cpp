@@ -119,15 +119,30 @@ namespace rsim_driver
 
     } // namespace
 
-    bool DpPlan(const CartesianFrenetState &start,
-                const std::vector<StaticFrenetObstacle> &obstacles,
-                const DpPlannerConfig &config,
-                DpPlannerResult *result)
+    DpPlanner::DpPlanner(const DpPlannerConfig &config)
+        : config_(config)
+    {
+    }
+
+    const DpPlannerConfig &DpPlanner::config() const
+    {
+        return config_;
+    }
+
+    void DpPlanner::SetConfig(const DpPlannerConfig &config)
+    {
+        config_ = config;
+    }
+
+    bool DpPlanner::Plan(const CartesianFrenetState &start,
+                         const std::vector<StaticFrenetObstacle> &obstacles,
+                         DpPlannerResult *result) const
     {
         if (result == nullptr)
             return false;
 
         DpPlannerResult output;
+        const DpPlannerConfig &config = config_;
         if (!ValidConfig(config))
         {
             *result = output;

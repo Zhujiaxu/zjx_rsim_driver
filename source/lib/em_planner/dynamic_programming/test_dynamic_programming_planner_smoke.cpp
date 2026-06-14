@@ -52,8 +52,9 @@ int main()
 {
     rsim_driver::DpPlannerResult result;
     rsim_driver::DpPlannerConfig config = MakeConfig();
+    rsim_driver::DpPlanner planner(config);
 
-    if (!Require(rsim_driver::DpPlan(MakeStart(), {}, config, &result) &&
+    if (!Require(planner.Plan(MakeStart(), {}, &result) &&
                      result.dpsuccess,
                  "planner should succeed without obstacles"))
         return 1;
@@ -81,7 +82,8 @@ int main()
     derivativeConfig.left_l_step_count = 0;
     derivativeConfig.right_l_step_count = 0;
     derivativeConfig.s_step_count = 1;
-    if (!Require(rsim_driver::DpPlan(derivativeStart, {}, derivativeConfig, &result) &&
+    rsim_driver::DpPlanner derivativePlanner(derivativeConfig);
+    if (!Require(derivativePlanner.Plan(derivativeStart, {}, &result) &&
                      result.dpsuccess,
                  "planner should preserve derivative start state"))
         return 1;
@@ -99,7 +101,7 @@ int main()
     const std::vector<rsim_driver::StaticFrenetObstacle> centerObstacle = {
         {1, 0.5, 0.0},
     };
-    if (!Require(rsim_driver::DpPlan(MakeStart(), centerObstacle, config, &result) &&
+    if (!Require(planner.Plan(MakeStart(), centerObstacle, &result) &&
                      result.dpsuccess,
                  "planner should find side path around center obstacle"))
         return 1;
@@ -113,9 +115,9 @@ int main()
     const std::vector<rsim_driver::StaticFrenetObstacle> shiftedCenterObstacle = {
         {2, 0.5, 1.2},
     };
-    if (!Require(rsim_driver::DpPlan(shiftedStart,
+    rsim_driver::DpPlanner shiftedPlanner(MakeConfig());
+    if (!Require(shiftedPlanner.Plan(shiftedStart,
                                      shiftedCenterObstacle,
-                                     MakeConfig(),
                                      &result) &&
                      result.dpsuccess,
                  "planner should sample lateral lattice around shifted start"))
@@ -129,7 +131,8 @@ int main()
     config.left_l_step_count = 0;
     config.right_l_step_count = 0;
     config.s_step_count = 1;
-    if (!Require(!rsim_driver::DpPlan(MakeStart(), centerObstacle, config, &result) &&
+    rsim_driver::DpPlanner blockedPlanner(config);
+    if (!Require(!blockedPlanner.Plan(MakeStart(), centerObstacle, &result) &&
                      !result.dpsuccess &&
                      result.path.empty(),
                  "planner should fail when every target node collides"))

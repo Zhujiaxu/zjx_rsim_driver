@@ -40,9 +40,20 @@ struct DpPlannerResult
     std::vector<DpPathPoint> path;
 };
 
-bool DpPlan(const CartesianFrenetState& start,
-          const std::vector<StaticFrenetObstacle>& obstacles,
-          const DpPlannerConfig& config,
-          DpPlannerResult* result);
+class DpPlanner
+{
+public:
+    explicit DpPlanner(const DpPlannerConfig& config = {});
+
+    const DpPlannerConfig& config() const;
+    void SetConfig(const DpPlannerConfig& config);
+
+    bool Plan(const CartesianFrenetState& start,
+              const std::vector<StaticFrenetObstacle>& obstacles,
+              DpPlannerResult* result) const;
+
+private:
+    DpPlannerConfig config_;
+};
 
 }  // namespace rsim_driver

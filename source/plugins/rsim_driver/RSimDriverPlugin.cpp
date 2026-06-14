@@ -263,15 +263,15 @@ namespace
         {
             rsim_driver::ReferenceLineGenerator::GenerateConfig &config =
                 reference_line_generator_.Generateconfig;
-            config.forwardPoints = 50;
-            config.backwardPoints = 8;
-            config.matchConfirmForwardPoints = 12;
+            config.forwardPoints = 150;
+            config.backwardPoints = 30;
+            config.matchConfirmForwardPoints = 6;
             config.smoother.maxIterations = 300;
 
             rsim_driver::EmPlannerConfig plannerConfig = em_planner_.config();
             plannerConfig.dp_config.s_step_count = 20;
-            plannerConfig.dp_config.left_l_step_count = 4;
-            plannerConfig.dp_config.right_l_step_count = 4;
+            plannerConfig.dp_config.left_l_step_count = 6;
+            plannerConfig.dp_config.right_l_step_count = 6;
             em_planner_.SetConfig(plannerConfig);
         }
 

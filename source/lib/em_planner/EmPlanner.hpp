@@ -59,9 +59,14 @@ namespace rsim_driver
         const PlanningStart &get_planning_start() const;
 
     private:
+        bool RunDpPlan(const CartesianFrenetState &start,
+                       const std::vector<StaticFrenetObstacle> &obstacles,
+                       DpPlannerResult *result) const;
+
         EmPlannerConfig EMconfig_;
         FrenetObstaclePerception perception_;
         PlanningStart planning_start_;
+        DpPlanner dp_planner_;
     };
 
     // --- template implementation ---
@@ -143,10 +148,9 @@ namespace rsim_driver
         output.frenet_start_success = true;
 
         // Step 4: Dynamic Programming — plan path
-        if (!rsim_driver::DpPlan(output.frenet_start_result,
-                               output.perception_result.static_obstacles,
-                               EMconfig_.dp_config,
-                               &output.dp_result))
+        if (!RunDpPlan(output.frenet_start_result,
+                       output.perception_result.static_obstacles,
+                       &output.dp_result))
         {
             *result = output;
             return false;
