@@ -93,20 +93,6 @@ namespace
                 auto it = properties.find(key);
                 return (it != properties.end()) ? it->second : def;
             };
-            auto getDouble = [&](const char *key, double def) -> double
-            {
-                auto it = properties.find(key);
-                if (it == properties.end())
-                    return def;
-                try
-                {
-                    return std::stod(it->second);
-                }
-                catch (...)
-                {
-                    return def;
-                }
-            };
             std::string xodr_path = getStr("xodrPath", "");
             route_xosc_path_ = getStr("routeXoscPath", "");
             route_csv_path_ = getStr("routeCsvPath", "");
@@ -115,7 +101,7 @@ namespace
             planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
             ego_trajectory_csv_path_ = getStr("egoTrajectoryCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
-            set_speed_ = getDouble("setSpeed", 10.0);
+            ConfigurePlanningForRealtime();
             OpenReferenceLineDebugCsv();
             OpenPlanningStartSlDebugCsv();
             OpenEgoTrajectoryCsv();
@@ -135,35 +121,8 @@ namespace
             }
 
             // ---- 从 runtime XOSC 读取 ego FollowTrajectoryAction ----
-            bool xosc_route_installed = false;
-            if (map_loaded_ && InstallGlobalPathFromXosc(route_xosc_path_))
-            {
-                xosc_route_installed = true;
-            }
-
-            /*std::fprintf(stderr,
-                         "[RSimDriver] ========================================================\n"
-                         "[RSimDriver] Init done:\n"
-                         "[RSimDriver]   xodrPath          = %s\n"
-                         "[RSimDriver]   routeXoscPath     = %s\n"
-                         "[RSimDriver]   entityName        = %s\n"
-                         "[RSimDriver]   setSpeed          = %.2f m/s\n"
-                         "[RSimDriver]   refLineCsvPath    = %s\n"
-                         "[RSimDriver]   mapLoaded          = %s\n"
-                         "[RSimDriver]   routeInstalled     = %s\n"
-                         "[RSimDriver]   routeSegments      = %zu\n"
-                         "[RSimDriver]   worldPoints        = %zu\n"
-                         "[RSimDriver] ========================================================\n",
-                         xodr_path.c_str(),
-                         route_xosc_path_.empty() ? "(none)" : route_xosc_path_.c_str(),
-                         entity_name_.c_str(),
-                         set_speed_,
-                         reference_line_csv_path_.empty() ? "(none)" : reference_line_csv_path_.c_str(),
-                         map_loaded_ ? "ok" : "FAILED",
-                         xosc_route_installed ? "yes" : "no",
-                         route_segments_.size(),
-                         global_path_world_points_.size());
-                         */
+            if (map_loaded_)
+                InstallGlobalPathFromXosc(route_xosc_path_);
         }
 
         // ========================================================================
@@ -211,7 +170,6 @@ namespace
                                             reference_line_->points,
                                             &plannerResult))
             {
-                CachePlannerResult(plannerResult);
                 if (plannerResult.planning_start_success)
                 {
                     WritePlanningStartSlDebugCsv(ctx,
@@ -224,34 +182,47 @@ namespace
                 updates.push_back(BuildStopActorUpdate(*ego));
                 return updates;
             }
-            CachePlannerResult(plannerResult);
             WritePlanningStartSlDebugCsv(ctx,
                                          *ego,
                                          plannerResult.planning_start_result,
                                          plannerResult.frenet_start_result,
                                          plannerResult.frenet_start_success);
 
+            std::vector<rsim_driver::CartesianPathPoint> cartesianPlanPath;
             if (!rsim_driver::FrenetPathToCartesian(reference_line_->points,
                                                     plannerResult.dp_result.path,
-                                                    &cartesian_plan_path_))
+                                                    &cartesianPlanPath))
             {
                 ReportPlanningFailure(ctx, *ego, "Frenet path to Cartesian failed");
                 updates.push_back(BuildStopActorUpdate(*ego));
                 return updates;
             }
 
+            if (plannerResult.dp_result.path.empty() ||
+                cartesianPlanPath.empty() ||
+                cartesianPlanPath.size() != plannerResult.dp_result.path.size())
+            {
+                ReportPlanningFailure(ctx, *ego, "Cartesian/Frenet plan path size mismatch");
+                updates.push_back(BuildStopActorUpdate(*ego));
+                return updates;
+            }
+
             const std::size_t target_idx =
-                SelectForwardPlanTargetIndex(cartesian_plan_path_);
-            if (target_idx >= cartesian_plan_path_.size())
+                SelectForwardPlanTargetIndex(plannerResult.dp_result.path);
+            if (target_idx >= cartesianPlanPath.size())
             {
                 ReportPlanningFailure(ctx, *ego, "Cartesian plan path has no target point");
                 updates.push_back(BuildStopActorUpdate(*ego));
                 return updates;
             }
             const rsim_driver::CartesianPathPoint &target =
-                cartesian_plan_path_[target_idx];
+                cartesianPlanPath[target_idx];
 
-            WriteEgoTrajectoryCsv(ctx, *ego, target_idx, cartesian_plan_path_);
+            WriteEgoTrajectoryCsv(ctx,
+                                  *ego,
+                                  target_idx,
+                                  cartesianPlanPath,
+                                  plannerResult.dp_result.path);
             updates.push_back(BuildActorUpdateFromCartesianPoint(*ego, target, ctx.time_step));
             WriteReferenceLineDebugCsv(ctx, *ego, target_idx, target);
 
@@ -272,16 +243,6 @@ namespace
             return "Unknown";
         }
 
-        void CachePlannerResult(const rsim_driver::EmPlannerResult &result)
-        {
-            frenet_obstacles_ = result.perception_result;
-            frenet_obstacles_valid_ = result.perception_success;
-            planning_start_result_ = result.planning_start_result;
-            planning_start_frenet_ = result.frenet_start_result;
-            planning_start_frenet_valid_ = result.frenet_start_success;
-            dp_planning_result_ = result.dp_result;
-        }
-
         void ReportPlanningFailure(const TickContext &ctx,
                                    const ActorState &ego,
                                    const char *reason) const
@@ -296,6 +257,22 @@ namespace
                          ego.x,
                          ego.y,
                          ego.h);
+        }
+
+        void ConfigurePlanningForRealtime()
+        {
+            rsim_driver::ReferenceLineGenerator::GenerateConfig &config =
+                reference_line_generator_.Generateconfig;
+            config.forwardPoints = 50;
+            config.backwardPoints = 8;
+            config.matchConfirmForwardPoints = 12;
+            config.smoother.maxIterations = 300;
+
+            rsim_driver::EmPlannerConfig plannerConfig = em_planner_.config();
+            plannerConfig.dp_config.s_step_count = 20;
+            plannerConfig.dp_config.left_l_step_count = 4;
+            plannerConfig.dp_config.right_l_step_count = 4;
+            em_planner_.SetConfig(plannerConfig);
         }
 
         bool InstallGlobalPathFromXosc(const std::string &xoscPath)
@@ -318,7 +295,6 @@ namespace
                 global_path_world_points_.push_back(worldPoint);
             }
 
-            closest_global_path_idx_ = 0;
             const bool csvWritten =
                 global_path_generator_.WriteCsv(route_csv_path_, result.world_points);
 
@@ -342,9 +318,9 @@ namespace
             return nullptr;
         }
 
-        // DP path[0] is the planning start. Pick the 4th point after it.
+        // DP path[0] is the planning start. Pick the first point after it.
         std::size_t SelectForwardPlanTargetIndex(
-            const std::vector<rsim_driver::CartesianPathPoint> &path) const
+            const std::vector<rsim_driver::DpPathPoint> &path) const
         {
             if (path.empty())
                 return 0;
@@ -588,14 +564,17 @@ namespace
             const TickContext &ctx,
             const ActorState &ego,
             std::size_t targetIdx,
-            const std::vector<rsim_driver::CartesianPathPoint> &path)
+            const std::vector<rsim_driver::CartesianPathPoint> &cartesianPath,
+            const std::vector<rsim_driver::DpPathPoint> &frenetPath)
         {
-            if (ego_trajectory_csv_fp_ == nullptr)
+            if (ego_trajectory_csv_fp_ == nullptr ||
+                cartesianPath.size() != frenetPath.size())
                 return;
 
-            for (std::size_t i = 0; i < path.size(); ++i)
+            for (std::size_t i = 0; i < cartesianPath.size(); ++i)
             {
-                const rsim_driver::CartesianPathPoint &point = path[i];
+                const rsim_driver::CartesianPathPoint &cartesianPoint = cartesianPath[i];
+                const rsim_driver::DpPathPoint &frenetPoint = frenetPath[i];
                 std::fprintf(ego_trajectory_csv_fp_,
                              "%llu,%.9f,%.9f,%.9f,%.9f,%.9f,"
                              "%zu,%zu,%.9f,%.9f,%.9f,%.9f,%.9f,%d\n",
@@ -607,11 +586,11 @@ namespace
                              ego.h,
                              targetIdx,
                              i,
-                             point.x,
-                             point.y,
-                             point.heading,
-                             point.s,
-                             point.l,
+                             cartesianPoint.x,
+                             cartesianPoint.y,
+                             cartesianPoint.heading,
+                             frenetPoint.s,
+                             frenetPoint.l,
                              i == targetIdx ? 1 : 0);
             }
             std::fflush(ego_trajectory_csv_fp_);
@@ -620,27 +599,14 @@ namespace
         // ========================================================================
         // LatchInitialState() — 首次运行时绑定 ego 到全局路径起点
         // ========================================================================
-        void LatchInitialState(const ActorState *&ego)
+        void LatchInitialState(const ActorState *ego)
         {
             if (latched_)
                 return;
 
-            current_speed_ = ego->speed;
-            current_s_ = ego->s;
-            current_road_ = ego->road_id;
-            current_lane_ = ego->lane_id;
-
             if (!route_segments_.empty())
             {
                 const auto &first = route_segments_.front();
-                current_road_ = first.road_id;
-                current_s_ = first.s_start;
-                if (first.lane_id != 0)
-                    current_lane_ = first.lane_id;
-                else
-                    current_lane_ = map_.TrackTToLane(first.road_id, first.s_start, first.t);
-                closest_global_path_idx_ = 0;
-
                 const double dx0 = global_path_world_points_.empty()
                                        ? 0.0
                                        : ego->x - global_path_world_points_.front().x;
@@ -662,8 +628,8 @@ namespace
                              "[RSimDriver]全局路径起点   route start seg[0] road=%lld  s=%.2f（路段）, "
                              "worldPt[0] (%.2f, %.2f)\n[RSimDriver]车辆初始点（scenerunner）与全局路径起点（RsimDriverplugin）一致\n",
                              ego->x, ego->y,
-                             static_cast<long long>(current_road_),
-                             current_s_,
+                             static_cast<long long>(first.road_id),
+                             first.s_start,
                              global_path_world_points_.empty() ? 0.0
                                                                : global_path_world_points_.front().x,
                              global_path_world_points_.empty() ? 0.0
@@ -722,12 +688,10 @@ namespace
 
         // ---- 全局路由 — 世界坐标点 (供下游规划模块构建参考线) ----
         std::vector<rsim_driver::WorldPoint> global_path_world_points_;
-        size_t closest_global_path_idx_ = 0;
 
         // ---- 局部参考线 ----
         rsim_driver::ReferenceLineGenerator reference_line_generator_;
         std::unique_ptr<rsim_driver::ReferenceLine> reference_line_;
-        double current_reference_s_ = 0.0;
         bool reference_line_ready_reported_ = false;
         bool reference_line_failure_reported_ = false;
 
@@ -747,21 +711,9 @@ namespace
 
         // ---- EM planner pipeline ----
         rsim_driver::EmPlanner em_planner_;
-        rsim_driver::FrenetObstaclePerceptionResult frenet_obstacles_;
-        bool frenet_obstacles_valid_ = false;
         std::vector<rsim_driver::PlanningTrajectoryPoint> previous_trajectory_;
-        rsim_driver::PlanningStartResult planning_start_result_;
-        rsim_driver::CartesianFrenetState planning_start_frenet_;
-        bool planning_start_frenet_valid_ = false;
-        rsim_driver::DpPlannerResult dp_planning_result_;
-        std::vector<rsim_driver::CartesianPathPoint> cartesian_plan_path_;
 
         // ---- ego 初始状态 ----
-        double set_speed_ = 10.0;
-        double current_speed_ = 0.0;
-        double current_s_ = 0.0;
-        int32_t current_road_ = 0;
-        int current_lane_ = 0;
         bool latched_ = false;
         bool map_loaded_ = false;
     };
