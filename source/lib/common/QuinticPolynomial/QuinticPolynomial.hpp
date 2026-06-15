@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Eigen/Dense>
-
+#include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace rsim_driver
@@ -36,23 +36,18 @@ public:
         const double t4 = t3 * t;
         const double t5 = t4 * t;
 
-        Eigen::Matrix3d matrix;
-        matrix << t3, t4, t5,
-                  3.0 * t2, 4.0 * t3, 5.0 * t4,
-                  6.0 * t, 12.0 * t2, 20.0 * t3;
+        std::array<std::array<double, 4>, 3> matrix = {{
+            {{t3, t4, t5, end.l - (result.a0_ + result.a1_ * t + result.a2_ * t2)}},
+            {{3.0 * t2, 4.0 * t3, 5.0 * t4, end.dl - (result.a1_ + 2.0 * result.a2_ * t)}},
+            {{6.0 * t, 12.0 * t2, 20.0 * t3, end.ddl - 2.0 * result.a2_}},
+        }};
 
-        Eigen::Vector3d rhs;
-        rhs << end.l - (result.a0_ + result.a1_ * t + result.a2_ * t2),
-               end.dl - (result.a1_ + 2.0 * result.a2_ * t),
-               end.ddl - 2.0 * result.a2_;
-
-        const Eigen::Vector3d coeff = matrix.householderQr().solve(rhs);
-        if (!coeff.allFinite())
+        if (!Solve3x3(&matrix))
             return false;
 
-        result.a3_ = coeff[0];
-        result.a4_ = coeff[1];
-        result.a5_ = coeff[2];
+        result.a3_ = matrix[0][3];
+        result.a4_ = matrix[1][3];
+        result.a5_ = matrix[2][3];
         *polynomial = result;
         return true;
     }
@@ -78,6 +73,41 @@ public:
     }
 
 private:
+    static bool Solve3x3(std::array<std::array<double, 4>, 3>* matrix)
+    {
+        if (matrix == nullptr)
+            return false;
+
+        auto& m = *matrix;
+        for (int col = 0; col < 3; ++col)
+        {
+            int pivot = col;
+            for (int row = col + 1; row < 3; ++row)
+            {
+                if (std::fabs(m[row][col]) > std::fabs(m[pivot][col]))
+                    pivot = row;
+            }
+            if (std::fabs(m[pivot][col]) <= 1e-12)
+                return false;
+            if (pivot != col)
+                std::swap(m[pivot], m[col]);
+
+            const double divisor = m[col][col];
+            for (int j = col; j < 4; ++j)
+                m[col][j] /= divisor;
+
+            for (int row = 0; row < 3; ++row)
+            {
+                if (row == col)
+                    continue;
+                const double factor = m[row][col];
+                for (int j = col; j < 4; ++j)
+                    m[row][j] -= factor * m[col][j];
+            }
+        }
+        return true;
+    }
+
     double a0_ = 0.0;
     double a1_ = 0.0;
     double a2_ = 0.0;

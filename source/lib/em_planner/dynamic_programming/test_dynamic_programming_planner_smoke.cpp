@@ -82,8 +82,8 @@ int main()
     derivativeConfig.left_l_step_count = 0;
     derivativeConfig.right_l_step_count = 0;
     derivativeConfig.s_step_count = 1;
-    rsim_driver::DpPlanner derivativePlanner(derivativeConfig);
-    if (!Require(derivativePlanner.Plan(derivativeStart, {}, &result) &&
+    planner.SetConfig(derivativeConfig);
+    if (!Require(planner.Plan(derivativeStart, {}, &result) &&
                      result.dpsuccess,
                  "planner should preserve derivative start state"))
         return 1;
@@ -101,6 +101,7 @@ int main()
     const std::vector<rsim_driver::StaticFrenetObstacle> centerObstacle = {
         {1, 0.5, 0.0},
     };
+    planner.SetConfig(config);
     if (!Require(planner.Plan(MakeStart(), centerObstacle, &result) &&
                      result.dpsuccess,
                  "planner should find side path around center obstacle"))
@@ -115,10 +116,10 @@ int main()
     const std::vector<rsim_driver::StaticFrenetObstacle> shiftedCenterObstacle = {
         {2, 0.5, 1.2},
     };
-    rsim_driver::DpPlanner shiftedPlanner(MakeConfig());
-    if (!Require(shiftedPlanner.Plan(shiftedStart,
-                                     shiftedCenterObstacle,
-                                     &result) &&
+    planner.SetConfig(MakeConfig());
+    if (!Require(planner.Plan(shiftedStart,
+                              shiftedCenterObstacle,
+                              &result) &&
                      result.dpsuccess,
                  "planner should sample lateral lattice around shifted start"))
         return 1;
@@ -131,8 +132,8 @@ int main()
     config.left_l_step_count = 0;
     config.right_l_step_count = 0;
     config.s_step_count = 1;
-    rsim_driver::DpPlanner blockedPlanner(config);
-    if (!Require(!blockedPlanner.Plan(MakeStart(), centerObstacle, &result) &&
+    planner.SetConfig(config);
+    if (!Require(!planner.Plan(MakeStart(), centerObstacle, &result) &&
                      !result.dpsuccess &&
                      result.path.empty(),
                  "planner should fail when every target node collides"))

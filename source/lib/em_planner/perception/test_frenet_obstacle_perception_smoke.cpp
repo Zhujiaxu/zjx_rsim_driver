@@ -80,8 +80,10 @@ int main()
     if (!Require(result.static_obstacles.size() == 1 &&
                      result.static_obstacles.front().id == 101 &&
                      Near(result.static_obstacles.front().s, 12.0) &&
-                     Near(result.static_obstacles.front().l, 1.2),
-                 "static obstacle should be ego-filtered and converted to s/l"))
+                     Near(result.static_obstacles.front().l, 1.2) &&
+                     Near(result.static_obstacles.front().length, 4.5) &&
+                     Near(result.static_obstacles.front().width, 2.0),
+                 "static obstacle should be ego-filtered and converted to s/l with size"))
         return 1;
 
     if (!Require(result.dynamic_obstacles.size() == 1 &&

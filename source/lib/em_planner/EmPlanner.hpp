@@ -3,6 +3,8 @@
 #include "perception/FrenetObstaclePerception.hpp"
 #include "planning_start/PlanningStartPoint.hpp"
 #include "dynamic_programming/DpPlanner.hpp"
+#include "drivable_area/DrivableArea.hpp"
+#include "quadratic_programming/QpPathOptimizer.hpp"
 
 namespace rsim_driver
 {
@@ -12,6 +14,8 @@ namespace rsim_driver
         FrenetObstaclePerceptionConfig perception_config;
         PlanningStartConfig planning_start_config;
         DpPlannerConfig dp_config;
+        DrivableAreaConfig drivable_area_config;
+        QpPathOptimizerConfig qp_config;
     };
 
     struct EmPlannerResult
@@ -20,10 +24,14 @@ namespace rsim_driver
         bool planning_start_success = false;
         bool frenet_start_success = false;
         bool dp_success = false;
+        bool drivable_area_success = false;
+        bool qp_success = false;
         PlanningStartResult planning_start_result;
         CartesianFrenetState frenet_start_result;
         FrenetObstaclePerceptionResult perception_result;
         DpPlannerResult dp_result;
+        DrivableArea drivable_area;
+        QpPathResult qp_result;
     };
 
     class EmPlanner
@@ -59,14 +67,27 @@ namespace rsim_driver
         const PlanningStart &get_planning_start() const;
 
     private:
-        bool RunDpPlan(const CartesianFrenetState &start,
-                       const std::vector<StaticFrenetObstacle> &obstacles,
-                       DpPlannerResult *result) const;
+        bool RunDynamicProgramming(
+            const CartesianFrenetState &start,
+            const std::vector<StaticFrenetObstacle> &obstacles,
+            DpPlannerResult *result) const;
+        bool BuildDrivableArea(
+            const std::vector<DpPathPoint> &coarsePath,
+            const std::vector<StaticFrenetObstacle> &obstacles,
+            DrivableArea *result) const;
+        bool RunQuadraticProgramming(
+            const CartesianFrenetState &start,
+            const std::vector<DpPathPoint> &coarsePath,
+            const DrivableArea &drivableArea,
+            const std::vector<StaticFrenetObstacle> &obstacles,
+            QpPathResult *result) const;
 
         EmPlannerConfig EMconfig_;
         FrenetObstaclePerception perception_;
         PlanningStart planning_start_;
         DpPlanner dp_planner_;
+        DrivableAreaBuilder drivable_area_builder_;
+        QpPathOptimizer qp_path_optimizer_;
     };
 
     // --- template implementation ---
@@ -97,7 +118,9 @@ namespace rsim_driver
             return false;
         }
 
-        *result = detailedResult.dp_result;
+        result->dpsuccess = detailedResult.qp_result.qpsuccess;
+        result->total_cost = detailedResult.qp_result.objective;
+        result->path = detailedResult.qp_result.path;
         return true;
     }
 
@@ -148,17 +171,41 @@ namespace rsim_driver
         output.frenet_start_success = true;
 
         // Step 4: Dynamic Programming — plan path
-        if (!RunDpPlan(output.frenet_start_result,
-                       output.perception_result.static_obstacles,
-                       &output.dp_result))
+        if (!RunDynamicProgramming(output.frenet_start_result,
+                                   output.perception_result.static_obstacles,
+                                   &output.dp_result))
         {
             *result = output;
             return false;
         }
         output.dp_success = output.dp_result.dpsuccess;
 
+        // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
+        if (!BuildDrivableArea(output.dp_result.path,
+                               output.perception_result.static_obstacles,
+                               &output.drivable_area))
+        {
+            *result = output;
+            return false;
+        }
+        output.drivable_area_success = true;
+
+        // Step 6: QuadraticProgramming — smooth DP path inside drivable area
+        if (!RunQuadraticProgramming(output.frenet_start_result,
+                                     output.dp_result.path,
+                                     output.drivable_area,
+                                     output.perception_result.static_obstacles,
+                                     &output.qp_result))
+        {
+            *result = output;
+            return false;
+        }
+        output.qp_success = output.qp_result.qpsuccess;
+
         *result = output;
-        return output.dp_success;
+        return output.dp_success &&
+               output.drivable_area_success &&
+               output.qp_success;
     }
 
 } // namespace rsim_driver

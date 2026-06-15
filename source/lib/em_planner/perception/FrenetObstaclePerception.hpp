@@ -18,6 +18,8 @@ struct StaticFrenetObstacle
     int32_t id = 0;
     double s = 0.0;
     double l = 0.0;
+    double length = 0.0;
+    double width = 0.0;
 };
 
 struct DynamicFrenetObstacle
@@ -87,6 +89,8 @@ StaticFrenetObstacle ToStaticFrenetObstacle(
                  projectionDx * tangentX +
                  projectionDy * tangentY;
     obstacle.l = lateralDx * normalX + lateralDy * normalY;
+    obstacle.length = actor.length;
+    obstacle.width = actor.width;
     return obstacle;
 }
 
