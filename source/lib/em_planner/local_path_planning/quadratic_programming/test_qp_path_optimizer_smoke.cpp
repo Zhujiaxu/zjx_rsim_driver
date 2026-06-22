@@ -1,4 +1,4 @@
-#include "quadratic_programming/QpPathOptimizer.hpp"
+#include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -6,6 +6,16 @@
 
 namespace
 {
+
+struct RefPoint
+{
+    double x = 0.0;
+    double y = 0.0;
+    double hdg = 0.0;
+    double k = 0.0;
+    double dk = 0.0;
+    double s = 0.0;
+};
 
 bool Require(bool condition, const char* message)
 {
@@ -41,6 +51,18 @@ std::vector<rsim_driver::DpPathPoint> MakePath(double l = 0.0,
     return path;
 }
 
+std::vector<RefPoint> MakeReference(int count = 5)
+{
+    std::vector<RefPoint> reference;
+    reference.reserve(static_cast<std::size_t>(count));
+    for (int i = 0; i < count; ++i)
+    {
+        const double s = static_cast<double>(i);
+        reference.push_back({s, 0.0, 0.0, 0.0, 0.0, s});
+    }
+    return reference;
+}
+
 rsim_driver::DrivableArea MakeArea(
     const std::vector<rsim_driver::DpPathPoint>& path,
     double left,
@@ -71,13 +93,13 @@ rsim_driver::StaticFrenetObstacle MakeObstacle(double s,
     return obstacle;
 }
 
-bool CheckBounds(const rsim_driver::QpPathResult& result,
+bool CheckBounds(const std::vector<rsim_driver::DpPathPoint>& path,
                  const rsim_driver::DrivableArea& area)
 {
-    for (std::size_t i = 0; i < result.path.size(); ++i)
+    for (std::size_t i = 0; i < path.size(); ++i)
     {
-        if (result.path[i].l < area.right_boundary[i].l - 1e-4 ||
-            result.path[i].l > area.left_boundary[i].l + 1e-4)
+        if (path[i].l < area.right_boundary[i].l - 1e-4 ||
+            path[i].l > area.left_boundary[i].l + 1e-4)
         {
             return false;
         }
@@ -85,10 +107,9 @@ bool CheckBounds(const rsim_driver::QpPathResult& result,
     return true;
 }
 
-bool CheckContinuity(const rsim_driver::QpPathResult& result,
+bool CheckContinuity(const std::vector<rsim_driver::DpPathPoint>& path,
                      double tolerance = 2e-4)
 {
-    const std::vector<rsim_driver::DpPathPoint>& path = result.path;
     for (std::size_t i = 1; i < path.size(); ++i)
     {
         const double delta = path[i].s - path[i - 1].s;
@@ -116,10 +137,9 @@ bool CheckContinuity(const rsim_driver::QpPathResult& result,
     return true;
 }
 
-bool CheckJerkResidualIsSmall(const rsim_driver::QpPathResult& result,
+bool CheckJerkResidualIsSmall(const std::vector<rsim_driver::DpPathPoint>& path,
                               double tolerance = 2e-3)
 {
-    const std::vector<rsim_driver::DpPathPoint>& path = result.path;
     for (std::size_t i = 0; i + 1 < path.size(); ++i)
     {
         const double ds = path[i + 1].s - path[i].s;
@@ -145,33 +165,54 @@ int main()
 
     rsim_driver::QpPathOptimizer optimizer(config);
     rsim_driver::QpPathResult result;
+    std::vector<rsim_driver::DpPathPoint> localfrenetpath;
 
     const std::vector<rsim_driver::DpPathPoint> path = MakePath();
+    const std::vector<RefPoint> reference = MakeReference();
     const rsim_driver::DrivableArea symmetricArea = MakeArea(path, 3.5, -3.5);
-    if (!Require(optimizer.Optimize(MakeStart(), path, symmetricArea, {}, &result),
+    if (!Require(optimizer.Optimize(MakeStart(),
+                                    path,
+                                    symmetricArea,
+                                    {},
+                                    reference,
+                                    &localfrenetpath,
+                                    &result),
                  "QP optimizer should solve symmetric empty scene"))
         return 1;
-    if (!Require(result.qpsuccess && result.path.size() == path.size(),
-                 "QP result should report success with matching path size"))
+    if (!Require(result.qpsuccess &&
+                     localfrenetpath.size() == path.size() &&
+                     result.localcartesianpath.size() == path.size(),
+                 "QP result should report success with matching path sizes"))
         return 1;
-    if (!Require(Near(result.path.front().l, 0.0) &&
-                     Near(result.path.front().l_prime, 0.0) &&
-                     Near(result.path.front().l_double_prime, 0.0),
+    if (!Require(Near(localfrenetpath.front().l, 0.0) &&
+                     Near(localfrenetpath.front().l_prime, 0.0) &&
+                     Near(localfrenetpath.front().l_double_prime, 0.0),
                  "QP result should satisfy start hard constraints"))
         return 1;
-    for (const rsim_driver::DpPathPoint& point : result.path)
+    for (const rsim_driver::DpPathPoint& point : localfrenetpath)
     {
         if (!Require(Near(point.l, 0.0, 2e-4),
                      "symmetric empty scene should stay close to reference line"))
             return 1;
     }
-    if (!Require(CheckBounds(result, symmetricArea),
+    for (std::size_t i = 0; i < result.localcartesianpath.size(); ++i)
+    {
+        if (!Require(Near(result.localcartesianpath[i].x,
+                          localfrenetpath[i].s,
+                          1e-4) &&
+                         Near(result.localcartesianpath[i].y,
+                              localfrenetpath[i].l,
+                              1e-4),
+                     "Cartesian QP path should match straight reference conversion"))
+            return 1;
+    }
+    if (!Require(CheckBounds(localfrenetpath, symmetricArea),
                  "QP output should stay inside drivable area bounds"))
         return 1;
-    if (!Require(CheckContinuity(result),
+    if (!Require(CheckContinuity(localfrenetpath),
                  "QP output should satisfy second-order continuity constraints"))
         return 1;
-    if (!Require(CheckJerkResidualIsSmall(result),
+    if (!Require(CheckJerkResidualIsSmall(localfrenetpath),
                  "QP output should satisfy requested jerk residual in simple case"))
         return 1;
 
@@ -180,10 +221,16 @@ int main()
     centerConfig.weight_drivable_area_center = 100.0;
     optimizer.SetConfig(centerConfig);
     const rsim_driver::DrivableArea shiftedArea = MakeArea(path, 2.0, 0.0);
-    if (!Require(optimizer.Optimize(MakeStart(1.0), path, shiftedArea, {}, &result),
+    if (!Require(optimizer.Optimize(MakeStart(1.0),
+                                    path,
+                                    shiftedArea,
+                                    {},
+                                    reference,
+                                    &localfrenetpath,
+                                    &result),
                  "QP optimizer should solve shifted drivable center scene"))
         return 1;
-    for (const rsim_driver::DpPathPoint& point : result.path)
+    for (const rsim_driver::DpPathPoint& point : localfrenetpath)
     {
         if (!Require(Near(point.l, 1.0, 3e-4),
                      "high center weight should keep path near drivable area center"))
@@ -200,13 +247,15 @@ int main()
                                     leftPath,
                                     narrowedArea,
                                     obstacles,
+                                    reference,
+                                    &localfrenetpath,
                                     &result),
                  "QP optimizer should solve obstacle narrowed drivable area"))
         return 1;
-    if (!Require(CheckBounds(result, narrowedArea),
+    if (!Require(CheckBounds(localfrenetpath, narrowedArea),
                  "QP output with obstacle should stay in narrowed drivable area"))
         return 1;
-    if (!Require(CheckContinuity(result),
+    if (!Require(CheckContinuity(localfrenetpath),
                  "QP output with obstacle should remain second-order continuous"))
         return 1;
 

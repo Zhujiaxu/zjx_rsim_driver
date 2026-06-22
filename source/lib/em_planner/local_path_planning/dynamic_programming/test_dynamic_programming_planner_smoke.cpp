@@ -1,4 +1,4 @@
-#include "dynamic_programming/DpPlanner.hpp"
+#include "local_path_planning/dynamic_programming/DpPlanner.hpp"
 
 #include <cmath>
 #include <cstdio>

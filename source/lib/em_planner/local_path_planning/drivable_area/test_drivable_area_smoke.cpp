@@ -1,4 +1,4 @@
-#include "drivable_area/DrivableArea.hpp"
+#include "local_path_planning/drivable_area/DrivableArea.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -102,6 +102,29 @@ int main()
     {
         if (!Require(Near(point.l, -3.5),
                      "right road boundary should stay configured"))
+            return 1;
+    }
+
+    const std::vector<rsim_driver::DpPathPoint> bracketedObstaclePath = {
+        {0.0, 0.0, 0.0, 0.0},
+        {1.0, 2.2, 0.0, 0.0},
+        {2.0, 2.2, 0.0, 0.0},
+    };
+    const std::vector<rsim_driver::StaticFrenetObstacle> bracketedObstacle = {
+        MakeObstacle(0.5, 1.0, 1.2, 1.0),
+    };
+    if (!Require(builder.Build(bracketedObstaclePath, bracketedObstacle, &area),
+                 "bracketed obstacle should build"))
+        return 1;
+    if (!Require(Near(area.right_boundary[0].l, 1.6) &&
+                     Near(area.right_boundary[1].l, 1.6) &&
+                     Near(area.right_boundary[2].l, -3.5),
+                 "bracketed obstacle should use average coarse l for right boundary"))
+        return 1;
+    for (const rsim_driver::SlPoint& point : area.left_boundary)
+    {
+        if (!Require(Near(point.l, 3.5),
+                     "bracketed obstacle should keep left boundary configured"))
             return 1;
     }
 

@@ -62,6 +62,7 @@ namespace rsim_driver
                 interpolated.hdg = NormalizeAngle(
                     previous.hdg + NormalizeAngle(next.hdg - previous.hdg) * ratio);
                 interpolated.k = previous.k + (next.k - previous.k) * ratio;
+                interpolated.dk= previous.dk + (next.dk - previous.dk) * ratio;
                 interpolated.s = s;
                 return interpolated;
             }
@@ -88,8 +89,9 @@ namespace rsim_driver
         point.x = ref.x + frenetPoint.l * normalX;
         point.y = ref.y + frenetPoint.l * normalY;
         point.heading = +std::atan(frenetPoint.l_prime / (1 - ref.k * frenetPoint.l)) + ref.hdg;
-        point.kappa = (frenetPoint.l_double_prime + (1 - ref.k * frenetPoint.l) * ref.k) /
-                      std::pow(1 - ref.k * frenetPoint.l, 2);
+        int deltatheta=std::atan(frenetPoint.l_prime / (1 - ref.k * frenetPoint.l));
+        point.kappa = (frenetPoint.l_double_prime +tan(deltatheta)*(ref.dk*frenetPoint.l+ref.k*frenetPoint.l_prime))/
+                      (tan(deltatheta)*tan(deltatheta)*(1-ref.k*frenetPoint.l)+std::pow(1 - ref.k * frenetPoint.l, 3));
         /*point.v = frenetPoint.s_prime * std::sqrt(std::pow(1 - ref.k * frenetPoint.l, 2) + std::pow(frenetPoint.l_prime, 2));
         point.a = frenetPoint.s_double_prime * std::sqrt(std::pow(1 - ref.k * frenetPoint.l, 2) + std::pow(frenetPoint.l_prime, 2)) +
                   frenetPoint.s_prime * ((1 - ref.k * frenetPoint.l) * (-ref.k * frenetPoint.l_prime) + frenetPoint.l_double_prime) /

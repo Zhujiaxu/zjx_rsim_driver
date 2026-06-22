@@ -16,7 +16,7 @@
  *            ▼
  *   RSimDriverPlugin::Step() (每帧)
 
- *     └── EmPlanner 输出 DP s/l 路径 → FrenetToCartesian → 控制目标点
+ *     └── EmPlanner 输出 QP local Cartesian 路径 → 控制目标点
  *
  * ---- 全局路径数据结构 ----
  *
@@ -35,7 +35,7 @@
  *   referenceLineCsvPath: 参考线运动调试 CSV 输出路径 (可选)
  *   obstacleCsvPath: 障碍物转化 CSV 输出路径 (可选)
  *   planningStartSlCsvPath: 规划起点 Frenet 调试 CSV 输出路径 (可选)
- *   egoTrajectoryCsvPath: DP Frenet 路径转 Cartesian 后的规划轨迹 CSV 输出路径 (可选)
+ *   egoTrajectoryCsvPath: QP local Frenet/Cartesian 规划轨迹 CSV 输出路径 (可选)
  * ============================================================================
  */
 
@@ -53,6 +53,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -231,14 +232,7 @@ namespace
                                          plannerResult.frenet_start_result,
                                          plannerResult.frenet_start_success);
 
-            if (!rsim_driver::FrenetPathToCartesian(reference_line_->points,
-                                                    plannerResult.qp_result.path,
-                                                    &cartesian_plan_path_))
-            {
-                ReportPlanningFailure(ctx, *ego, "Frenet path to Cartesian failed");
-                updates.push_back(BuildStopActorUpdate(*ego));
-                return updates;
-            }
+            cartesian_plan_path_ = plannerResult.qp_result.localcartesianpath;
 
             if (cartesian_plan_path_.size() < 2)
             {
@@ -250,7 +244,11 @@ namespace
             const rsim_driver::CartesianPathPoint &target =
                 cartesian_plan_path_[target_idx];
 
-            WriteEgoTrajectoryCsv(ctx, *ego, target_idx, cartesian_plan_path_);
+            WriteEgoTrajectoryCsv(ctx,
+                                  *ego,
+                                  target_idx,
+                                  plannerResult.localfrenetpath,
+                                  cartesian_plan_path_);
             updates.push_back(BuildActorUpdateFromCartesianPoint(*ego, target, ctx.time_step));
             WriteReferenceLineDebugCsv(ctx, *ego, target_idx, target);
 
@@ -279,6 +277,8 @@ namespace
             planning_start_frenet_ = result.frenet_start_result;
             planning_start_frenet_valid_ = result.frenet_start_success;
             dp_planning_result_ = result.dp_result;
+            localfrenetpath_ = result.localfrenetpath;
+            cartesian_plan_path_ = result.qp_result.localcartesianpath;
         }
 
         void ReportPlanningFailure(const TickContext &ctx,
@@ -555,7 +555,8 @@ namespace
 
             std::fprintf(ego_trajectory_csv_fp_,
                          "frame_id,sim_time,time_step,ego_x,ego_y,ego_h,"
-                         "target_idx,point_idx,x,y,heading,is_target\n");
+                         "target_idx,point_idx,s,l,l_prime,l_double_prime,"
+                         "x,y,heading,kappa,is_target\n");
             std::fflush(ego_trajectory_csv_fp_);
         }
 
@@ -563,17 +564,22 @@ namespace
             const TickContext &ctx,
             const ActorState &ego,
             std::size_t targetIdx,
+            const std::vector<rsim_driver::DpPathPoint> &localfrenetpath,
             const std::vector<rsim_driver::CartesianPathPoint> &path)
         {
             if (ego_trajectory_csv_fp_ == nullptr)
                 return;
 
+            const double nan = std::numeric_limits<double>::quiet_NaN();
             for (std::size_t i = 0; i < path.size(); ++i)
             {
+                const rsim_driver::DpPathPoint *frenetPoint =
+                    i < localfrenetpath.size() ? &localfrenetpath[i] : nullptr;
                 const rsim_driver::CartesianPathPoint &point = path[i];
                 std::fprintf(ego_trajectory_csv_fp_,
                              "%llu,%.9f,%.9f,%.9f,%.9f,%.9f,"
-                             "%zu,%zu,%.9f,%.9f,%.9f,%d\n",
+                             "%zu,%zu,%.9f,%.9f,%.9f,%.9f,"
+                             "%.9f,%.9f,%.9f,%.9f,%d\n",
                              static_cast<unsigned long long>(ctx.frame_id),
                              ctx.sim_time,
                              ctx.time_step,
@@ -582,9 +588,14 @@ namespace
                              ego.h,
                              targetIdx,
                              i,
+                             frenetPoint != nullptr ? frenetPoint->s : nan,
+                             frenetPoint != nullptr ? frenetPoint->l : nan,
+                             frenetPoint != nullptr ? frenetPoint->l_prime : nan,
+                             frenetPoint != nullptr ? frenetPoint->l_double_prime : nan,
                              point.x,
                              point.y,
                              point.heading,
+                             point.kappa,
                              i == targetIdx ? 1 : 0);
             }
             std::fflush(ego_trajectory_csv_fp_);
@@ -727,6 +738,7 @@ namespace
         rsim_driver::CartesianFrenetState planning_start_frenet_;
         bool planning_start_frenet_valid_ = false;
         rsim_driver::DpPlannerResult dp_planning_result_;
+        std::vector<rsim_driver::DpPathPoint> localfrenetpath_;
         std::vector<rsim_driver::CartesianPathPoint> cartesian_plan_path_;
 
         // ---- ego 初始状态 ----

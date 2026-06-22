@@ -1,4 +1,4 @@
-#include "quadratic_programming/QpPathOptimizer.hpp"
+#include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
 
 #include <OsqpEigen/OsqpEigen.h>
 #include <Eigen/Sparse>
@@ -286,20 +286,23 @@ void QpPathOptimizer::SetConfig(const QpPathOptimizerConfig& config)
     config_ = config;
 }
 
-bool QpPathOptimizer::Optimize(
+bool QpPathOptimizer::OptimizeFrenet(
     const CartesianFrenetState& start,
     const std::vector<DpPathPoint>& coarsePath,
     const DrivableArea& drivableArea,
     const std::vector<StaticFrenetObstacle>& staticObstacles,
-    QpPathResult* result) const
+    std::vector<DpPathPoint>* localfrenetpath,
+    double* objective) const
 {
-    if (result == nullptr)
+    if (localfrenetpath == nullptr || objective == nullptr)
         return false;
 
-    QpPathResult output;
+    std::vector<DpPathPoint> output;
+    double outputObjective = 0.0;
     if (!ValidConfig(config_) || !ValidInput(start, coarsePath, drivableArea))
     {
-        *result = output;
+        *localfrenetpath = output;
+        *objective = outputObjective;
         return false;
     }
 
@@ -476,7 +479,8 @@ bool QpPathOptimizer::Optimize(
 
     if (!solver.initSolver())
     {
-        *result = output;
+        *localfrenetpath = output;
+        *objective = outputObjective;
         return false;
     }
 
@@ -486,15 +490,16 @@ bool QpPathOptimizer::Optimize(
                      status == OsqpEigen::Status::SolvedInaccurate);
     if (!ok)
     {
-        *result = output;
+        *localfrenetpath = output;
+        *objective = outputObjective;
         return false;
     }
 
     const Eigen::VectorXd solution = solver.getSolution();
-    output.path.reserve(coarsePath.size());
+    output.reserve(coarsePath.size());
     for (int i = 0; i < n; ++i)
     {
-        output.path.push_back({
+        output.push_back({
             coarsePath[static_cast<std::size_t>(i)].s,
             solution(LIndex(i)),
             solution(LPrimeIndex(i)),
@@ -502,10 +507,10 @@ bool QpPathOptimizer::Optimize(
         });
     }
 
-    output.qpsuccess = true;
-    output.objective =
-        ComputeObjective(output.path, drivableArea, staticObstacles, config_);
-    *result = std::move(output);
+    outputObjective =
+        ComputeObjective(output, drivableArea, staticObstacles, config_);
+    *localfrenetpath = std::move(output);
+    *objective = outputObjective;
     return true;
 }
 

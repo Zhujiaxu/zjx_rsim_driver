@@ -2,9 +2,9 @@
 
 #include "perception/FrenetObstaclePerception.hpp"
 #include "planning_start/PlanningStartPoint.hpp"
-#include "dynamic_programming/DpPlanner.hpp"
-#include "drivable_area/DrivableArea.hpp"
-#include "quadratic_programming/QpPathOptimizer.hpp"
+#include "local_path_planning/drivable_area/DrivableArea.hpp"
+#include "local_path_planning/dynamic_programming/DpPlanner.hpp"
+#include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
 
 namespace rsim_driver
 {
@@ -20,6 +20,8 @@ namespace rsim_driver
 
     struct EmPlannerResult
     {
+
+        
         bool perception_success = false;
         bool planning_start_success = false;
         bool frenet_start_success = false;
@@ -31,6 +33,7 @@ namespace rsim_driver
         FrenetObstaclePerceptionResult perception_result;
         DpPlannerResult dp_result;
         DrivableArea drivable_area;
+        std::vector<DpPathPoint> localfrenetpath;
         QpPathResult qp_result;
     };
 
@@ -75,11 +78,13 @@ namespace rsim_driver
             const std::vector<DpPathPoint> &coarsePath,
             const std::vector<StaticFrenetObstacle> &obstacles,
             DrivableArea *result) const;
+        template <typename RefPointT>
         bool RunQuadraticProgramming(
             const CartesianFrenetState &start,
             const std::vector<DpPathPoint> &coarsePath,
             const DrivableArea &drivableArea,
             const std::vector<StaticFrenetObstacle> &obstacles,
+            const std::vector<RefPointT> &referencePoints,
             QpPathResult *result) const;
 
         EmPlannerConfig EMconfig_;
@@ -88,6 +93,7 @@ namespace rsim_driver
         DpPlanner dp_planner_;
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
+        mutable std::vector<DpPathPoint> localfrenetpath_;
     };
 
     // --- template implementation ---
@@ -120,8 +126,26 @@ namespace rsim_driver
 
         result->dpsuccess = detailedResult.qp_result.qpsuccess;
         result->total_cost = detailedResult.qp_result.objective;
-        result->path = detailedResult.qp_result.path;
+        result->path = detailedResult.localfrenetpath;
         return true;
+    }
+
+    template <typename RefPointT>
+    bool EmPlanner::RunQuadraticProgramming(
+        const CartesianFrenetState &start,
+        const std::vector<DpPathPoint> &coarsePath,
+        const DrivableArea &drivableArea,
+        const std::vector<StaticFrenetObstacle> &obstacles,
+        const std::vector<RefPointT> &referencePoints,
+        QpPathResult *result) const
+    {
+        return qp_path_optimizer_.Optimize(start,
+                                           coarsePath,
+                                           drivableArea,
+                                           obstacles,
+                                           referencePoints,
+                                           &localfrenetpath_,
+                                           result);
     }
 
     template <typename RefPointT>
@@ -191,16 +215,19 @@ namespace rsim_driver
         output.drivable_area_success = true;
 
         // Step 6: QuadraticProgramming — smooth DP path inside drivable area
+        localfrenetpath_.clear();
         if (!RunQuadraticProgramming(output.frenet_start_result,
                                      output.dp_result.path,
                                      output.drivable_area,
                                      output.perception_result.static_obstacles,
+                                     referencePoints,
                                      &output.qp_result))
         {
             *result = output;
             return false;
         }
         output.qp_success = output.qp_result.qpsuccess;
+        output.localfrenetpath = localfrenetpath_;
 
         *result = output;
         return output.dp_success &&

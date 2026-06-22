@@ -54,18 +54,4 @@ bool EmPlanner::BuildDrivableArea(
     return drivable_area_builder_.Build(coarsePath, obstacles, result);
 }
 
-bool EmPlanner::RunQuadraticProgramming(
-    const CartesianFrenetState& start,
-    const std::vector<DpPathPoint>& coarsePath,
-    const DrivableArea& drivableArea,
-    const std::vector<StaticFrenetObstacle>& obstacles,
-    QpPathResult* result) const
-{
-    return qp_path_optimizer_.Optimize(start,
-                                       coarsePath,
-                                       drivableArea,
-                                       obstacles,
-                                       result);
-}
-
 }  // namespace rsim_driver

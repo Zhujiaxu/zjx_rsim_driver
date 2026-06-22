@@ -51,7 +51,7 @@ spec:
         - name: egoTrajectoryCsvPath
           type: string
           default: ""
-          description: "Optional CSV output path for per-frame Cartesian DP plan trajectory."
+          description: "Optional CSV output path for per-frame QP local Frenet/Cartesian plan trajectory."
         - name: setSpeed
           type: double
           default: "10.0"

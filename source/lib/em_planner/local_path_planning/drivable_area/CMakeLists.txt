@@ -2,7 +2,7 @@ add_library(drivable_area STATIC
     DrivableArea.cpp)
 
 target_include_directories(drivable_area PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/..)
+    ${CMAKE_CURRENT_LIST_DIR}/../..)
 
 target_compile_features(drivable_area PUBLIC cxx_std_17)
 
