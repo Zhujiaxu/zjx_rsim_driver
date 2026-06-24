@@ -21,11 +21,11 @@ struct StaticFrenetObstacle
     double length = 0.0;
     double width = 0.0;
 };
-
+using DynamicFrenetState = CartesianFrenetState;
 struct DynamicFrenetObstacle
 {
     int32_t id = 0;
-    CartesianFrenetState frenet;
+    DynamicFrenetState dynamicfrenetstate;
 };
 
 struct FrenetObstaclePerceptionResult
@@ -158,7 +158,7 @@ public:
 
             DynamicFrenetObstacle obstacle;
             obstacle.id = actor.id;
-            obstacle.frenet = frenet;
+            obstacle.dynamicfrenetstate = frenet;
             converted.dynamic_obstacles.push_back(obstacle);
         }
 

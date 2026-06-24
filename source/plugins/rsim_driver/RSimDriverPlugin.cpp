@@ -498,7 +498,7 @@ namespace
                          "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
                          "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
                          "%s,%.9f,%.9f,"
-                         "%d,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"
+                         "%d,%.9f,%.9f,%.9f,%.9f,"
                          "%zu,%zu\n",
                          static_cast<unsigned long long>(ctx.frame_id),
                          ctx.sim_time,
@@ -521,8 +521,8 @@ namespace
                          startResult.start_curvature,
                          slSuccess ? 1 : 0,
                          frenet.s,
-                         frenet.s_dot,
-                         frenet.s_ddot,
+                         //frenet.s_dot,
+                         //frenet.s_ddot,
                          frenet.l,
                          frenet.l_prime,
                          frenet.l_double_prime,

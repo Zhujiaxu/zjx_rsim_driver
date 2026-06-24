@@ -16,8 +16,8 @@ add_subdirectory(local_speed_planning)
 add_library(em_planner STATIC
     EmPlanner.cpp)
 
-target_include_directories(em_planner PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR})
+#target_include_directories(em_planner PUBLIC
+    #${CMAKE_CURRENT_LIST_DIR})
 
 target_compile_features(em_planner PUBLIC cxx_std_17)
 
