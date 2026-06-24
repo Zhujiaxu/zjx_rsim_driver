@@ -30,12 +30,12 @@ struct DynamicFrenetObstacle
 
 struct StaticFrenetObstaclePerceptionResult
 {
-    std::vector<StaticFrenetObstacle> obstacles;
+    std::vector<StaticFrenetObstacle> staticobstacles;
 };
 
 struct DynamicFrenetObstaclePerceptionResult
 {
-    std::vector<DynamicFrenetObstacle> obstacles;
+    std::vector<DynamicFrenetObstacle> dynamicobstacles;
 };
 
 struct FrenetObstaclePerceptionConfig
@@ -132,7 +132,7 @@ public:
             return false;
 
         StaticFrenetObstaclePerceptionResult converted;
-        converted.obstacles.reserve(actors.size());
+        converted.staticobstacles.reserve(actors.size());
 
         const double staticSpeedThreshold =
             std::max(0.0, perceptionConfig_.static_speed_threshold);
@@ -145,7 +145,7 @@ public:
                 frenet_obstacle_perception_detail::ActorPlanarSpeed(actor);
             if (speed <= staticSpeedThreshold)
             {
-                converted.obstacles.push_back(
+                converted.staticobstacles.push_back(
                     frenet_obstacle_perception_detail::ToStaticFrenetObstacle(
                         actor, referencePoints));
             }
@@ -166,7 +166,7 @@ public:
             return false;
 
         DynamicFrenetObstaclePerceptionResult converted;
-        converted.obstacles.reserve(actors.size());
+        converted.dynamicobstacles.reserve(actors.size());
 
         const double staticSpeedThreshold =
             std::max(0.0, perceptionConfig_.static_speed_threshold);
@@ -192,7 +192,7 @@ public:
             DynamicFrenetObstacle obstacle;
             obstacle.id = actor.id;
             obstacle.dynamicfrenetstate = frenet;
-            converted.obstacles.push_back(obstacle);
+            converted.dynamicobstacles.push_back(obstacle);
         }
 
         *result = std::move(converted);

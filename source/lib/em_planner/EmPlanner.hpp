@@ -212,7 +212,7 @@ namespace rsim_driver
 
         // Step 4: Dynamic Programming — plan path
         if (!RunDynamicProgramming(output.frenet_start_result,
-                                   output.static_perception_result.obstacles,
+                                   output.static_perception_result.staticobstacles,
                                    &output.dp_result))
         {
             *result = output;
@@ -222,7 +222,7 @@ namespace rsim_driver
 
         // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
         if (!BuildDrivableArea(output.dp_result.path,
-                               output.static_perception_result.obstacles,
+                               output.static_perception_result.staticobstacles,
                                &output.drivable_area))
         {
             *result = output;
@@ -235,7 +235,7 @@ namespace rsim_driver
         if (!RunQuadraticProgramming(output.frenet_start_result,
                                      output.dp_result.path,
                                      output.drivable_area,
-                                     output.static_perception_result.obstacles,
+                                     output.static_perception_result.staticobstacles,
                                      referencePoints,
                                      &output.qp_result))
         {
