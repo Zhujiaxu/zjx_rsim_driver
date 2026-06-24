@@ -44,6 +44,46 @@ find_package(OsqpEigen REQUIRED)
 # and the targets we actually link will get compiled.
 set(RSIM_THIRD_PARTY_SRC ${CMAKE_SOURCE_DIR}/third_party CACHE PATH
     "Path to third_party source tree (defaults to repo's symlink).")
+
+set(_RSIM_WARN_DEPRECATED_WAS_DEFINED FALSE)
+if(DEFINED CMAKE_WARN_DEPRECATED)
+    set(_RSIM_WARN_DEPRECATED_WAS_DEFINED TRUE)
+    set(_RSIM_WARN_DEPRECATED_PREVIOUS ${CMAKE_WARN_DEPRECATED})
+endif()
+
+set(_RSIM_SUPPRESS_DEVELOPER_WARNINGS_WAS_DEFINED FALSE)
+if(DEFINED CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
+    set(_RSIM_SUPPRESS_DEVELOPER_WARNINGS_WAS_DEFINED TRUE)
+    set(_RSIM_SUPPRESS_DEVELOPER_WARNINGS_PREVIOUS
+        ${CMAKE_SUPPRESS_DEVELOPER_WARNINGS})
+endif()
+
+set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL
+    "Suppress CMake deprecation warnings while configuring third_party." FORCE)
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON CACHE BOOL
+    "Suppress CMake developer warnings while configuring third_party." FORCE)
 add_subdirectory(${RSIM_THIRD_PARTY_SRC} ${CMAKE_BINARY_DIR}/_third_party EXCLUDE_FROM_ALL)
+
+if(_RSIM_WARN_DEPRECATED_WAS_DEFINED)
+    set(CMAKE_WARN_DEPRECATED ${_RSIM_WARN_DEPRECATED_PREVIOUS} CACHE BOOL
+        "Whether to issue warnings for deprecated CMake functionality." FORCE)
+else()
+    unset(CMAKE_WARN_DEPRECATED CACHE)
+    unset(CMAKE_WARN_DEPRECATED)
+endif()
+
+if(_RSIM_SUPPRESS_DEVELOPER_WARNINGS_WAS_DEFINED)
+    set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS
+        ${_RSIM_SUPPRESS_DEVELOPER_WARNINGS_PREVIOUS} CACHE BOOL
+        "Suppress CMake warnings that are meant for project developers." FORCE)
+else()
+    unset(CMAKE_SUPPRESS_DEVELOPER_WARNINGS CACHE)
+    unset(CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
+endif()
+
+if(TARGET proj)
+    target_compile_options(proj PRIVATE
+        $<$<COMPILE_LANGUAGE:C>:-Wno-format-overflow>)
+endif()
 
 add_subdirectory(source)
