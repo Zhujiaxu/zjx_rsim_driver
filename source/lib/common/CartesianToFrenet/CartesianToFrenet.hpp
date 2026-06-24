@@ -12,10 +12,10 @@ namespace rsim_driver
     struct CartesianFrenetState
     {
         double s = 0.0;
-        //double s_dot = 0.0;
+        double s_dot = 0.0;
         //double s_ddot = 0.0;
         double l = 0.0;
-        //double ldot = 0.0;
+        double ldot = 0.0;
         //double lDdot = 0.0;
         double l_prime = 0.0;
         double l_double_prime = 0.0;
@@ -165,10 +165,10 @@ namespace rsim_driver
 
             CartesianFrenetState state;
             state.s = refinedS;
-            //state.s_dot = sDot;
+            state.s_dot = sDot;
             //state.s_ddot = sDdot;
             state.l = l;
-            //state.ldot = lDot;
+            state.ldot = lDot;
             //state.lDdot = lDdot;
             state.l_prime = lPrime;
             state.l_double_prime = lDoublePrime;
