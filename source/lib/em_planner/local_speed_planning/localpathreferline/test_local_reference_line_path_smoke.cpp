@@ -1,4 +1,4 @@
-#include "local_speed_planning/LocalReferenceLinePath.hpp"
+#include "localpathreferline.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -64,6 +64,34 @@ int main()
     if (!Require(Near(path[1].s, 5.0) &&
                      Near(path[2].s, 9.0),
                  "local reference line s should be cumulative Cartesian distance"))
+        return 1;
+
+    if (!Require(Near(path[0].dk, 0.002) &&
+                     Near(path[1].dk, 2.0 / 900.0) &&
+                     Near(path[2].dk, 0.0025),
+                 "local reference line dk should use one-sided and centered differences"))
+        return 1;
+
+    rsim_driver::localreferencelinepath singlePointPath(1);
+    singlePointPath.front().dk = 1.0;
+    if (!Require(rsim_driver::CalculateLocalReferenceLineDk(&singlePointPath) &&
+                     Near(singlePointPath.front().dk, 0.0),
+                 "single-point local reference line dk should be zero"))
+        return 1;
+
+    rsim_driver::localreferencelinepath duplicateSPath(2);
+    duplicateSPath[0].s = 1.0;
+    duplicateSPath[0].k = 0.1;
+    duplicateSPath[1].s = 1.0;
+    duplicateSPath[1].k = 0.2;
+    if (!Require(rsim_driver::CalculateLocalReferenceLineDk(&duplicateSPath) &&
+                     Near(duplicateSPath[0].dk, 0.0) &&
+                     Near(duplicateSPath[1].dk, 0.0),
+                 "duplicate-s local reference line dk should be zero"))
+        return 1;
+
+    if (!Require(!rsim_driver::CalculateLocalReferenceLineDk(nullptr),
+                 "null local reference line dk output should fail"))
         return 1;
 
     if (!Require(!rsim_driver::LocalCartesianPathToReferenceLinePath({}, &path) &&

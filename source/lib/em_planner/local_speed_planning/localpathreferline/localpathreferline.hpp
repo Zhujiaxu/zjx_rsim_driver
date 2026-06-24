@@ -16,9 +16,65 @@ struct localreferencelinepoint
     double k = 0.0;
     double theta = 0.0;
     double s = 0.0;
+    double dk = 0.0;
 };
 
 using localreferencelinepath = std::vector<localreferencelinepoint>;
+
+namespace local_reference_line_detail
+{
+
+constexpr double kDkSIntervalEpsilon = 1e-6;
+
+inline double CalculateDkBetween(const localreferencelinepoint& previous,
+                                 const localreferencelinepoint& next)
+{
+    const double ds = next.s - previous.s;
+    return std::fabs(ds) > kDkSIntervalEpsilon
+               ? (next.k - previous.k) / ds
+               : 0.0;
+}
+
+}  // namespace local_reference_line_detail
+
+inline bool CalculateLocalReferenceLineDk(localreferencelinepath* path)
+{
+    if (path == nullptr)
+        return false;
+
+    if (path->empty())
+        return true;
+
+    if (path->size() == 1)
+    {
+        path->front().dk = 0.0;
+        return true;
+    }
+
+    for (std::size_t i = 0; i < path->size(); ++i)
+    {
+        if (i == 0)
+        {
+            (*path)[i].dk =
+                local_reference_line_detail::CalculateDkBetween((*path)[0],
+                                                                 (*path)[1]);
+        }
+        else if (i + 1 == path->size())
+        {
+            (*path)[i].dk =
+                local_reference_line_detail::CalculateDkBetween((*path)[i - 1],
+                                                                 (*path)[i]);
+        }
+        else
+        {
+            (*path)[i].dk =
+                local_reference_line_detail::CalculateDkBetween((*path)[i-1],
+                                                                 (*path)[i + 1]);
+        }
+    }
+
+    return true;
+}
 
 inline bool LocalCartesianPathToReferenceLinePath(
     const std::vector<CartesianPathPoint>& localcartesianpath,
@@ -50,6 +106,7 @@ inline bool LocalCartesianPathToReferenceLinePath(
                            accumulatedS});
     }
 
+    CalculateLocalReferenceLineDk(result);
     return true;
 }
 
