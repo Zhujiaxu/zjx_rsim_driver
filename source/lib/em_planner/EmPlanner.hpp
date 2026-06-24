@@ -23,6 +23,8 @@ namespace rsim_driver
 
         
         bool perception_success = false;
+        bool static_perception_success = false;
+        bool dynamic_perception_success = false;
         bool planning_start_success = false;
         bool frenet_start_success = false;
         bool dp_success = false;
@@ -30,7 +32,8 @@ namespace rsim_driver
         bool qp_success = false;
         PlanningStartResult planning_start_result;
         CartesianFrenetState frenet_start_result;
-        FrenetObstaclePerceptionResult perception_result;
+        StaticFrenetObstaclePerceptionResult static_perception_result;
+        DynamicFrenetObstaclePerceptionResult dynamic_perception_result;
         DpPlannerResult dp_result;
         DrivableArea drivable_area;
         std::vector<DpPathPoint> localfrenetpath;
@@ -46,7 +49,7 @@ namespace rsim_driver
         void SetConfig(const EmPlannerConfig &config);
 
         // Main pipeline: actors + ego actor → DP path
-        // Templated on RefPointT because both perception::Convert and
+        // Templated on RefPointT because perception conversion and
         // planning_start::ToFrenet are templated.
         template <typename RefPointT>
         bool EMPlan(const std::vector<rsim_plugin::ActorState> &actors,
@@ -169,14 +172,27 @@ namespace rsim_driver
         }
 
         // Step 1: Perception — convert actors to Frenet obstacles
-        if (!perception_.Convert(actors,
-                                 egoActorId,
-                                 referencePoints,
-                                 &output.perception_result))
+        if (!perception_.ConvertStaticObstacles(
+                actors,
+                egoActorId,
+                referencePoints,
+                &output.static_perception_result))
         {
             *result = output;
             return false;
         }
+        output.static_perception_success = true;
+
+        if (!perception_.ConvertDynamicObstacles(
+                actors,
+                egoActorId,
+                referencePoints,
+                &output.dynamic_perception_result))
+        {
+            *result = output;
+            return false;
+        }
+        output.dynamic_perception_success = true;
         output.perception_success = true;
 
         // Step 2: PlanningStart — compute start point in Cartesian
@@ -196,7 +212,7 @@ namespace rsim_driver
 
         // Step 4: Dynamic Programming — plan path
         if (!RunDynamicProgramming(output.frenet_start_result,
-                                   output.perception_result.static_obstacles,
+                                   output.static_perception_result.obstacles,
                                    &output.dp_result))
         {
             *result = output;
@@ -206,7 +222,7 @@ namespace rsim_driver
 
         // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
         if (!BuildDrivableArea(output.dp_result.path,
-                               output.perception_result.static_obstacles,
+                               output.static_perception_result.obstacles,
                                &output.drivable_area))
         {
             *result = output;
@@ -219,7 +235,7 @@ namespace rsim_driver
         if (!RunQuadraticProgramming(output.frenet_start_result,
                                      output.dp_result.path,
                                      output.drivable_area,
-                                     output.perception_result.static_obstacles,
+                                     output.static_perception_result.obstacles,
                                      referencePoints,
                                      &output.qp_result))
         {

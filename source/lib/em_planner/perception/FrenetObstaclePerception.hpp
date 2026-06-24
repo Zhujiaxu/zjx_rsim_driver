@@ -28,10 +28,14 @@ struct DynamicFrenetObstacle
     DynamicFrenetState dynamicfrenetstate;
 };
 
-struct FrenetObstaclePerceptionResult
+struct StaticFrenetObstaclePerceptionResult
 {
-    std::vector<StaticFrenetObstacle> static_obstacles;
-    std::vector<DynamicFrenetObstacle> dynamic_obstacles;
+    std::vector<StaticFrenetObstacle> obstacles;
+};
+
+struct DynamicFrenetObstaclePerceptionResult
+{
+    std::vector<DynamicFrenetObstacle> obstacles;
 };
 
 struct FrenetObstaclePerceptionConfig
@@ -118,17 +122,17 @@ public:
     void SetConfig(const FrenetObstaclePerceptionConfig& config);
 
     template <typename RefPointT>
-    bool Convert(const std::vector<rsim_plugin::ActorState>& actors,
-                 int32_t egoActorId,
-                 const std::vector<RefPointT>& referencePoints,
-                 FrenetObstaclePerceptionResult* result) const
+    bool ConvertStaticObstacles(
+        const std::vector<rsim_plugin::ActorState>& actors,
+        int32_t egoActorId,
+        const std::vector<RefPointT>& referencePoints,
+        StaticFrenetObstaclePerceptionResult* result) const
     {
         if (result == nullptr || referencePoints.empty())
             return false;
 
-        FrenetObstaclePerceptionResult converted;
-        converted.static_obstacles.reserve(actors.size());
-        converted.dynamic_obstacles.reserve(actors.size());
+        StaticFrenetObstaclePerceptionResult converted;
+        converted.obstacles.reserve(actors.size());
 
         const double staticSpeedThreshold =
             std::max(0.0, perceptionConfig_.static_speed_threshold);
@@ -141,11 +145,40 @@ public:
                 frenet_obstacle_perception_detail::ActorPlanarSpeed(actor);
             if (speed <= staticSpeedThreshold)
             {
-                converted.static_obstacles.push_back(
+                converted.obstacles.push_back(
                     frenet_obstacle_perception_detail::ToStaticFrenetObstacle(
                         actor, referencePoints));
-                continue;
             }
+        }
+
+        *result = std::move(converted);
+        return true;
+    }
+
+    template <typename RefPointT>
+    bool ConvertDynamicObstacles(
+        const std::vector<rsim_plugin::ActorState>& actors,
+        int32_t egoActorId,
+        const std::vector<RefPointT>& referencePoints,
+        DynamicFrenetObstaclePerceptionResult* result) const
+    {
+        if (result == nullptr || referencePoints.empty())
+            return false;
+
+        DynamicFrenetObstaclePerceptionResult converted;
+        converted.obstacles.reserve(actors.size());
+
+        const double staticSpeedThreshold =
+            std::max(0.0, perceptionConfig_.static_speed_threshold);
+        for (const rsim_plugin::ActorState& actor : actors)
+        {
+            if (actor.id == egoActorId)
+                continue;
+
+            const double speed =
+                frenet_obstacle_perception_detail::ActorPlanarSpeed(actor);
+            if (speed <= staticSpeedThreshold)
+                continue;
 
             const frenet_obstacle_perception_detail::ObstacleCartesianPoint point =
                 frenet_obstacle_perception_detail::ToObstacleCartesianPoint(actor);
@@ -159,7 +192,7 @@ public:
             DynamicFrenetObstacle obstacle;
             obstacle.id = actor.id;
             obstacle.dynamicfrenetstate = frenet;
-            converted.dynamic_obstacles.push_back(obstacle);
+            converted.obstacles.push_back(obstacle);
         }
 
         *result = std::move(converted);

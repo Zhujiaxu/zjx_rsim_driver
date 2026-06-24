@@ -72,30 +72,51 @@ int main()
     };
 
     rsim_driver::FrenetObstaclePerception perception;
-    rsim_driver::FrenetObstaclePerceptionResult result;
-    if (!Require(perception.Convert(actors, 1, StraightReferenceLine(), &result),
-                 "frenet obstacle perception should succeed"))
+    rsim_driver::StaticFrenetObstaclePerceptionResult staticResult;
+    if (!Require(perception.ConvertStaticObstacles(actors,
+                                                   1,
+                                                   StraightReferenceLine(),
+                                                   &staticResult),
+                 "static frenet obstacle perception should succeed"))
         return 1;
 
-    if (!Require(result.static_obstacles.size() == 1 &&
-                     result.static_obstacles.front().id == 101 &&
-                     Near(result.static_obstacles.front().s, 12.0) &&
-                     Near(result.static_obstacles.front().l, 1.2) &&
-                     Near(result.static_obstacles.front().length, 4.5) &&
-                     Near(result.static_obstacles.front().width, 2.0),
+    if (!Require(staticResult.obstacles.size() == 1 &&
+                     staticResult.obstacles.front().id == 101 &&
+                     Near(staticResult.obstacles.front().s, 12.0) &&
+                     Near(staticResult.obstacles.front().l, 1.2) &&
+                     Near(staticResult.obstacles.front().length, 4.5) &&
+                     Near(staticResult.obstacles.front().width, 2.0),
                  "static obstacle should be ego-filtered and converted to s/l with size"))
         return 1;
 
-    if (!Require(result.dynamic_obstacles.size() == 1 &&
-                     result.dynamic_obstacles.front().id == 102 &&
-                     Near(result.dynamic_obstacles.front().frenet.s, 8.0) &&
-                     Near(result.dynamic_obstacles.front().frenet.l, -0.8) &&
-                     Near(result.dynamic_obstacles.front().frenet.s_dot, 4.0),
+    rsim_driver::DynamicFrenetObstaclePerceptionResult dynamicResult;
+    if (!Require(perception.ConvertDynamicObstacles(actors,
+                                                    1,
+                                                    StraightReferenceLine(),
+                                                    &dynamicResult),
+                 "dynamic frenet obstacle perception should succeed"))
+        return 1;
+
+    if (!Require(dynamicResult.obstacles.size() == 1 &&
+                     dynamicResult.obstacles.front().id == 102 &&
+                     Near(dynamicResult.obstacles.front().dynamicfrenetstate.s, 8.0) &&
+                     Near(dynamicResult.obstacles.front().dynamicfrenetstate.l, -0.8) &&
+                     Near(dynamicResult.obstacles.front().dynamicfrenetstate.s_dot, 4.0),
                  "dynamic obstacle should output full frenet state"))
         return 1;
 
-    if (!Require(!perception.Convert(actors, 1, std::vector<RefPoint>{}, &result),
-                 "empty reference points should fail"))
+    if (!Require(!perception.ConvertStaticObstacles(actors,
+                                                    1,
+                                                    std::vector<RefPoint>{},
+                                                    &staticResult),
+                 "empty static reference points should fail"))
+        return 1;
+
+    if (!Require(!perception.ConvertDynamicObstacles(actors,
+                                                     1,
+                                                     std::vector<RefPoint>{},
+                                                     &dynamicResult),
+                 "empty dynamic reference points should fail"))
         return 1;
 
     std::fprintf(stderr, "PASS frenet_obstacle_perception smoke\n");

@@ -271,7 +271,8 @@ namespace
 
         void CachePlannerResult(const rsim_driver::EmPlannerResult &result)
         {
-            frenet_obstacles_ = result.perception_result;
+            static_frenet_obstacles_ = result.static_perception_result;
+            dynamic_frenet_obstacles_ = result.dynamic_perception_result;
             frenet_obstacles_valid_ = result.perception_success;
             planning_start_result_ = result.planning_start_result;
             planning_start_frenet_ = result.frenet_start_result;
@@ -731,7 +732,8 @@ namespace
 
         // ---- EM planner pipeline ----
         rsim_driver::EmPlanner em_planner_;
-        rsim_driver::FrenetObstaclePerceptionResult frenet_obstacles_;
+        rsim_driver::StaticFrenetObstaclePerceptionResult static_frenet_obstacles_;
+        rsim_driver::DynamicFrenetObstaclePerceptionResult dynamic_frenet_obstacles_;
         bool frenet_obstacles_valid_ = false;
         std::vector<rsim_driver::PlanningTrajectoryPoint> previous_trajectory_;
         rsim_driver::PlanningStartResult planning_start_result_;
