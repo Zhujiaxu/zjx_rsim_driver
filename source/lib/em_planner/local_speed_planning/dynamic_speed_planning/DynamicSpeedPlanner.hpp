@@ -4,6 +4,7 @@
 #include "CollisionCost.hpp"
 #include "FrenetObstaclePerception.hpp"
 #include "localpathreferline.hpp"
+#include "computecutinandout.hpp"
 
 #include <vector>
 
@@ -33,7 +34,6 @@ struct DynamicSpeedPoint
     double v = 0.0;
     double a = 0.0;
     double jerk = 0.0;
-    int rowindex = -1;
 };
 struct DynamicSpeedPlanStartPoint
 {
@@ -68,12 +68,13 @@ public:
     void SetConfig(const DynamicSpeedPlanConfig& config);
 
     bool Plan(const DynamicSpeedPlanStartPoint& start,
-              double path_length,
+              const localreferencelinepath& reference_line,
               const DynamicFrenetObstaclePerceptionResult& dynamic_obstacles,
               DynamicSpeedPlanResult* result) const;
 
 private:
     DynamicSpeedPlanConfig config_;
+    ComputeCutInAndOut compute_cut_in_and_out_;
 };
 
 }  // namespace rsim_driver

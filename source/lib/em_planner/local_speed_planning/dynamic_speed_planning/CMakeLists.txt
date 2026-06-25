@@ -2,7 +2,8 @@ add_library(dynamic_speed_planning STATIC
     DynamicSpeedPlanner.cpp)
 
 target_include_directories(dynamic_speed_planning PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR})
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/../../perception)
 
 target_compile_features(dynamic_speed_planning PUBLIC cxx_std_17)
 
@@ -12,6 +13,7 @@ target_link_libraries(dynamic_speed_planning PUBLIC
     em_planner_perception
     point_to_line_distance
     localpathreferline
+    computecutinandout
     )
 
 add_executable(test_dynamic_speed_planner_smoke EXCLUDE_FROM_ALL

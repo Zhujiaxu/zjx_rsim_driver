@@ -19,11 +19,13 @@ bool Near(double actual, double expected, double tolerance = 1e-9)
     return std::fabs(actual - expected) <= tolerance;
 }
 
-rsim_driver::PlanningStartResult MakeStart(double speed = 1.0)
+rsim_driver::DynamicSpeedPlanStartPoint MakeStart(double speed = 1.0)
 {
-    rsim_driver::PlanningStartResult start;
-    start.start_point.speed = speed;
-    start.start_point.accel = 0.0;
+    rsim_driver::DynamicSpeedPlanStartPoint start;
+    start.t = 0.0;
+    start.s = 0.0;
+    start.v = speed;
+    start.a = 0.0;
     return start;
 }
 
@@ -44,13 +46,29 @@ rsim_driver::DynamicSpeedPlanConfig MakeConfig()
     return config;
 }
 
+rsim_driver::localreferencelinepath MakeReferenceLine(double end_s,
+                                                      double step = 0.5)
+{
+    rsim_driver::localreferencelinepath path;
+    if (end_s < 0.0 || step <= 0.0)
+        return path;
+
+    for (double s = 0.0; s <= end_s + 1e-9; s += step)
+        path.push_back({s, 0.0, 0.0, 0.0, s, 0.0});
+    return path;
+}
+
 rsim_driver::DynamicFrenetObstacle MakeDynamicObstacle(double s,
-                                                       double s_dot)
+                                                       double s_dot,
+                                                       double l = 2.0,
+                                                       double ldot = -1.0)
 {
     rsim_driver::DynamicFrenetObstacle obstacle;
     obstacle.id = 101;
     obstacle.dynamicfrenetstate.s = s;
     obstacle.dynamicfrenetstate.s_dot = s_dot;
+    obstacle.dynamicfrenetstate.l = l;
+    obstacle.dynamicfrenetstate.ldot = ldot;
     return obstacle;
 }
 
@@ -80,8 +98,10 @@ bool CheckPreviousRowIndexes(
     for (std::size_t i = 1; i < points.size(); ++i)
     {
         const int expected_previous_row =
-            static_cast<int>(std::llround(
-                (points[i - 1].s - start_s) / s_step));
+            i == 1 ? 0
+                   : static_cast<int>(std::llround(
+                         (points[i - 1].s - start_s) / s_step)) -
+                         1;
         if (points[i].rowindex != expected_previous_row)
             return false;
     }
@@ -97,7 +117,7 @@ int main()
     rsim_driver::DynamicSpeedPlanResult result;
 
     if (!Require(planner.Plan(MakeStart(),
-                              10.0,
+                              MakeReferenceLine(10.0, config.s_step),
                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                               &result) &&
                      result.dpsuccess,
@@ -132,7 +152,7 @@ int main()
     truncated_config.s_step_count = 10;
     planner.SetConfig(truncated_config);
     if (!Require(planner.Plan(MakeStart(),
-                              1.2,
+                              MakeReferenceLine(1.0, truncated_config.s_step),
                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                               &result) &&
                      result.dpsuccess,
@@ -155,7 +175,7 @@ int main()
     local_choice_config.weight_jerk = 0.0;
     planner.SetConfig(local_choice_config);
     if (!Require(planner.Plan(MakeStart(),
-                              10.0,
+                              MakeReferenceLine(10.0, local_choice_config.s_step),
                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                               &result) &&
                      result.dpsuccess,
@@ -164,18 +184,20 @@ int main()
     if (!Require(result.speed_points.size() == 3 &&
                      Near(result.speed_points[1].s, 2.0) &&
                      Near(result.speed_points[2].s, 4.0) &&
-                     result.speed_points[2].rowindex == 2,
+                     result.speed_points[2].rowindex == 1,
                  "right-edge point should record best previous row by local cost"))
         return 1;
 
     rsim_driver::DynamicFrenetObstaclePerceptionResult dynamic_obstacles;
-    dynamic_obstacles.dynamicobstacles = {MakeDynamicObstacle(4.0, 0.0)};
+    dynamic_obstacles.dynamicobstacles = {
+        MakeDynamicObstacle(2.0, 1.0, 2.0, -1.0),
+    };
     local_choice_config.weight_collision = 1000.0;
     local_choice_config.collision.collision_distance = 0.1;
     local_choice_config.collision.risk_distance = 0.5;
     planner.SetConfig(local_choice_config);
     if (!Require(planner.Plan(MakeStart(),
-                              10.0,
+                              MakeReferenceLine(10.0, local_choice_config.s_step),
                               dynamic_obstacles,
                               &result) &&
                      result.dpsuccess,
@@ -183,7 +205,7 @@ int main()
         return 1;
     if (!Require(result.speed_points.size() == 3 &&
                      Near(result.speed_points.back().s, 3.0) &&
-                     result.speed_points.back().rowindex == 1,
+                     result.speed_points.back().rowindex == 0,
                  "collision cost should be part of local transition cost"))
         return 1;
 
@@ -191,7 +213,7 @@ int main()
     invalid_config.time_step = 0.0;
     planner.SetConfig(invalid_config);
     if (!Require(!planner.Plan(MakeStart(),
-                               10.0,
+                               MakeReferenceLine(10.0, invalid_config.s_step),
                                rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                                &result) &&
                      !result.dpsuccess &&
@@ -201,13 +223,13 @@ int main()
 
     planner.SetConfig(MakeConfig());
     if (!Require(!planner.Plan(MakeStart(),
-                               0.0,
+                               MakeReferenceLine(0.0),
                                rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                                &result),
                  "zero path length should fail"))
         return 1;
     if (!Require(!planner.Plan(MakeStart(),
-                               10.0,
+                               MakeReferenceLine(10.0),
                                rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                                nullptr),
                  "null dynamic speed output should fail"))
