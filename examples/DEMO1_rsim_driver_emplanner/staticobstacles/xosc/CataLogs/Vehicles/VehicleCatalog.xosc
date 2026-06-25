@@ -2,40 +2,56 @@
 <OpenSCENARIO>
     <FileHeader revMajor="1" revMinor="1" date="2024-03-30T10:00:00" description="Vehicle catalog" author="thsousands sim team"/>
     <Catalog name="VehicleCatalog">
-        <Vehicle name="FuTian" vehicleCategory="truck" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/65d0gx7pv4/ixml24/do3nfya7w8paqlrx.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=7D3NuF0DVfiW9xLC9zLfZj29D3o%3D">
+        <Vehicle name="autoware" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/dlp78eo8kd/0hw97g/c2ut1gyxe7fyse7d.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=Eq5XexOb%2F6gqymqxBvSvB1rl0JY%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
-                <Center x="1.55" y="0" z="1.155"/>
-                <Dimensions width="2.262" length="4.9" height="2.31"/>
+                <Center x="1.35" y="0" z="0.8"/>
+                <Dimensions width="2" length="4.8" height="1.6"/>
+            </BoundingBox>
+            <Performance maxSpeed="120 " maxDeceleration="10" maxAcceleration="10"/>
+            <Axles>
+                <FrontAxle maxSteering="0.6" wheelDiameter="0.7" trackWidth="1.7" positionX="2.75" positionZ="0.35"/>
+                <RearAxle maxSteering="0.6" wheelDiameter="0.7" trackWidth="1.7" positionX="0" positionZ="0.35"/>
+            </Axles>
+            <Properties>
+                <Property name="model_bp" value="autoware"/>
+            </Properties>
+        </Vehicle>
+        <Vehicle name="FuTian" vehicleCategory="truck" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/qm4e8qz102/a455ex/rws3w2r1gazy4ajc.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=PefEVOXnx95zQR0aZp%2B33b%2FuXFc%3D">
+            <ParameterDeclarations>
+            </ParameterDeclarations>
+            <BoundingBox>
+                <Center x="1.025" y="0" z="1.28"/>
+                <Dimensions width="2.262" length="3.1" height="1.96"/>
             </BoundingBox>
             <Performance maxSpeed="55" maxDeceleration="5" maxAcceleration="11"/>
             <Axles>
-                <FrontAxle maxSteering="30" wheelDiameter="0.804" trackWidth="2.22" positionX="3.1" positionZ="0.402"/>
-                <RearAxle maxSteering="30" wheelDiameter="0.804" trackWidth="2.22" positionX="0" positionZ="0.402"/>
+                <FrontAxle maxSteering="30" wheelDiameter="0.568" trackWidth="1.96" positionX="1.3" positionZ="0.284"/>
+                <RearAxle maxSteering="30" wheelDiameter="0.568" trackWidth="1.96" positionX="0" positionZ="0.284"/>
             </Axles>
-            <TrailerHitch dx="-0.95"/>
+            <TrailerHitch dx="-0.1"/>
             <Trailer>
-                <TrailerRef entityRef="FuTian_futian_trailer"/>
+                <TrailerRef entityRef="FuTian_futian_trailer1"/>
             </Trailer>
             <Properties>
                 <Property name="model_bp" value="www"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="FuTian_futian_trailer" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/4lrwdzkx4w/3hnazo/m6llag9xr5wx1tbo.glb?Expires=1781583353&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=LFAuTjmZHiXOsdLTBKrX9WaN5yg%3D">
+        <Vehicle name="FuTian_futian_trailer1" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/p0ke5r28x5/0r7wqw/1wpfi4tiibhzifl8.glb?Expires=1782397502&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=42hzPxKE35WJR4IabosIIdCkE%2FA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
-                <Center x="1.7" y="0" z="1.215"/>
-                <Dimensions width="2.45" length="4.5" height="2.43"/>
+                <Center x="0.6" y="0" z="1.415"/>
+                <Dimensions width="2.45" length="3.672" height="2.03"/>
             </BoundingBox>
             <Performance maxSpeed="60" maxDeceleration="11" maxAcceleration="11"/>
             <Axles>
-                <FrontAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="2.2" positionZ="0.292"/>
-                <RearAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="0" positionZ="0.292"/>
+                <FrontAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.96" positionX="1.2" positionZ="0.284"/>
+                <RearAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.98" positionX="0" positionZ="0.284"/>
             </Axles>
-            <TrailerCoupler dx="4.3"/>
-            <TrailerHitch dx="-0.55"/>
+            <TrailerCoupler dx="3.5"/>
+            <TrailerHitch dx="-0.4"/>
             <Trailer>
                 <TrailerRef entityRef="FuTian_futian_trailer2"/>
             </Trailer>
@@ -43,20 +59,20 @@
                 <Property name="model_bp" value=""/>
             </Properties>
         </Vehicle>
-        <Vehicle name="FuTian_futian_trailer2" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/qm4r48r1z0/7048c1/8aoxxc6gd2pgs9a9.glb?Expires=1781583353&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ht2tBPVlHiaX%2FMk%2Bf3P9p9pjCLU%3D">
+        <Vehicle name="FuTian_futian_trailer2" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/p0ke5r28x5/0r7wqw/1wpfi4tiibhzifl8.glb?Expires=1782397502&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=42hzPxKE35WJR4IabosIIdCkE%2FA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
-                <Center x="1.7" y="0" z="1.215"/>
-                <Dimensions width="2.45" length="4.5" height="2.43"/>
+                <Center x="0.6" y="0" z="1.415"/>
+                <Dimensions width="2.45" length="3.672" height="2.03"/>
             </BoundingBox>
             <Performance maxSpeed="60" maxDeceleration="11" maxAcceleration="11"/>
             <Axles>
-                <FrontAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="2.2" positionZ="0.292"/>
-                <RearAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="0" positionZ="0.292"/>
+                <FrontAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.96" positionX="1.2" positionZ="0.284"/>
+                <RearAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.98" positionX="0" positionZ="0.284"/>
             </Axles>
-            <TrailerCoupler dx="4.3"/>
-            <TrailerHitch dx="-0.55"/>
+            <TrailerCoupler dx="3.5"/>
+            <TrailerHitch dx="-0.4"/>
             <Trailer>
                 <TrailerRef entityRef="FuTian_futian_trailer3"/>
             </Trailer>
@@ -64,20 +80,20 @@
                 <Property name="model_bp" value=""/>
             </Properties>
         </Vehicle>
-        <Vehicle name="FuTian_futian_trailer3" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/qm4r48r1z0/7048c1/8aoxxc6gd2pgs9a9.glb?Expires=1781583353&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ht2tBPVlHiaX%2FMk%2Bf3P9p9pjCLU%3D">
+        <Vehicle name="FuTian_futian_trailer3" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/p0ke5r28x5/0r7wqw/1wpfi4tiibhzifl8.glb?Expires=1782397502&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=42hzPxKE35WJR4IabosIIdCkE%2FA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
-                <Center x="1.7" y="0" z="1.215"/>
-                <Dimensions width="2.45" length="4.5" height="2.43"/>
+                <Center x="0.6" y="0" z="1.415"/>
+                <Dimensions width="2.45" length="3.672" height="2.03"/>
             </BoundingBox>
             <Performance maxSpeed="60" maxDeceleration="11" maxAcceleration="11"/>
             <Axles>
-                <FrontAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="2.2" positionZ="0.292"/>
-                <RearAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="0" positionZ="0.292"/>
+                <FrontAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.96" positionX="1.2" positionZ="0.284"/>
+                <RearAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.98" positionX="0" positionZ="0.284"/>
             </Axles>
-            <TrailerCoupler dx="4.3"/>
-            <TrailerHitch dx="-0.55"/>
+            <TrailerCoupler dx="3.5"/>
+            <TrailerHitch dx="-0.4"/>
             <Trailer>
                 <TrailerRef entityRef="FuTian_futian_trailer4"/>
             </Trailer>
@@ -85,20 +101,20 @@
                 <Property name="model_bp" value=""/>
             </Properties>
         </Vehicle>
-        <Vehicle name="FuTian_futian_trailer4" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/qm4r48r1z0/7048c1/8aoxxc6gd2pgs9a9.glb?Expires=1781583353&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ht2tBPVlHiaX%2FMk%2Bf3P9p9pjCLU%3D">
+        <Vehicle name="FuTian_futian_trailer4" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/p0ke5r28x5/0r7wqw/1wpfi4tiibhzifl8.glb?Expires=1782397502&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=42hzPxKE35WJR4IabosIIdCkE%2FA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
-                <Center x="1.7" y="0" z="1.215"/>
-                <Dimensions width="2.45" length="4.5" height="2.43"/>
+                <Center x="0.6" y="0" z="1.415"/>
+                <Dimensions width="2.45" length="3.672" height="2.03"/>
             </BoundingBox>
             <Performance maxSpeed="60" maxDeceleration="11" maxAcceleration="11"/>
             <Axles>
-                <FrontAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="2.2" positionZ="0.292"/>
-                <RearAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="0" positionZ="0.292"/>
+                <FrontAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.96" positionX="1.2" positionZ="0.284"/>
+                <RearAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.98" positionX="0" positionZ="0.284"/>
             </Axles>
-            <TrailerCoupler dx="4.3"/>
-            <TrailerHitch dx="-0.55"/>
+            <TrailerCoupler dx="3.5"/>
+            <TrailerHitch dx="-0.4"/>
             <Trailer>
                 <TrailerRef entityRef="FuTian_futian_trailer5"/>
             </Trailer>
@@ -106,20 +122,20 @@
                 <Property name="model_bp" value=""/>
             </Properties>
         </Vehicle>
-        <Vehicle name="FuTian_futian_trailer5" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/qm4r48r1z0/7048c1/8aoxxc6gd2pgs9a9.glb?Expires=1781583353&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ht2tBPVlHiaX%2FMk%2Bf3P9p9pjCLU%3D">
+        <Vehicle name="FuTian_futian_trailer5" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/p0ke5r28x5/0r7wqw/1wpfi4tiibhzifl8.glb?Expires=1782397502&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=42hzPxKE35WJR4IabosIIdCkE%2FA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
-                <Center x="1.7" y="0" z="1.215"/>
-                <Dimensions width="2.45" length="4.5" height="2.43"/>
+                <Center x="0.6" y="0" z="1.415"/>
+                <Dimensions width="2.45" length="3.672" height="2.03"/>
             </BoundingBox>
             <Performance maxSpeed="60" maxDeceleration="11" maxAcceleration="11"/>
             <Axles>
-                <FrontAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="2.2" positionZ="0.292"/>
-                <RearAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="0" positionZ="0.292"/>
+                <FrontAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.96" positionX="1.2" positionZ="0.284"/>
+                <RearAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.98" positionX="0" positionZ="0.284"/>
             </Axles>
-            <TrailerCoupler dx="4.3"/>
-            <TrailerHitch dx="-0.55"/>
+            <TrailerCoupler dx="3.5"/>
+            <TrailerHitch dx="-0.4"/>
             <Trailer>
                 <TrailerRef entityRef="FuTian_futian_trailer6"/>
             </Trailer>
@@ -127,24 +143,24 @@
                 <Property name="model_bp" value=""/>
             </Properties>
         </Vehicle>
-        <Vehicle name="FuTian_futian_trailer6" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/qm4r48r1z0/7048c1/8aoxxc6gd2pgs9a9.glb?Expires=1781583353&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ht2tBPVlHiaX%2FMk%2Bf3P9p9pjCLU%3D">
+        <Vehicle name="FuTian_futian_trailer6" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/p0ke5r28x5/0r7wqw/1wpfi4tiibhzifl8.glb?Expires=1782397502&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=42hzPxKE35WJR4IabosIIdCkE%2FA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
-                <Center x="1.7" y="0" z="1.215"/>
-                <Dimensions width="2.45" length="4.5" height="2.43"/>
+                <Center x="0.6" y="0" z="1.415"/>
+                <Dimensions width="2.45" length="3.672" height="2.03"/>
             </BoundingBox>
             <Performance maxSpeed="60" maxDeceleration="11" maxAcceleration="11"/>
             <Axles>
-                <FrontAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="2.2" positionZ="0.292"/>
-                <RearAxle maxSteering="11" wheelDiameter="0.584" trackWidth="2.4" positionX="0" positionZ="0.292"/>
+                <FrontAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.96" positionX="1.2" positionZ="0.284"/>
+                <RearAxle maxSteering="0" wheelDiameter="0.568" trackWidth="1.98" positionX="0" positionZ="0.284"/>
             </Axles>
-            <TrailerCoupler dx="4.3"/>
+            <TrailerCoupler dx="3.5"/>
             <Properties>
                 <Property name="model_bp" value=""/>
             </Properties>
         </Vehicle>
-        <Vehicle name="EV52" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/650m45gqw3/zzjwq2/et7qay2mt8kq0klw.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=opQz98VP%2FSVFGnE7Tx1UZ9TeJ7I%3D">
+        <Vehicle name="EV52" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/650m45gqw3/zzjwq2/et7qay2mt8kq0klw.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=BHCBhmIzxmyEWQHzTfiC4ioXyQM%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -160,7 +176,7 @@
                 <Property name="model_bp" value="vehicle.red.ev52"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="tramar" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/j2m65pjj5k/qupw12/der74dlum10wfzcd.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=JvLZzOoE5wwVIVIQVn2YYBqUdfo%3D">
+        <Vehicle name="tramar" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/j2m65pjj5k/qupw12/der74dlum10wfzcd.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=LbvaZFTBMc7lKIJMX5Zs7vcjiK8%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -176,7 +192,7 @@
                 <Property name="model_bp" value="vehicle.mine.tramcar"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="物流车" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/v5v8jj5mo2/pkfrww/pfw5c3xxfw5fu82u.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=3t5bgi%2Fwsc%2FKDWXH7w8wSa0sfI8%3D">
+        <Vehicle name="物流车" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/v5v8jj5mo2/pkfrww/pfw5c3xxfw5fu82u.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=z3RK%2FdNM1JDqEKVnVb%2BD6AFW6ck%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -192,7 +208,7 @@
                 <Property name="model_bp" value="vehicle.red.expresscar"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="唐" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/m3rd606g23/emwl96/03e854w37v7cwdrw.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=8yk7jhwpdN69xf2fIdOD8spOlq8%3D">
+        <Vehicle name="唐" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/m3rd606g23/emwl96/03e854w37v7cwdrw.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=Vs62M2B%2F%2FNcYJCUokVVgWmz31xA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -208,7 +224,7 @@
                 <Property name="model_bp" value="vehicle.lincoln.mkz"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="lincoln" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/l1xdl68ww3/brgshz/le70igy30pynohuv.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=3GsfLoSvOJFhFCTgkO%2B%2BxoXiTo8%3D">
+        <Vehicle name="lincoln" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/l1xdl68ww3/brgshz/le70igy30pynohuv.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ehGx1A3NMgoCZ%2BJOoIRaF05eCAg%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -224,7 +240,7 @@
                 <Property name="model_bp" value="vehicle.lincoln.mkz"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="car" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/j2mrj1vz6v/44r34e/uu15ra4e4t9yqm4i.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=0xmFNTIjdfzdzkJNHLsUtHQuFoM%3D">
+        <Vehicle name="car" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/j2mrj1vz6v/44r34e/uu15ra4e4t9yqm4i.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=%2BNuhNk7jI5E1X4HEh945ioF2o6k%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -240,7 +256,7 @@
                 <Property name="model_bp" value="vehicle.lincoln.mkz"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="car_delivery" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/8pdvr1dor2/it0dvz/ueq1eeu1mvwuvxm3.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ar%2BH43IenOqLjGUbjB6KslU6JgM%3D">
+        <Vehicle name="car_delivery" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/8pdvr1dor2/it0dvz/ueq1eeu1mvwuvxm3.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=bST0HYS%2BCCg8qHdXsG6vfuxaIZE%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -256,7 +272,7 @@
                 <Property name="model_bp" value="vehicle.delivery.deliverycar"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="miningtruck" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/xp2e0125g5/gks0nk/lo0iwyq2632gcdb8.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=bTgJXDlhb0WgJP6beqm%2BIPhPrlo%3D">
+        <Vehicle name="miningtruck" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/xp2e0125g5/gks0nk/lo0iwyq2632gcdb8.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=4EDGCQtUUHjG6iMaILUqWjFloQI%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -272,7 +288,7 @@
                 <Property name="model_bp" value="vehicle.miningtruck.miningtruck"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="excavator" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/716z1rvz8k/7xhapy/oanssmi56jkdwrda.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=gA0%2FrTJJoNaNesy49SXjIeQQoFQ%3D">
+        <Vehicle name="excavator" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/716z1rvz8k/7xhapy/oanssmi56jkdwrda.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=y2254teKii9GJNDfR%2BwfeQv%2FCfc%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -288,7 +304,7 @@
                 <Property name="model_bp" value="vechicle.excavator.mkz"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="car_police" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/dl243rqr0o/tj9a84/blmu0odlk4xusyop.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=8Fr5nKNSyxRoeS4Lf6cS3psmRbc%3D">
+        <Vehicle name="car_police" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/dl243rqr0o/tj9a84/blmu0odlk4xusyop.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=zCCB%2B48X0wJaFLbjIIs%2FItsTwWs%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -304,7 +320,7 @@
                 <Property name="model_bp" value="vehicle.dodgecop.charger"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="van" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/l1xdq2vp53/i2mq8n/tfl9ie9pqhe4c9pq.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=BYEwDy1sVCVN3anm44m%2FDUeDpZg%3D">
+        <Vehicle name="van" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/l1xdq2vp53/i2mq8n/tfl9ie9pqhe4c9pq.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=O%2BfYBxmyb61FGrJ90OkPq6TjsCY%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -320,7 +336,7 @@
                 <Property name="model_bp" value="vehicle.van.volkswagen"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="colatruck" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/od5v30dg2l/8dqwal/lyltdbfnaxbd1gdk.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=izss85cBGFz%2BFaoQihdlT5%2BKtjM%3D">
+        <Vehicle name="colatruck" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/od5v30dg2l/8dqwal/lyltdbfnaxbd1gdk.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=20DGZYNE1zzVuv6tttzUd8uRXAg%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -336,7 +352,7 @@
                 <Property name="model_bp" value="vehicle.carlacola.actors"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="sprinter" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/m3rdodrel8/ib9uvk/9lnb731qkqlwbil6.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=mz6HnO%2FQydNEJWhWnOzA0Cjh%2FGM%3D">
+        <Vehicle name="sprinter" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/m3rdodrel8/ib9uvk/9lnb731qkqlwbil6.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=GEwGsm7%2B3GFqw%2F80nD5EI6Sb%2B50%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -352,7 +368,7 @@
                 <Property name="model_bp" value="vehicle.sprinter.mercedes"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="firetruck" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/1m6e01erp2/elg1tx/93wokqtfh6p5hh6g.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=XY%2FsAojXic0ZDvnnGWpXkZYj42o%3D">
+        <Vehicle name="firetruck" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/1m6e01erp2/elg1tx/93wokqtfh6p5hh6g.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=usv87m1FTkj%2BBSCvqxfF%2BtcbTFg%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -368,7 +384,7 @@
                 <Property name="model_bp" value="vehicle.firetruck.actors"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="dodge" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/p0rjxkrj4d/bnefh0/abl4rtmqzb8g836e.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=POFTMZGK3HMjWy67uOw%2F9HmXCr8%3D">
+        <Vehicle name="dodge" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/p0rjxkrj4d/bnefh0/abl4rtmqzb8g836e.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=woR8tdm8luEQxQHYpp4AvXkh%2BVE%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -384,7 +400,7 @@
                 <Property name="model_bp" value="vehicle.dodge.charger"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="auditt" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/xp2ezqq3gl/t9cwyg/0bbbw9fw247xgpy0.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=0%2BrXFSSP6QRzLPe1BMvE4qajGtI%3D">
+        <Vehicle name="auditt" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/xp2ezqq3gl/t9cwyg/0bbbw9fw247xgpy0.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=Bl4991RBI%2F6biKa2bpkwBpMmv6c%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -400,7 +416,7 @@
                 <Property name="model_bp" value="vehicle.audi.tt"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="bmwgrand" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/e72elr6q0k/ahkt4d/7u6dua5tuepot2uv.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=x8sbxEt6P69eTJdGFNGO586pVoY%3D">
+        <Vehicle name="bmwgrand" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/e72elr6q0k/ahkt4d/7u6dua5tuepot2uv.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=2rsRKzj%2BRxAtV6TMTvEkvdoDDTY%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -416,7 +432,7 @@
                 <Property name="model_bp" value="vehicle.bmw.grantourer"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="fuso" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/od5vjqxkgm/ru619t/fpzatwvdrs0ws7n2.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ip9BTKhdGOC9wYJo2AvjvxI6p3s%3D">
+        <Vehicle name="fuso" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/od5vjqxkgm/ru619t/fpzatwvdrs0ws7n2.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=qor4yH%2ByChHRS7zz2KvpqIioTiA%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -432,7 +448,7 @@
                 <Property name="model_bp" value="vehicle.fuso.mitsubishi"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="nissan" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/1m6eg1ddr5/bmhjn9/ef6qxvi5uklk0rvf.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=FZWcTRn3H11LFr7iws%2F1EsHFN40%3D">
+        <Vehicle name="nissan" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/1m6eg1ddr5/bmhjn9/ef6qxvi5uklk0rvf.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=FYv81sFegpsCoK%2BOD%2B%2FqAaHkiP4%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -448,7 +464,7 @@
                 <Property name="model_bp" value="vehicle.nissan.patrol"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="ambulance" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/00zev6jdm7/3rsu8o/2n81ik8ypjrqxl47.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=Bgz45QFdPk8qCRs61taneHpqklE%3D">
+        <Vehicle name="ambulance" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/00zev6jdm7/3rsu8o/2n81ik8ypjrqxl47.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=WC2Ar8MnMBeveJGku9dGtTqNGIQ%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -464,7 +480,7 @@
                 <Property name="model_bp" value="vehicle.ambulance.ford"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="suv" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/e72elr7vve/i4398s/mmf58re6z16o8wa3.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=wV1x%2BsocFlP3vswBohyTwtU9%2Fu4%3D">
+        <Vehicle name="suv" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/e72elr7vve/i4398s/mmf58re6z16o8wa3.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=wCTd%2B9HOH3Kg7jnUqjSh3doHdHQ%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -480,7 +496,7 @@
                 <Property name="model_bp" value="vehicle.mini.cooper"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="su7" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/4ldvxr0pjg/rr222i/enqtaf4ko4f0wuvi.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=01t1GJrcg%2F6fpr9eFmzrRSKQ80g%3D">
+        <Vehicle name="su7" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/4ldvxr0pjg/rr222i/enqtaf4ko4f0wuvi.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=D6e4m0EiPT%2FKZ1Uy6gb7ZXYuoFg%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -496,7 +512,7 @@
                 <Property name="model_bp" value="vehicle.xiaomi.su7"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="scooter" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/rjdv7zoe43/1tf2xb/jkkhobcb6hi9zbfv.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=4kONctotUP1Oj1NH5IoupiRfrA8%3D">
+        <Vehicle name="scooter" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/rjdv7zoe43/1tf2xb/jkkhobcb6hi9zbfv.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=Abw8oNIRlEJYeoKpIZMNuy35Dzg%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -512,7 +528,7 @@
                 <Property name="model_bp" value="vehcle.vino.motorbike"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="bicycle" vehicleCategory="bicycle" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/1m6e0rwl85/vg508x/x1kpftba0ee6q0r8.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ZpiMDLcmBrssP156qYxOx2FZoFw%3D">
+        <Vehicle name="bicycle" vehicleCategory="bicycle" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/1m6e0rwl85/vg508x/x1kpftba0ee6q0r8.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=%2F9vbg6jPUW2yql0750kv3c%2BDm%2Fk%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
@@ -528,7 +544,7 @@
                 <Property name="model_bp" value="vehicle.bicycle.bike"/>
             </Properties>
         </Vehicle>
-        <Vehicle name="motorbike" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/qmqxlj41l0/ceizj1/qupdarjxbzwdd1i6.glb?Expires=1781590553&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=e5KNbC4vBDInWqrU%2FYDWJFdpHIA%3D">
+        <Vehicle name="motorbike" vehicleCategory="car" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/qmqxlj41l0/ceizj1/qupdarjxbzwdd1i6.glb?Expires=1782404701&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=hc%2BxyruMrNp8zMGihbS0%2BET9CNw%3D">
             <ParameterDeclarations>
             </ParameterDeclarations>
             <BoundingBox>
