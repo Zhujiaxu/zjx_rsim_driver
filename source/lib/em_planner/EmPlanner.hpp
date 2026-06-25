@@ -21,7 +21,6 @@ namespace rsim_driver
     struct EmPlannerResult
     {
 
-        
         bool perception_success = false;
         bool static_perception_success = false;
         bool dynamic_perception_success = false;

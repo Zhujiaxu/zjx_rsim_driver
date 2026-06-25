@@ -1,7 +1,5 @@
 #include "DynamicSpeedPlanner.hpp"
 
-#include "PointToLineDistance.hpp"
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -144,26 +142,7 @@ double CollisionCostAt(const StPoint& point,
 {
     if (obstacle_lines.empty())
         return 0.0;
-
-    std::vector<PointToLineDistanceResult> distances;
-    if (!ComputePointToCutInAndOutLineDistances(
-            obstacle_lines,
-            point,
-            &distances))
-    {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    std::vector<SlPoint> distance_points;
-    distance_points.reserve(distances.size());
-    for (const PointToLineDistanceResult& distance : distances)
-    {
-        if (!IsFinite(distance.distance))
-            continue;
-        distance_points.push_back({0.0, distance.distance});
-    }
-
-    return DynamicObstacleCollisionCost({0.0, 0.0}, distance_points, config);
+    return DynamicObstacleCollisionCost(point, obstacle_lines, config);
 }
 
 double SpeedCost(double speed, const DynamicSpeedPlanConfig& config)
@@ -183,6 +162,18 @@ double AccelerationCost(double acceleration,
 double JerkCost(double jerk, const DynamicSpeedPlanConfig& config)
 {
     return NonNegative(config.weight_jerk) * jerk * jerk;
+}
+
+double TransitionCost(double speed,
+                      double acceleration,
+                      double jerk,
+                      double collision_cost,
+                      const DynamicSpeedPlanConfig& config)
+{
+    return SpeedCost(speed, config) +
+           AccelerationCost(acceleration, config) +
+           JerkCost(jerk, config) +
+           NonNegative(config.weight_collision) * collision_cost;
 }
 
 }  // namespace
@@ -262,6 +253,7 @@ bool DynamicSpeedPlanner::Plan(
         const std::vector<DynamicSpeedNode>& previous_layer =
             layers[layer_index - 1];
         std::vector<DynamicSpeedNode>& current_layer = layers[layer_index];
+        const bool first_speed_column = layer_index == 1;
 
         for (std::size_t current_index = 0;
              current_index < current_layer.size();
@@ -275,8 +267,10 @@ bool DynamicSpeedPlanner::Plan(
             if (IsFatalCollisionCost(collision_cost, config.collision))
                 continue;
 
-            const double weighted_collision_cost =
-                NonNegative(config.weight_collision) * collision_cost;
+            double best_transition_cost =
+                std::numeric_limits<double>::infinity();
+            int best_previous_index = -1;
+            DynamicSpeedPoint best_point = current.point;
 
             for (std::size_t previous_index = 0;
                  previous_index < previous_layer.size();
@@ -302,19 +296,33 @@ bool DynamicSpeedPlanner::Plan(
                     (acceleration - previous.point.a) / delta_t;
 
                 const double transition_cost =
-                    SpeedCost(speed, config) +
-                    AccelerationCost(acceleration, config) +
-                    JerkCost(jerk, config) +
-                    weighted_collision_cost;
-                const double total_cost = previous.cost + transition_cost;
-                if (total_cost < current.cost)
+                    TransitionCost(speed,
+                                   acceleration,
+                                   jerk,
+                                   collision_cost,
+                                   config);
+                if (transition_cost < best_transition_cost)
                 {
-                    current.cost = total_cost;
-                    current.previous_index = static_cast<int>(previous_index);
-                    current.point.v = speed;
-                    current.point.a = acceleration;
-                    current.point.jerk = jerk;
+                    best_transition_cost = transition_cost;
+                    best_previous_index = static_cast<int>(previous_index);
+                    best_point.v = speed;
+                    best_point.a = acceleration;
+                    best_point.jerk = jerk;
+                    best_point.rowindex = static_cast<int>(previous_index);
                 }
+
+                if (first_speed_column)
+                    break;
+            }
+
+            if (best_previous_index >= 0 &&
+                std::isfinite(best_transition_cost))
+            {
+                const DynamicSpeedNode& previous =
+                    previous_layer[static_cast<std::size_t>(best_previous_index)];
+                current.point = best_point;
+                current.previous_index = best_previous_index;
+                current.cost = previous.cost + best_transition_cost;
             }
         }
     }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "CartesianToFrenet.hpp"
+#include "PlanningStartPoint.hpp"
 #include "CollisionCost.hpp"
-#include "perception/FrenetObstaclePerception.hpp"
+#include "FrenetObstaclePerception.hpp"
 
 #include <vector>
 
@@ -32,6 +32,7 @@ struct DynamicSpeedPoint
     double v = 0.0;
     double a = 0.0;
     double jerk = 0.0;
+    int rowindex = -1;
 };
 
 struct DynamicSpeedPlanResult
@@ -49,7 +50,7 @@ public:
     const DynamicSpeedPlanConfig& config() const;
     void SetConfig(const DynamicSpeedPlanConfig& config);
 
-    bool Plan(const CartesianFrenetState& start,
+    bool Plan(const PlanningStartResult& start,
               double path_length,
               const DynamicFrenetObstaclePerceptionResult& dynamic_obstacles,
               DynamicSpeedPlanResult* result) const;

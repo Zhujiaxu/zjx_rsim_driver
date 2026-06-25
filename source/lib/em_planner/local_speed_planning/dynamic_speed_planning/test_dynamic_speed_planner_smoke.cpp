@@ -1,5 +1,4 @@
 #include "DynamicSpeedPlanner.hpp"
-#include "PointToLineDistance.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -70,6 +69,25 @@ bool CheckBackwardEulerSpeed(
     return true;
 }
 
+bool CheckPreviousRowIndexes(
+    const std::vector<rsim_driver::DynamicSpeedPoint>& points,
+    double start_s,
+    double s_step)
+{
+    if (points.empty() || points.front().rowindex != -1)
+        return false;
+
+    for (std::size_t i = 1; i < points.size(); ++i)
+    {
+        const int expected_previous_row =
+            static_cast<int>(std::llround(
+                (points[i - 1].s - start_s) / s_step));
+        if (points[i].rowindex != expected_previous_row)
+            return false;
+    }
+    return true;
+}
+
 }  // namespace
 
 int main()
@@ -103,6 +121,11 @@ int main()
                      "reference-speed path should keep constant speed"))
             return 1;
     }
+    if (!Require(CheckPreviousRowIndexes(result.speed_points,
+                                         0.0,
+                                         config.s_step),
+                 "speed points should record selected previous row index"))
+        return 1;
 
     rsim_driver::DynamicSpeedPlanConfig truncated_config = MakeConfig();
     truncated_config.time_step_count = 8;
@@ -121,30 +144,48 @@ int main()
                  "planner should stop on top edge without exceeding path length"))
         return 1;
 
-    rsim_driver::DynamicFrenetObstaclePerceptionResult dynamic_obstacles;
-    dynamic_obstacles.dynamicobstacles = {MakeDynamicObstacle(0.0, 1.0)};
+    rsim_driver::DynamicSpeedPlanConfig local_choice_config = MakeConfig();
+    local_choice_config.time_step = 1.0;
+    local_choice_config.time_step_count = 2;
+    local_choice_config.s_step = 1.0;
+    local_choice_config.s_step_count = 4;
+    local_choice_config.reference_speed = 2.0;
+    local_choice_config.weight_reference_speed = 1.0;
+    local_choice_config.weight_acceleration = 0.0;
+    local_choice_config.weight_jerk = 0.0;
+    planner.SetConfig(local_choice_config);
+    if (!Require(planner.Plan(MakeStart(),
+                              10.0,
+                              rsim_driver::DynamicFrenetObstaclePerceptionResult{},
+                              &result) &&
+                     result.dpsuccess,
+                 "planner should succeed with local predecessor selection"))
+        return 1;
+    if (!Require(result.speed_points.size() == 3 &&
+                     Near(result.speed_points[1].s, 2.0) &&
+                     Near(result.speed_points[2].s, 4.0) &&
+                     result.speed_points[2].rowindex == 2,
+                 "right-edge point should record best previous row by local cost"))
+        return 1;
 
-    rsim_driver::DynamicSpeedPlanConfig obstacle_config = MakeConfig();
-    obstacle_config.weight_collision = 1000.0;
-    planner.SetConfig(obstacle_config);
+    rsim_driver::DynamicFrenetObstaclePerceptionResult dynamic_obstacles;
+    dynamic_obstacles.dynamicobstacles = {MakeDynamicObstacle(4.0, 0.0)};
+    local_choice_config.weight_collision = 1000.0;
+    local_choice_config.collision.collision_distance = 0.1;
+    local_choice_config.collision.risk_distance = 0.5;
+    planner.SetConfig(local_choice_config);
     if (!Require(planner.Plan(MakeStart(),
                               10.0,
                               dynamic_obstacles,
                               &result) &&
                      result.dpsuccess,
-                 "planner should find a speed path around dynamic obstacle line"))
+                 "planner should succeed when collision cost blocks a terminal point"))
         return 1;
-    for (std::size_t i = 1; i < result.speed_points.size(); ++i)
-    {
-        const rsim_driver::DynamicSpeedPoint& point = result.speed_points[i];
-        const double distance = rsim_driver::PointToLineSegmentDistance(
-            {point.s, point.t},
-            {0.0, 0.0},
-            {2.0, 2.0});
-        if (!Require(distance > obstacle_config.collision.collision_distance,
-                     "dynamic obstacle line collision nodes should be avoided"))
-            return 1;
-    }
+    if (!Require(result.speed_points.size() == 3 &&
+                     Near(result.speed_points.back().s, 3.0) &&
+                     result.speed_points.back().rowindex == 1,
+                 "collision cost should be part of local transition cost"))
+        return 1;
 
     rsim_driver::DynamicSpeedPlanConfig invalid_config = MakeConfig();
     invalid_config.time_step = 0.0;

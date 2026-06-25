@@ -1,4 +1,4 @@
-#include "planning_start/PlanningStartPoint.hpp"
+#include "PlanningStartPoint.hpp"
 
 #include <algorithm>
 #include <cmath>

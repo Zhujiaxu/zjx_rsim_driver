@@ -66,8 +66,8 @@ namespace rsim_driver
 
         for (const CutInAndOutInfoT &cutInAndOutInfo : cutInAndOutInfos)
         {
-            const StPoint &cutInPoint = {cutInAndOutInfo.tin, cutInAndOutInfo.sin};
-            const StPoint &cutOutPoint = {cutInAndOutInfo.tout, cutInAndOutInfo.sout};
+            const StPoint cutInPoint{cutInAndOutInfo.sin, cutInAndOutInfo.tin};
+            const StPoint cutOutPoint{cutInAndOutInfo.sout, cutInAndOutInfo.tout};
             const double distance = PointToLineSegmentDistance(point, cutInPoint, cutOutPoint);
 
             if (distance <= collisionDistance)

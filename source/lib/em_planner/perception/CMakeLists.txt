@@ -2,7 +2,7 @@ add_library(em_planner_perception STATIC
     FrenetObstaclePerception.cpp)
 
 target_include_directories(em_planner_perception PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/..
+    ${CMAKE_CURRENT_LIST_DIR}
     ${RSIM_PLUGIN_SDK_INCLUDE})
 
 target_compile_features(em_planner_perception PUBLIC cxx_std_17)

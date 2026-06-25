@@ -7,7 +7,7 @@ if(NOT DEFINED RSIM_PLUGIN_SDK_INCLUDE)
 endif()
 
 target_include_directories(planning_start PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/..
+    ${CMAKE_CURRENT_LIST_DIR}
     ${RSIM_PLUGIN_SDK_INCLUDE})
 
 target_compile_features(planning_start PUBLIC cxx_std_17)

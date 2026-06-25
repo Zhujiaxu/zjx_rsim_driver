@@ -8,7 +8,7 @@ target_include_directories(dynamic_speed_planning PUBLIC
 target_compile_features(dynamic_speed_planning PUBLIC cxx_std_17)
 
 target_link_libraries(dynamic_speed_planning PUBLIC
-    cartesian_to_frenet
+    planning_start
     collision_cost
     em_planner_perception
     point_to_line_distance)
