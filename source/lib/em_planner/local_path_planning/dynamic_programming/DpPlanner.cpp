@@ -68,7 +68,7 @@ std::vector<SlPoint> ToSlPoints(
     return points;
 }
 
-bool IsFatalCollisionCost(double cost, const CollisionCostConfig& config)
+bool IsFatalCollisionCost(double cost, const StaticCollisionCostConfig& config)
 {
     if (!std::isfinite(cost))
         return true;
@@ -184,7 +184,7 @@ bool DpPlanner::Plan(const CartesianFrenetState& start,
         for (std::size_t currentIndex = 0; currentIndex < currentLayer.size(); ++currentIndex)
         {
             DpNode& current = currentLayer[currentIndex];
-            const double collisionCost = ObstacleCollisionCost(
+            const double collisionCost = StaticObstacleCollisionCost(
                 {current.point.s, current.point.l}, obstaclePoints, config.collision);
             if (IsFatalCollisionCost(collisionCost, config.collision))
                 continue;

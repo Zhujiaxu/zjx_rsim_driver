@@ -22,7 +22,7 @@ struct DpPlannerConfig
     double weight_ref_l = 1.0;
     double weight_collision = 30.0;
 
-    CollisionCostConfig collision;
+    StaticCollisionCostConfig collision;
 };
 
 struct DpPathPoint

@@ -98,8 +98,8 @@ namespace rsim_driver
         result->reserve(cutInAndOutInfos.size());
         for (const CutInAndOutInfoT &info : cutInAndOutInfos)
         {
-            const StPoint segmentStart{info.sin, info.tin};
-            const StPoint segmentEnd{info.sout, info.tout};
+            const StPoint segmentStart{info.tin, info.sin};
+            const StPoint segmentEnd{info.tout, info.sout};
             result->push_back({info.id,
                                PointToLineSegmentDistance(startPoint,
                                                           segmentStart,
