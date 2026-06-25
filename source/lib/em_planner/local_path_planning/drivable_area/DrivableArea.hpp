@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CollisionCost.hpp"
-#include "local_path_planning/dynamic_programming/DpPlanner.hpp"
+#include "DpPlanner.hpp"
 
 #include <vector>
 

@@ -1,4 +1,4 @@
-#include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
+#include "QpPathOptimizer.hpp"
 
 #include <OsqpEigen/OsqpEigen.h>
 #include <Eigen/Sparse>

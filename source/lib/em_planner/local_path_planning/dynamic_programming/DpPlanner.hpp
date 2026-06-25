@@ -2,7 +2,7 @@
 
 #include "CartesianToFrenet.hpp"
 #include "CollisionCost.hpp"
-#include "perception/FrenetObstaclePerception.hpp"
+#include "FrenetObstaclePerception.hpp"
 
 #include <vector>
 

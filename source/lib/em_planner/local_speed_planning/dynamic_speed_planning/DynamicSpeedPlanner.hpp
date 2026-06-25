@@ -3,6 +3,7 @@
 #include "PlanningStartPoint.hpp"
 #include "CollisionCost.hpp"
 #include "FrenetObstaclePerception.hpp"
+#include "localpathreferline.hpp"
 
 #include <vector>
 
@@ -34,6 +35,13 @@ struct DynamicSpeedPoint
     double jerk = 0.0;
     int rowindex = -1;
 };
+struct DynamicSpeedPlanStartPoint
+{
+    double t = 0.0;
+    double s = 0.0;
+    double v = 0.0;
+    double a = 0.0;
+};
 
 struct DynamicSpeedPlanResult
 {
@@ -41,6 +49,15 @@ struct DynamicSpeedPlanResult
     double total_cost = 0.0;
     std::vector<DynamicSpeedPoint> speed_points;
 };
+inline DynamicSpeedPlanStartPoint GetDynamicSpeedPlanStartPoint(PlanningStartResult startpoint)
+{
+    DynamicSpeedPlanStartPoint result;
+    result.t = 0;
+    result.s = 0;
+    result.v = startpoint.start_point.speed;
+    result.a = startpoint.start_point.accel;
+    return result;
+}
 
 class DynamicSpeedPlanner
 {
@@ -50,7 +67,7 @@ public:
     const DynamicSpeedPlanConfig& config() const;
     void SetConfig(const DynamicSpeedPlanConfig& config);
 
-    bool Plan(const PlanningStartResult& start,
+    bool Plan(const DynamicSpeedPlanStartPoint& start,
               double path_length,
               const DynamicFrenetObstaclePerceptionResult& dynamic_obstacles,
               DynamicSpeedPlanResult* result) const;

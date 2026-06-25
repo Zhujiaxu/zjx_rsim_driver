@@ -2,7 +2,7 @@ add_library(quadratic_programming STATIC
     QpPathOptimizer.cpp)
 
 target_include_directories(quadratic_programming PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/../..)
+    ${CMAKE_CURRENT_LIST_DIR})
 
 target_compile_features(quadratic_programming PUBLIC cxx_std_17)
 

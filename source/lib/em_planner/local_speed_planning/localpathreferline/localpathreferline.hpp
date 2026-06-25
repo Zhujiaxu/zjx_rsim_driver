@@ -1,6 +1,6 @@
 #pragma once
 
-#include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
+#include "QpPathOptimizer.hpp"
 
 #include <cmath>
 #include <cstddef>

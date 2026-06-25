@@ -1,7 +1,7 @@
 #pragma once
 
 #include "localpathreferline.hpp"
-#include "perception/FrenetObstaclePerception.hpp"
+#include "FrenetObstaclePerception.hpp"
 
 #include <cstdint>
 #include <vector>

@@ -19,11 +19,11 @@ bool Near(double actual, double expected, double tolerance = 1e-9)
     return std::fabs(actual - expected) <= tolerance;
 }
 
-rsim_driver::CartesianFrenetState MakeStart(double s_dot = 1.0)
+rsim_driver::PlanningStartResult MakeStart(double speed = 1.0)
 {
-    rsim_driver::CartesianFrenetState start;
-    start.s = 0.0;
-    start.s_dot = s_dot;
+    rsim_driver::PlanningStartResult start;
+    start.start_point.speed = speed;
+    start.start_point.accel = 0.0;
     return start;
 }
 

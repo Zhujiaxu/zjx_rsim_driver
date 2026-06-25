@@ -1,4 +1,4 @@
-add_library(em_planner_perception STATIC
+add_library(em_planner_perception SHARED
     FrenetObstaclePerception.cpp)
 
 target_include_directories(em_planner_perception PUBLIC

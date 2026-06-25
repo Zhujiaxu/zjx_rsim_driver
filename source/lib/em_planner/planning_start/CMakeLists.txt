@@ -1,4 +1,4 @@
-add_library(planning_start STATIC
+add_library(planning_start SHARED
     PlanningStartPoint.cpp)
 
 if(NOT DEFINED RSIM_PLUGIN_SDK_INCLUDE)

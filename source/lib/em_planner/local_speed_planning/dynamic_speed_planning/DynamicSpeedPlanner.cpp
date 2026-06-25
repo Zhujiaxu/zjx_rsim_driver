@@ -57,11 +57,11 @@ bool ValidConfig(const DynamicSpeedPlanConfig& config)
            IsFinite(config.weight_collision);
 }
 
-bool ValidStart(const CartesianFrenetState& start)
+bool ValidStart(const PlanningStartResult& start)
 {
-    return IsFinite(start.s) &&
-           IsFinite(start.s_dot) &&
-           start.s_dot >= 0.0;
+    return IsFinite(start.start_point.speed) &&
+           start.start_point.speed >= 0.0 &&
+           IsFinite(start.start_point.accel);
 }
 
 std::vector<double> BuildTimeValues(const DynamicSpeedPlanConfig& config)
@@ -70,7 +70,7 @@ std::vector<double> BuildTimeValues(const DynamicSpeedPlanConfig& config)
     if (!ValidConfig(config))
         return values;
 
-    values.reserve(static_cast<std::size_t>(config.time_step_count) + 1);
+    values.reserve(static_cast<std::size_t>(config.time_step_count) );
     for (int i = 0; i <= config.time_step_count; ++i)
         values.push_back(static_cast<double>(i) * config.time_step);
     return values;
@@ -96,13 +96,13 @@ std::vector<double> BuildSValues(double start_s,
     if (max_step_count <= 0)
         return values;
 
-    values.reserve(static_cast<std::size_t>(max_step_count) + 1);
+    values.reserve(static_cast<std::size_t>(max_step_count));
     for (int i = 0; i <= max_step_count; ++i)
         values.push_back(start_s + static_cast<double>(i) * config.s_step);
     return values;
 }
 
-std::vector<ObstacleStLine> BuildObstacleStLines(
+/*std::vector<ObstacleStLine> BuildObstacleStLines(
     const DynamicFrenetObstaclePerceptionResult& dynamic_obstacles,
     double max_t)
 {
@@ -125,7 +125,7 @@ std::vector<ObstacleStLine> BuildObstacleStLines(
                          state.s + state.s_dot * max_t});
     }
     return lines;
-}
+}*/
 
 bool IsFatalCollisionCost(double cost, const DynamicCollisionCostConfig& config)
 {
@@ -136,14 +136,14 @@ bool IsFatalCollisionCost(double cost, const DynamicCollisionCostConfig& config)
     return false;
 }
 
-double CollisionCostAt(const StPoint& point,
+/*double CollisionCostAt(const StPoint& point,
                        const std::vector<ObstacleStLine>& obstacle_lines,
                        const DynamicCollisionCostConfig& config)
 {
     if (obstacle_lines.empty())
         return 0.0;
     return DynamicObstacleCollisionCost(point, obstacle_lines, config);
-}
+}*/
 
 double SpeedCost(double speed, const DynamicSpeedPlanConfig& config)
 {
@@ -195,7 +195,7 @@ void DynamicSpeedPlanner::SetConfig(const DynamicSpeedPlanConfig& config)
 }
 
 bool DynamicSpeedPlanner::Plan(
-    const CartesianFrenetState& start,
+    const PlanningStartResult& start,
     double path_length,
     const DynamicFrenetObstaclePerceptionResult& dynamic_obstacles,
     DynamicSpeedPlanResult* result) const
@@ -212,8 +212,9 @@ bool DynamicSpeedPlanner::Plan(
     }
 
     const std::vector<double> t_values = BuildTimeValues(config);
+    constexpr double start_s = 0.0;
     const std::vector<double> s_values =
-        BuildSValues(start.s, path_length, config);
+        BuildSValues(start_s, path_length, config);
     if (t_values.size() < 2 || s_values.size() < 2)
     {
         *result = output;
@@ -224,7 +225,11 @@ bool DynamicSpeedPlanner::Plan(
         BuildObstacleStLines(dynamic_obstacles, t_values.back());
 
     std::vector<std::vector<DynamicSpeedNode>> layers(t_values.size());
-    layers.front().push_back({{0.0, start.s, start.s_dot, 0.0, 0.0},
+    layers.front().push_back({{0.0,
+                               start_s,
+                               start.start_point.speed,
+                               start.start_point.accel,
+                               0.0},
                               0.0,
                               -1,
                               0});

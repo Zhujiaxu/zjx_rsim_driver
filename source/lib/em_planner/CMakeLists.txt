@@ -13,11 +13,11 @@ add_subdirectory(perception)
 add_subdirectory(local_path_planning)
 add_subdirectory(local_speed_planning)
 
-add_library(em_planner STATIC
+add_library(em_planner SHARED
     EmPlanner.cpp)
 
-#target_include_directories(em_planner PUBLIC
-    #${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(em_planner PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR})
 
 target_compile_features(em_planner PUBLIC cxx_std_17)
 
