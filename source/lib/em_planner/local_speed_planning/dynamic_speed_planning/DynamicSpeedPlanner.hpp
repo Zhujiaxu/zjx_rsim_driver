@@ -22,7 +22,7 @@ struct DynamicSpeedPlanConfig
     double weight_reference_speed = 1.0;
     double weight_acceleration = 1.0;
     double weight_jerk = 1.0;
-    double weight_collision = 30.0;
+    double weight_collision = 70.0;
 
     DynamicCollisionCostConfig collision;
 };
@@ -34,6 +34,7 @@ struct DynamicSpeedPoint
     double v = 0.0;
     double a = 0.0;
     double jerk = 0.0;
+    int rowindex = -1;
 };
 struct DynamicSpeedPlanStartPoint
 {

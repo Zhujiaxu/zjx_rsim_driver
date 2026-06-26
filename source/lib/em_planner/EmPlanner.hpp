@@ -5,6 +5,7 @@
 #include "local_path_planning/drivable_area/DrivableArea.hpp"
 #include "local_path_planning/dynamic_programming/DpPlanner.hpp"
 #include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
+#include "local_speed_planning/dynamic_speed_planning/DynamicSpeedPlanner.hpp"
 
 namespace rsim_driver
 {
@@ -16,6 +17,18 @@ namespace rsim_driver
         DpPlannerConfig dp_config;
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
+        DynamicSpeedPlanConfig speed_config;
+    };
+
+    struct EmTrajectoryPoint
+    {
+        double x = 0.0;
+        double y = 0.0;
+        double theta = 0.0;
+        double k = 0.0;
+        double v = 0.0;
+        double a = 0.0;
+        double time = 0.0;
     };
 
     struct EmPlannerResult
@@ -29,6 +42,8 @@ namespace rsim_driver
         bool dp_success = false;
         bool drivable_area_success = false;
         bool qp_success = false;
+        bool speed_success = false;
+        bool trajectory_success = false;
         PlanningStartResult planning_start_result;
         CartesianFrenetState frenet_start_result;
         StaticFrenetObstaclePerceptionResult static_perception_result;
@@ -37,6 +52,9 @@ namespace rsim_driver
         DrivableArea drivable_area;
         std::vector<DpPathPoint> localfrenetpath;
         QpPathResult qp_result;
+        localreferencelinepath speed_reference_line;
+        DynamicSpeedPlanResult speed_result;
+        std::vector<EmTrajectoryPoint> trajectory;
     };
 
     class EmPlanner
@@ -80,6 +98,16 @@ namespace rsim_driver
             const std::vector<DpPathPoint> &coarsePath,
             const std::vector<StaticFrenetObstacle> &obstacles,
             DrivableArea *result) const;
+        bool RunDynamicSpeedPlanning(
+            const PlanningStartResult &start,
+            const localreferencelinepath &referenceLine,
+            const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
+            DynamicSpeedPlanResult *result) const;
+        bool BuildTrajectory(
+            const localreferencelinepath &referenceLine,
+            const DynamicSpeedPlanResult &speedResult,
+            double absoluteStartTime,
+            std::vector<EmTrajectoryPoint> *result) const;
         template <typename RefPointT>
         bool RunQuadraticProgramming(
             const CartesianFrenetState &start,
@@ -95,6 +123,7 @@ namespace rsim_driver
         DpPlanner dp_planner_;
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
+        DynamicSpeedPlanner speed_planner_;
         mutable std::vector<DpPathPoint> localfrenetpath_;
     };
 
@@ -244,10 +273,39 @@ namespace rsim_driver
         output.qp_success = output.qp_result.qpsuccess;
         output.localfrenetpath = localfrenetpath_;
 
+        if (!QpPathResultToLocalReferenceLinePath(output.qp_result,
+                                                  &output.speed_reference_line))
+        {
+            *result = output;
+            return false;
+        }
+
+        if (!RunDynamicSpeedPlanning(output.planning_start_result,
+                                     output.speed_reference_line,
+                                     output.dynamic_perception_result,
+                                     &output.speed_result))
+        {
+            *result = output;
+            return false;
+        }
+        output.speed_success = output.speed_result.dpsuccess;
+
+        if (!BuildTrajectory(output.speed_reference_line,
+                             output.speed_result,
+                             output.planning_start_result.start_point.time,
+                             &output.trajectory))
+        {
+            *result = output;
+            return false;
+        }
+        output.trajectory_success = true;
+
         *result = output;
         return output.dp_success &&
                output.drivable_area_success &&
-               output.qp_success;
+               output.qp_success &&
+               output.speed_success &&
+               output.trajectory_success;
     }
 
 } // namespace rsim_driver

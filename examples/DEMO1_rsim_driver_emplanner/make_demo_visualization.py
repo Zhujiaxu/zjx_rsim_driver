@@ -23,6 +23,17 @@ from pathlib import Path
 DEFAULT_LEFT_ROAD_BOUNDARY_L = 3.5
 DEFAULT_RIGHT_ROAD_BOUNDARY_L = -3.5
 DEFAULT_OBSTACLE_LATERAL_BUFFER = 1.5
+NEAR_DISTANCE_DISPLAY_M = 12.0
+CAUTION_DISTANCE_M = 5.0
+CRITICAL_DISTANCE_M = 2.5
+
+
+def parse_float(row, *names, default="nan"):
+    for name in names:
+        value = row.get(name)
+        if value not in (None, ""):
+            return float(value)
+    return float(default)
 
 
 def read_global_path(path: Path):
@@ -73,6 +84,8 @@ def read_ego_trajectory(path: Path, missing_ok: bool = False):
         reader = csv.DictReader(f)
         for row in reader:
             frame_id = int(row["frame_id"])
+            theta = parse_float(row, "theta", "heading", default="0")
+            k = parse_float(row, "k", "kappa", default="0")
             frames.setdefault(frame_id, []).append(
                 {
                     "frame_id": frame_id,
@@ -85,7 +98,12 @@ def read_ego_trajectory(path: Path, missing_ok: bool = False):
                     "point_idx": int(row["point_idx"]),
                     "x": float(row["x"]),
                     "y": float(row["y"]),
-                    "heading": float(row["heading"]),
+                    "heading": theta,
+                    "theta": theta,
+                    "k": k,
+                    "v": parse_float(row, "v"),
+                    "a": parse_float(row, "a"),
+                    "time": parse_float(row, "time", default=row["sim_time"]),
                     "is_target": int(row["is_target"]),
                 }
             )
@@ -383,8 +401,124 @@ def draw_obstacles(ax, obstacles):
                    color="#e8710a", edgecolors="white", linewidths=0.8,
                    zorder=6)
         ax.text(obstacle["x"], obstacle["y"] + 0.7, obstacle_label(obstacle),
-                fontsize=7, color="#8a4b08", ha="center", va="bottom",
+                fontsize=5.5, color="#8a4b08", ha="center", va="bottom",
                 zorder=7)
+
+
+def draw_gauge(ax, center, radius, value, minimum, maximum, label, unit, color):
+    from matplotlib.patches import Wedge
+
+    if not math.isfinite(value):
+        value = 0.0
+    span = max(maximum - minimum, 1e-9)
+    ratio = max(0.0, min(1.0, (value - minimum) / span))
+    angle = math.radians(180.0 - 180.0 * ratio)
+    cx, cy = center
+
+    base = Wedge(center, radius, 0, 180, width=radius * 0.18,
+                 transform=ax.transAxes, facecolor="#f1f3f4",
+                 edgecolor="#c7ccd1", linewidth=0.8, zorder=30)
+    fill = Wedge(center, radius, 180.0 - 180.0 * ratio, 180,
+                 width=radius * 0.18, transform=ax.transAxes,
+                 facecolor=color, edgecolor="none", alpha=0.9, zorder=31)
+    hub = Wedge(center, radius * 0.11, 0, 360, transform=ax.transAxes,
+                facecolor="#202124", edgecolor="none", zorder=33)
+    ax.add_patch(base)
+    ax.add_patch(fill)
+    ax.plot([cx, cx + radius * 0.72 * math.cos(angle)],
+            [cy, cy + radius * 0.72 * math.sin(angle)],
+            color="#202124", linewidth=1.0, transform=ax.transAxes,
+            solid_capstyle="round", zorder=32)
+    ax.add_patch(hub)
+    ax.text(cx, cy - radius * 0.38, f"{label}",
+            ha="center", va="top", fontsize=7, color="#3c4043",
+            transform=ax.transAxes, zorder=34)
+    ax.text(cx, cy - radius * 0.76, f"{value:.2f} {unit}",
+            ha="center", va="top", fontsize=7, color="#202124",
+            transform=ax.transAxes, zorder=34)
+
+
+def nearest_obstacle(first_plan_row, obstacles):
+    if not obstacles:
+        return None
+
+    ego_x = first_plan_row["ego_x"]
+    ego_y = first_plan_row["ego_y"]
+    nearest = None
+    for obstacle in obstacles:
+        distance = math.hypot(obstacle["x"] - ego_x, obstacle["y"] - ego_y)
+        item = {
+            "distance": distance,
+            "label": obstacle_label(obstacle),
+            "obstacle": obstacle,
+        }
+        if nearest is None or distance < nearest["distance"]:
+            nearest = item
+    return nearest
+
+
+def draw_distance_status(ax, nearest):
+    if nearest is None:
+        text = "Nearest obstacle"
+        value = "--"
+        status = "clear"
+        color = "#5f6368"
+    else:
+        distance = nearest["distance"]
+        if distance <= CRITICAL_DISTANCE_M:
+            text = f"Nearest: {nearest['label']}"
+            value = f"{distance:.2f} m"
+            status = "collision risk"
+            color = "#d93025"
+        elif distance <= CAUTION_DISTANCE_M:
+            text = f"Nearest: {nearest['label']}"
+            value = f"{distance:.2f} m"
+            status = "caution"
+            color = "#f29900"
+        elif distance <= NEAR_DISTANCE_DISPLAY_M:
+            text = f"Nearest: {nearest['label']}"
+            value = f"{distance:.2f} m"
+            status = "near"
+            color = "#1a73e8"
+        else:
+            text = "Nearest obstacle"
+            value = f"> {NEAR_DISTANCE_DISPLAY_M:.0f} m"
+            status = "clear"
+            color = "#5f6368"
+
+    ax.text(0.5, 0.68, text, ha="center", va="center",
+            fontsize=8, color="#3c4043", transform=ax.transAxes)
+    ax.text(0.5, 0.42, value, ha="center", va="center",
+            fontsize=16, color=color, fontweight="bold",
+            transform=ax.transAxes)
+    ax.text(0.5, 0.18, status, ha="center", va="center",
+            fontsize=8, color=color, transform=ax.transAxes)
+
+
+def reset_hud_axis(ax, equal: bool = False):
+    ax.clear()
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    if equal:
+        ax.set_aspect("equal", adjustable="box")
+    ax.axis("off")
+
+
+def draw_hud(speed_ax, distance_ax, accel_ax,
+             first_plan_row, obstacles, speed_gauge_max, accel_gauge_abs):
+    reset_hud_axis(speed_ax, equal=True)
+    reset_hud_axis(distance_ax)
+    reset_hud_axis(accel_ax, equal=True)
+
+    draw_gauge(speed_ax, (0.5, 0.56), 0.42,
+               first_plan_row.get("v", float("nan")),
+               0.0, speed_gauge_max,
+               "Speed", "m/s", "#1a73e8")
+    draw_distance_status(distance_ax, nearest_obstacle(first_plan_row, obstacles))
+    draw_gauge(accel_ax, (0.5, 0.56), 0.42,
+               first_plan_row.get("a", float("nan")),
+               -accel_gauge_abs, accel_gauge_abs,
+               "Accel", "m/s^2", "#d93025")
 
 
 def find_target(plan_rows):
@@ -484,11 +618,21 @@ def make_gif(global_csv: Path,
     if not trajectory_by_frame:
         raise SystemExit(f"ERROR: no trajectory frames: {trajectory_csv}")
 
+    all_trajectory_rows = [row for rows in trajectory_by_frame.values() for row in rows]
+    finite_speeds = [row["v"] for row in all_trajectory_rows if math.isfinite(row["v"])]
+    finite_accels = [abs(row["a"]) for row in all_trajectory_rows if math.isfinite(row["a"])]
+    speed_gauge_max = max(12.0, max(finite_speeds, default=0.0) * 1.2)
+    accel_gauge_abs = max(3.0, max(finite_accels, default=0.0) * 1.2)
+
     frame_ids = sample_ids(sorted(trajectory_by_frame), max_frames)
     output_gif.parent.mkdir(parents=True, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(10.8, 6.4))
-    aspect = 10.8 / 6.4
+    fig.subplots_adjust(left=0.075, right=0.985, top=0.91, bottom=0.25)
+    speed_ax = fig.add_axes([0.292, 0.035, 0.105, 0.17])
+    distance_ax = fig.add_axes([0.405, 0.035, 0.190, 0.17])
+    accel_ax = fig.add_axes([0.603, 0.035, 0.105, 0.17])
+    aspect = (10.8 * 0.91) / (6.4 * 0.66)
     route_xs, route_ys = all_xy(global_points)
     global_left_boundary = global_boundary_xy(global_points, left_road_l)
     global_right_boundary = global_boundary_xy(global_points, right_road_l)
@@ -559,14 +703,14 @@ def make_gif(global_csv: Path,
                         alpha=0.42, label="drivable area", zorder=3)
                 drv_left_xs, drv_left_ys = all_xy(area["drivable_left"])
                 drv_right_xs, drv_right_ys = all_xy(area["drivable_right"])
-                ax.plot(drv_left_xs, drv_left_ys, color="#188038", linewidth=1.1,
+                ax.plot(drv_left_xs, drv_left_ys, color="#188038", linewidth=0.85,
                         alpha=0.72, label="drivable boundary", zorder=4)
-                ax.plot(drv_right_xs, drv_right_ys, color="#188038", linewidth=1.1,
+                ax.plot(drv_right_xs, drv_right_ys, color="#188038", linewidth=0.85,
                         alpha=0.72, zorder=4)
 
             ref_xs = [row["ref_x"] for row in reference_rows]
             ref_ys = [row["ref_y"] for row in reference_rows]
-            ax.plot(ref_xs, ref_ys, color="#188038", linewidth=1.8,
+            ax.plot(ref_xs, ref_ys, color="#188038", linewidth=1.2,
                     label="reference line", zorder=3)
             ax.scatter([reference_rows[0]["projection_x"]],
                        [reference_rows[0]["projection_y"]],
@@ -576,19 +720,19 @@ def make_gif(global_csv: Path,
         if dp_rows:
             dp_xs = [row["x"] for row in dp_rows]
             dp_ys = [row["y"] for row in dp_rows]
-            ax.plot(dp_xs, dp_ys, color="#7e57c2", linewidth=1.15,
+            ax.plot(dp_xs, dp_ys, color="#7e57c2", linewidth=0.85,
                     linestyle=(0, (4, 3)), alpha=0.96,
                     label="DP coarse path", zorder=4)
 
         plan_xs = [row["x"] for row in plan_rows]
         plan_ys = [row["y"] for row in plan_rows]
-        ax.plot(plan_xs, plan_ys, color="#1a73e8", linewidth=2.5,
-                linestyle="-", marker=".", markersize=2.8,
+        ax.plot(plan_xs, plan_ys, color="#1a73e8", linewidth=1.4,
+                linestyle="-", marker=".", markersize=2.0,
                 label="QP smoothed path", zorder=5)
 
         if len(trail_points) >= 2:
             trail_xs, trail_ys = all_xy(trail_points)
-            ax.plot(trail_xs, trail_ys, color="#f29900", linewidth=2.5,
+            ax.plot(trail_xs, trail_ys, color="#f29900", linewidth=1.6,
                     alpha=0.88, label="executed ego trail", zorder=6)
 
         if current_obstacles:
@@ -640,6 +784,8 @@ def make_gif(global_csv: Path,
             f"view={'global route' if full_route else 'follow'}"
         )
         ax.legend(loc="upper right", fontsize=8, framealpha=0.92)
+        draw_hud(speed_ax, distance_ax, accel_ax,
+                 first, current_obstacles, speed_gauge_max, accel_gauge_abs)
         return []
 
     animation = FuncAnimation(fig,

@@ -58,7 +58,7 @@ namespace rsim_driver
             if (!ValidConfig(config))
                 return values;
 
-            values.reserve(static_cast<std::size_t>(config.time_step_count));
+            values.reserve(static_cast<std::size_t>(config.time_step_count) + 1);
             for (int i = 0; i <= config.time_step_count; ++i)
                 values.push_back(static_cast<double>(i) * config.time_step);
             return values;
@@ -192,6 +192,7 @@ namespace rsim_driver
                                       start.v,
                                       start.a,
                                       0.0,
+                                      -1,
                                   },
                                   0.0,
                                   -1,
@@ -201,8 +202,8 @@ namespace rsim_driver
              ++layer_index)
         {
             std::vector<DynamicSpeedNode> &current_layer = layers[layer_index];
-            current_layer.reserve(s_values.size());
-            for (std::size_t s_index =s_values.size(); s_index >=0 ; --s_index)
+            current_layer.reserve(s_values.size() - 1);
+            for (std::size_t s_index = 1; s_index < s_values.size(); ++s_index)
             {
                 current_layer.push_back({{
                                              t_values[layer_index],
@@ -210,10 +211,11 @@ namespace rsim_driver
                                              0.0,
                                              0.0,
                                              0.0,
+                                             -1,
                                          },
                                          std::numeric_limits<double>::infinity(),
                                          -1,
-                                         s_index});
+                                         s_index - 1});
             }
         }
 
@@ -278,6 +280,7 @@ namespace rsim_driver
                         best_point.v = speed;
                         best_point.a = acceleration;
                         best_point.jerk = jerk;
+                        best_point.rowindex = static_cast<int>(previous.s_index);
                     }
 
                     if (first_speed_column)
@@ -296,7 +299,7 @@ namespace rsim_driver
             }
         }
 
-        const std::size_t top_s_index = s_values.size();
+        const std::size_t top_s_index = s_values.size() - 2;
         int best_layer_index = -1;
         int best_node_index = -1;
         double best_cost = std::numeric_limits<double>::infinity();
