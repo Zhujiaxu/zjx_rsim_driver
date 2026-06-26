@@ -243,7 +243,7 @@ namespace
             }
             const std::size_t target_idx = 0;
             const rsim_driver::EmTrajectoryPoint &target =
-                plannerResult.trajectory.front();
+                plannerResult.trajectory[1];
 
             WriteEgoTrajectoryCsv(ctx,
                                   *ego,

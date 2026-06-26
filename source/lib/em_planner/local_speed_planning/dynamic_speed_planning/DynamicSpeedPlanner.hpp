@@ -18,8 +18,8 @@ struct DynamicSpeedPlanConfig
     double s_step = 0.5;
     int s_step_count = 40;
 
-    double reference_speed = 10.0;
-    double weight_reference_speed = 1.0;
+    double reference_speed = 6.0;
+    double weight_reference_speed = 5.0;
     double weight_acceleration = 1.0;
     double weight_jerk = 1.0;
     double weight_collision = 70.0;

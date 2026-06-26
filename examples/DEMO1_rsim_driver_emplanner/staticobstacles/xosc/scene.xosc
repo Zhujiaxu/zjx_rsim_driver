@@ -6902,7 +6902,7 @@
                             <SpeedAction name="autoware1_targetspeedaction">
                                 <SpeedActionDynamics dynamicsShape="step" value="0.0" dynamicsDimension="time"/>
                                 <SpeedActionTarget>
-                                    <AbsoluteTargetSpeed value="9"/>
+                                    <AbsoluteTargetSpeed value="7.9"/>
                                 </SpeedActionTarget>
                             </SpeedAction>
                         </LongitudinalAction>
