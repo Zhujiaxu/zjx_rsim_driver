@@ -68,6 +68,10 @@ using rsim_plugin::TickContext;
 namespace
 {
 
+    constexpr double kFallbackDeceleration = 6.0;
+    constexpr double kMaxUpdateAcceleration = 6.0;
+    constexpr double kMinTimeStep = 1e-6;
+
     class RSimDriverPlugin : public IPluginController
     {
     public:
@@ -116,7 +120,7 @@ namespace
             planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
             ego_trajectory_csv_path_ = getStr("egoTrajectoryCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
-            set_speed_ = getDouble("setSpeed", 10.0);
+            set_speed_ = getDouble("setSpeed",8.0);
             rsim_driver::EmPlannerConfig emPlannerConfig = em_planner_.config();
             emPlannerConfig.speed_config.reference_speed = set_speed_;
             em_planner_.SetConfig(emPlannerConfig);
@@ -224,8 +228,9 @@ namespace
                                                  plannerResult.frenet_start_result,
                                                  plannerResult.frenet_start_success);
                 }
+                ReportPlannerStageStatus(ctx, plannerResult);
                 ReportPlanningFailure(ctx, *ego, "EM planner failed");
-                updates.push_back(BuildStopActorUpdate(*ego));
+                updates.push_back(BuildControlledStopActorUpdate(*ego, ctx.time_step));
                 return updates;
             }
             CachePlannerResult(plannerResult);
@@ -237,13 +242,14 @@ namespace
 
             if (plannerResult.trajectory.empty())
             {
+                ReportPlannerStageStatus(ctx, plannerResult);
                 ReportPlanningFailure(ctx, *ego, "EM planner trajectory is empty");
-                updates.push_back(BuildStopActorUpdate(*ego));
+                updates.push_back(BuildControlledStopActorUpdate(*ego, ctx.time_step));
                 return updates;
             }
             const std::size_t target_idx = 0;
             const rsim_driver::EmTrajectoryPoint &target =
-                plannerResult.trajectory[1];
+                plannerResult.trajectory[target_idx];
 
             WriteEgoTrajectoryCsv(ctx,
                                   *ego,
@@ -289,9 +295,9 @@ namespace
             cartesian_plan_path_ = result.qp_result.localcartesianpath;
             planned_trajectory_ = result.trajectory;
 
-            previous_trajectory_.clear();
             if (result.trajectory_success)
             {
+                previous_trajectory_.clear();
                 previous_trajectory_.reserve(result.trajectory.size());
                 for (const rsim_driver::EmTrajectoryPoint &point : result.trajectory)
                 {
@@ -306,6 +312,64 @@ namespace
                     previous_trajectory_.push_back(trajectoryPoint);
                 }
             }
+        }
+
+        const char *PlannerFailureStage(
+            const rsim_driver::EmPlannerResult &result) const
+        {
+            if (!result.static_perception_success)
+                return "static_perception";
+            if (!result.dynamic_perception_success)
+                return "dynamic_perception";
+            if (!result.planning_start_success)
+                return "planning_start";
+            if (!result.frenet_start_success)
+                return "frenet_start";
+            if (!result.dp_success)
+                return "dp";
+            if (!result.drivable_area_success)
+                return "drivable_area";
+            if (!result.qp_success)
+                return "qp";
+            if (result.speed_reference_line.empty())
+                return "speed_reference_line";
+            if (!result.speed_success)
+                return "speed";
+            if (!result.trajectory_success)
+                return "trajectory";
+            return "unknown";
+        }
+
+        void ReportPlannerStageStatus(
+            const TickContext &ctx,
+            const rsim_driver::EmPlannerResult &result) const
+        {
+            std::fprintf(stderr,
+                         "[RSimDriver] EM planner stages frame=%llu time=%.6f "
+                         "first_failed=%s static=%d dynamic=%d start=%d frenet=%d "
+                         "dp=%d drivable=%d qp=%d speed_ref=%zu speed=%d trajectory=%d "
+                         "static_obs=%zu dynamic_obs=%zu dp_points=%zu qp_points=%zu "
+                         "speed_points=%zu trajectory_points=%zu previous_points=%zu\n",
+                         static_cast<unsigned long long>(ctx.frame_id),
+                         ctx.sim_time,
+                         PlannerFailureStage(result),
+                         result.static_perception_success ? 1 : 0,
+                         result.dynamic_perception_success ? 1 : 0,
+                         result.planning_start_success ? 1 : 0,
+                         result.frenet_start_success ? 1 : 0,
+                         result.dp_success ? 1 : 0,
+                         result.drivable_area_success ? 1 : 0,
+                         result.qp_success ? 1 : 0,
+                         result.speed_reference_line.size(),
+                         result.speed_success ? 1 : 0,
+                         result.trajectory_success ? 1 : 0,
+                         result.static_perception_result.staticobstacles.size(),
+                         result.dynamic_perception_result.dynamicobstacles.size(),
+                         result.dp_result.path.size(),
+                         result.qp_result.localcartesianpath.size(),
+                         result.speed_result.speed_points.size(),
+                         result.trajectory.size(),
+                         previous_trajectory_.size());
         }
 
         void ReportPlanningFailure(const TickContext &ctx,
@@ -385,6 +449,52 @@ namespace
             return update;
         }
 
+        ActorUpdate BuildControlledStopActorUpdate(
+            const ActorState &ego,
+            double dt) const
+        {
+            ActorUpdate update;
+            update.actor_id = ego.id;
+
+            const double timeStep = dt > kMinTimeStep ? dt : 0.0;
+            const double speed =
+                std::isfinite(ego.speed) ? std::max(0.0, ego.speed) : 0.0;
+            const double nextSpeed =
+                std::max(0.0, speed - kFallbackDeceleration * timeStep);
+            const double distance = 0.5 * (speed + nextSpeed) * timeStep;
+            const double heading = std::isfinite(ego.h) ? ego.h : 0.0;
+
+            update.x = ego.x + distance * std::cos(heading);
+            update.y = ego.y + distance * std::sin(heading);
+            update.z = ego.z;
+            update.h = heading;
+            update.p = ego.p;
+            update.r = ego.r;
+            update.speed = nextSpeed;
+            update.wheel_angle = 0.0;
+            update.position_valid = 1;
+            update.speed_valid = 1;
+            return update;
+        }
+
+        double ClampUpdateSpeed(
+            const ActorState &ego,
+            double targetSpeed,
+            double dt) const
+        {
+            const double target =
+                std::isfinite(targetSpeed) ? std::max(0.0, targetSpeed) : 0.0;
+            if (dt <= kMinTimeStep || !std::isfinite(ego.speed))
+                return target;
+
+            const double current = std::max(0.0, ego.speed);
+            const double minSpeed =
+                std::max(0.0, current - kFallbackDeceleration * dt);
+            const double maxSpeed =
+                current + kMaxUpdateAcceleration * dt;
+            return std::clamp(target, minSpeed, maxSpeed);
+        }
+
         // 将规划出的速度点按仿真步长积分成 SceneRunner controller 更新
         ActorUpdate BuildActorUpdateFromTrajectoryPoint(
             const ActorState &ego,
@@ -395,9 +505,8 @@ namespace
             update.actor_id = ego.id;
             const double heading =
                 std::isfinite(target.theta) ? target.theta : ego.h;
-            const double speed =
-                std::isfinite(target.v) ? std::max(0.0, target.v) : 0.0;
-            const double distance = dt > 1e-6 ? speed * dt : 0.0;
+            const double speed = ClampUpdateSpeed(ego, target.v, dt);
+            const double distance = dt > kMinTimeStep ? speed * dt : 0.0;
 
             update.x = ego.x + distance * std::cos(heading);
             update.y = ego.y + distance * std::sin(heading);
@@ -504,7 +613,7 @@ namespace
                          "ego_x,ego_y,ego_h,ego_speed,ego_acc_x,ego_acc_y,ego_accel,"
                          "start_x,start_y,start_heading,start_speed,start_accel,start_time,"
                          "start_source,match_distance,start_curvature,"
-                         "sl_success,s,s_dot,s_ddot,l,l_prime,l_double_prime,"
+                         "sl_success,s,l,l_prime,l_double_prime,"
                          "previous_trajectory_size,stitching_trajectory_size\n");
             std::fflush(planning_start_sl_csv_fp_);
         }
@@ -776,7 +885,7 @@ namespace
         std::vector<rsim_driver::EmTrajectoryPoint> planned_trajectory_;
 
         // ---- ego 初始状态 ----
-        double set_speed_ = 10.0;
+        double set_speed_ = 8.0;
         double current_speed_ = 0.0;
         double current_s_ = 0.0;
         int32_t current_road_ = 0;
