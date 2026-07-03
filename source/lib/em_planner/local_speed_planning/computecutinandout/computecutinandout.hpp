@@ -21,7 +21,11 @@ struct CutInAndOutInfo
     double tin = 0.0;
     double tout = 0.0;
     double sin = 0.0;
+    double sinmin=0.0;
+    double sinmax=0.0;
     double sout = 0.0;
+    double soutmin=0.0;
+    double soutmax=0.0;
 };
 
 class ComputeCutInAndOut

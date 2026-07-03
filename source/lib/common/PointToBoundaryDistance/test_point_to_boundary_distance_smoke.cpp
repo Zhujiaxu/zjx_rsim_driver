@@ -1,4 +1,4 @@
-#include "PointToLineDistance.hpp"
+#include "PointToBoundaryDistance.hpp"
 
 #include <cmath>
 #include <cstdint>
@@ -102,6 +102,6 @@ int main()
                  "null line distance output should fail"))
         return 1;
 
-    std::fprintf(stderr, "PASS point_to_line_distance smoke\n");
+    std::fprintf(stderr, "PASS point_to_boundary_distance smoke\n");
     return 0;
 }

@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <vector>
-#include "PointToLineDistance.hpp"
+#include "PointToBoundaryDistance.hpp"
 
 namespace rsim_driver
 {

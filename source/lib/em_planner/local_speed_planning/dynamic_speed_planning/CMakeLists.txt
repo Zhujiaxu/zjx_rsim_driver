@@ -11,7 +11,6 @@ target_link_libraries(dynamic_speed_planning PUBLIC
     planning_start
     collision_cost
     em_planner_perception
-    point_to_line_distance
     localpathreferline
     computecutinandout
     )
