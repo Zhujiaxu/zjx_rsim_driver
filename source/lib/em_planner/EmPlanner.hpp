@@ -17,7 +17,7 @@ namespace rsim_driver
         DpPlannerConfig dp_config;
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
-        DynamicSpeedPlanConfig speed_config;
+        DynamicPlanSpeedConfig dpspeed_config;
     };
 
     struct EmTrajectoryPoint
@@ -53,7 +53,7 @@ namespace rsim_driver
         std::vector<DpPathPoint> localfrenetpath;
         QpPathResult qp_result;
         localreferencelinepath speed_reference_line;
-        DynamicSpeedPlanResult speed_result;
+        DynamicPlanSpeedResult speed_result;
         std::vector<EmTrajectoryPoint> trajectory;
     };
 
@@ -102,10 +102,10 @@ namespace rsim_driver
             const PlanningStartResult &start,
             const localreferencelinepath &referenceLine,
             const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
-            DynamicSpeedPlanResult *result) const;
+            DynamicPlanSpeedResult *result) const;
         bool BuildTrajectory(
             const localreferencelinepath &referenceLine,
-            const DynamicSpeedPlanResult &speedResult,
+            const DynamicPlanSpeedResult &speedResult,
             double absoluteStartTime,
             std::vector<EmTrajectoryPoint> *result) const;
         template <typename RefPointT>
@@ -123,7 +123,7 @@ namespace rsim_driver
         DpPlanner dp_planner_;
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
-        DynamicSpeedPlanner speed_planner_;
+        DynamicPlanSpeedPlanner speed_planner_;
         mutable std::vector<DpPathPoint> localfrenetpath_;
     };
 

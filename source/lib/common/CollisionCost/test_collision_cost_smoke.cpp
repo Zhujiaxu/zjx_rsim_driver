@@ -25,8 +25,10 @@ struct CutInAndOutLine
     int id = 0;
     double tin = 0.0;
     double tout = 0.0;
-    double sin = 0.0;
-    double sout = 0.0;
+    double sinmin = 0.0;
+    double sinmax = 0.0;
+    double soutmin = 0.0;
+    double soutmax = 0.0;
 };
 
 }  // namespace
@@ -66,25 +68,25 @@ int main()
     dynamicConfig.risk_distance = 1.5;
     dynamicConfig.infinity_cost = 1000.0;
     const std::vector<CutInAndOutLine> cutLines = {
-        {1, 0.0, 2.0, 0.0, 2.0},
+        {1, 0.0, 2.0, 0.0, 2.0, 0.0, 2.0},
     };
-    if (!Require(Near(rsim_driver::DynamicObstacleCollisionCost({4.0, 0.0},
+    if (!Require(Near(rsim_driver::DynamicObstacleCollisionCost({4.0, 1.0},
                                                                 cutLines,
                                                                 dynamicConfig),
                       0.0),
                  "st point outside dynamic risk range should have zero cost"))
         return 1;
-    if (!Require(Near(rsim_driver::DynamicObstacleCollisionCost({1.0, 2.0},
+    if (!Require(Near(rsim_driver::DynamicObstacleCollisionCost({2.75, 1.0},
                                                                 cutLines,
                                                                 dynamicConfig),
-                      (1.5 - std::sqrt(0.5)) / 1.0),
-                 "dynamic obstacle should use point to st line distance"))
+                      0.75),
+                 "dynamic obstacle should use point to st polygon distance"))
         return 1;
     if (!Require(Near(rsim_driver::DynamicObstacleCollisionCost({1.0, 1.0},
                                                                 cutLines,
                                                                 dynamicConfig),
                       dynamicConfig.infinity_cost),
-                 "st point on dynamic collision line should return infinity cost"))
+                 "st point inside dynamic polygon should return infinity cost"))
         return 1;
 
     std::fprintf(stderr, "PASS collision_cost smoke\n");

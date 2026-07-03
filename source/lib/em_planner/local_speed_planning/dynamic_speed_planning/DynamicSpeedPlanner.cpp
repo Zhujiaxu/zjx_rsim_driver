@@ -13,12 +13,12 @@ namespace rsim_driver
 
         constexpr double kEpsilon = 1e-9;
 
-        struct DynamicSpeedNode
+        struct DPNode
         {
-            DynamicSpeedPoint point;
+            DynamicPlanSpeedPoint point;
             double cost = std::numeric_limits<double>::infinity();
+            double jerk = 0.0;
             int previous_index = -1;
-            std::size_t s_index = 0;
         };
 
         bool IsFinite(double value)
@@ -31,7 +31,7 @@ namespace rsim_driver
             return std::max(0.0, value);
         }
 
-        bool ValidConfig(const DynamicSpeedPlanConfig &config)
+        bool ValidConfig(const DynamicPlanSpeedConfig &config)
         {
             return IsFinite(config.time_step) &&
                    config.time_step > kEpsilon &&
@@ -44,7 +44,7 @@ namespace rsim_driver
                    IsFinite(config.weight_collision);
         }
 
-        bool ValidStart(const DynamicSpeedPlanStartPoint &start)
+        bool ValidStart(const DynamicPlanSpeedPoint &start)
         {
             return IsFinite(start.s) &&
                    IsFinite(start.v) &&
@@ -52,13 +52,11 @@ namespace rsim_driver
                    IsFinite(start.a);
         }
 
-        std::vector<double> BuildTimeValues(const DynamicSpeedPlanConfig &config)
+        std::vector<double> BuildTimeValues(const DynamicPlanSpeedConfig &config)
         {
             std::vector<double> values;
             if (!ValidConfig(config))
                 return values;
-
-            values.reserve(static_cast<std::size_t>(config.time_step_count) + 1);
             for (int i = 0; i <= config.time_step_count; ++i)
                 values.push_back(static_cast<double>(i) * config.time_step);
             return values;
@@ -69,8 +67,6 @@ namespace rsim_driver
             std::vector<double> values;
             if (reference_line.empty())
                 return values;
-
-            values.reserve(reference_line.size());
             for (const localreferencelinepoint &point : reference_line)
             {
                 if (!IsFinite(point.s))
@@ -91,16 +87,18 @@ namespace rsim_driver
             return false;
         }
 
-        double CollisionCostAt(const DynamicSpeedPoint &point,
+        double CollisionCostAt(const DynamicPlanSpeedPoint &point,
                                const std::vector<CutInAndOutInfo> &cut_in_and_out_infos,
                                const DynamicCollisionCostConfig &config)
         {
             if (cut_in_and_out_infos.empty())
                 return 0.0;
-            return DynamicObstacleCollisionCost({point.s, point.t}, cut_in_and_out_infos, config);
+            return DynamicObstacleCollisionCost({point.s, point.t},
+                                                cut_in_and_out_infos,
+                                                config);
         }
 
-        double SpeedCost(double speed, const DynamicSpeedPlanConfig &config)
+        double SpeedCost(double speed, const DynamicPlanSpeedConfig &config)
         {
             const double delta_speed = speed - config.reference_speed;
             return NonNegative(config.weight_reference_speed) *
@@ -108,13 +106,13 @@ namespace rsim_driver
         }
 
         double AccelerationCost(double acceleration,
-                                const DynamicSpeedPlanConfig &config)
+                                const DynamicPlanSpeedConfig &config)
         {
             return NonNegative(config.weight_acceleration) *
                    acceleration * acceleration;
         }
 
-        double JerkCost(double jerk, const DynamicSpeedPlanConfig &config)
+        double JerkCost(double jerk, const DynamicPlanSpeedConfig &config)
         {
             return NonNegative(config.weight_jerk) * jerk * jerk;
         }
@@ -123,7 +121,7 @@ namespace rsim_driver
                               double acceleration,
                               double jerk,
                               double collision_cost,
-                              const DynamicSpeedPlanConfig &config)
+                              const DynamicPlanSpeedConfig &config)
         {
             return SpeedCost(speed, config) +
                    AccelerationCost(acceleration, config) +
@@ -133,33 +131,33 @@ namespace rsim_driver
 
     } // namespace
 
-    DynamicSpeedPlanner::DynamicSpeedPlanner(
-        const DynamicSpeedPlanConfig &config)
+    DynamicPlanSpeedPlanner::DynamicPlanSpeedPlanner(
+        const DynamicPlanSpeedConfig &config)
         : config_(config)
     {
     }
 
-    const DynamicSpeedPlanConfig &DynamicSpeedPlanner::config() const
+    const DynamicPlanSpeedConfig &DynamicPlanSpeedPlanner::config() const
     {
         return config_;
     }
 
-    void DynamicSpeedPlanner::SetConfig(const DynamicSpeedPlanConfig &config)
+    void DynamicPlanSpeedPlanner::SetConfig(const DynamicPlanSpeedConfig &config)
     {
         config_ = config;
     }
 
-    bool DynamicSpeedPlanner::Plan(
-        const DynamicSpeedPlanStartPoint &start,
+    bool DynamicPlanSpeedPlanner::Plan(
+        const DynamicPlanSpeedPoint &start,
         const localreferencelinepath &reference_line,
         const DynamicFrenetObstaclePerceptionResult &dynamic_obstacles,
-        DynamicSpeedPlanResult *result) const
+        DynamicPlanSpeedResult *result) const
     {
         if (result == nullptr)
             return false;
 
-        DynamicSpeedPlanResult output;
-        const DynamicSpeedPlanConfig &config = config_;
+        DynamicPlanSpeedResult output;
+        const DynamicPlanSpeedConfig &config = config_;
         if (!ValidConfig(config) || !ValidStart(start))
         {
             *result = output;
@@ -176,88 +174,85 @@ namespace rsim_driver
             return false;
         }
 
-        std::vector<CutInAndOutInfo> cut_in_and_out_infos;
-        if (!compute_cut_in_and_out_.Compute(reference_line,
-                                             dynamic_obstacles,
-                                             &cut_in_and_out_infos))
+        std::vector<CutInAndOutInfo> STBoundaryInfos;
+        if (!STBoundaryBuilder_.Compute(reference_line,
+                                        dynamic_obstacles,
+                                        &STBoundaryInfos))
         {
             *result = output;
             return false;
         }
 
-        std::vector<std::vector<DynamicSpeedNode>> layers(t_values.size());
-        layers.front().push_back({{
-                                      0.0,
-                                      start.s,
-                                      start.v,
-                                      start.a,
-                                      0.0,
-                                      -1,
-                                  },
-                                  0.0,
-                                  -1,
-                                  0});
+        std::vector<std::vector<DPNode>> layers(t_values.size());
+        layers.front().push_back({
+            {
+                0.0,
+                start.s,
+                start.v,
+                start.a,
+            },
+            0.0,
+            0.0,
+            -1,
+        });
 
         for (std::size_t layer_index = 1; layer_index < t_values.size();
              ++layer_index)
         {
-            std::vector<DynamicSpeedNode> &current_layer = layers[layer_index];
-            current_layer.reserve(s_values.size() - 1);
-            for (std::size_t s_index = 1; s_index < s_values.size(); ++s_index)
+            std::vector<DPNode> &current_layer = layers[layer_index];
+            current_layer.reserve(s_values.size());
+            for (std::size_t s_index = 0; s_index < s_values.size(); ++s_index)
             {
                 current_layer.push_back({{
                                              t_values[layer_index],
                                              s_values[s_index],
                                              0.0,
                                              0.0,
-                                             0.0,
-                                             -1,
                                          },
                                          std::numeric_limits<double>::infinity(),
-                                         -1,
-                                         s_index - 1});
+                                         0.0,
+                                         -1});
             }
         }
 
         for (std::size_t layer_index = 1; layer_index < layers.size();
              ++layer_index)
         {
-            const std::vector<DynamicSpeedNode> &previous_layer =
+            const std::vector<DPNode> &previous_layer =
                 layers[layer_index - 1];
-            std::vector<DynamicSpeedNode> &current_layer = layers[layer_index];
-            const bool first_speed_column = layer_index == 1;
+            std::vector<DPNode> &current_layer = layers[layer_index];
+            // const bool first_speed_column = layer_index == 1;
 
             for (std::size_t current_index = 0;
                  current_index < current_layer.size();
                  ++current_index)
             {
-                DynamicSpeedNode &current = current_layer[current_index];
+                DPNode &curnode = current_layer[current_index];
                 const double collision_cost =
-                    CollisionCostAt(current.point,
-                                    cut_in_and_out_infos,
-                                    config.collision);
-                if (IsFatalCollisionCost(collision_cost, config.collision))
+                    CollisionCostAt(curnode.point,
+                                    STBoundaryInfos,
+                                    config.collisionconfig);
+                if (IsFatalCollisionCost(collision_cost, config.collisionconfig))
                     continue;
 
                 double best_transition_cost =
                     std::numeric_limits<double>::infinity();
                 int best_previous_index = -1;
-                DynamicSpeedPoint best_point = current.point;
 
                 for (std::size_t previous_index = 0;
                      previous_index < previous_layer.size();
                      ++previous_index)
                 {
-                    const DynamicSpeedNode &previous =
+                    const DPNode &previous =
                         previous_layer[previous_index];
                     if (!std::isfinite(previous.cost))
                         continue;
 
-                    const double delta_t = current.point.t - previous.point.t;
+                    const double delta_t = curnode.point.t - previous.point.t;
                     if (delta_t <= kEpsilon)
                         continue;
 
-                    const double delta_s = current.point.s - previous.point.s;
+                    const double delta_s = curnode.point.s - previous.point.s;
                     if (delta_s < -kEpsilon)
                         continue;
 
@@ -277,24 +272,22 @@ namespace rsim_driver
                     {
                         best_transition_cost = transition_cost;
                         best_previous_index = static_cast<int>(previous_index);
-                        best_point.v = speed;
-                        best_point.a = acceleration;
-                        best_point.jerk = jerk;
-                        best_point.rowindex = static_cast<int>(previous.s_index);
+                        curnode.point.v = speed;
+                        curnode.point.a = acceleration;
+                        curnode.jerk = jerk;
                     }
 
-                    if (first_speed_column)
-                        break;
+                    /*if (first_speed_column)
+                        break;*/
                 }
 
                 if (best_previous_index >= 0 &&
                     std::isfinite(best_transition_cost))
                 {
-                    const DynamicSpeedNode &previous =
+                    const DPNode &previous =
                         previous_layer[static_cast<std::size_t>(best_previous_index)];
-                    current.point = best_point;
-                    current.previous_index = best_previous_index;
-                    current.cost = previous.cost + best_transition_cost;
+                    curnode.previous_index = best_previous_index;
+                    curnode.cost = previous.cost + best_transition_cost;
                 }
             }
         }
@@ -307,21 +300,28 @@ namespace rsim_driver
              ++layer_index)
         {
             const bool is_right_edge = layer_index + 1 == layers.size();
-            for (std::size_t node_index = 0; node_index < layers[layer_index].size();
-                 ++node_index)
+            if (is_right_edge)
             {
-                const DynamicSpeedNode &node = layers[layer_index][node_index];
-                const bool is_top_edge = node.s_index == top_s_index;
-                if (!is_right_edge && !is_top_edge)
-                    continue;
-
-                if (node.cost < best_cost)
+                for (std::size_t node_index = 0; node_index < layers[layer_index].size();
+                     ++node_index)
                 {
-                    best_cost = node.cost;
-                    best_layer_index = static_cast<int>(layer_index);
-                    best_node_index = static_cast<int>(node_index);
+                    const DPNode &node = layers[layer_index][node_index];
+                    if (node.cost < best_cost)
+                    {
+                        best_cost = node.cost;
+                        best_layer_index = static_cast<int>(layer_index);
+                        best_node_index = static_cast<int>(node_index);
+                    }
                 }
             }
+            double cost=layers[layer_index][layers[1].size()-1].cost;
+            if (cost < best_cost)
+            {
+                best_cost = cost;
+                best_layer_index = static_cast<int>(layer_index);
+                best_node_index = static_cast<int>(layers[1].size()-1);
+            }
+
         }
 
         if (best_layer_index < 0 ||
@@ -332,13 +332,13 @@ namespace rsim_driver
             return false;
         }
 
-        std::vector<DynamicSpeedPoint> reversed_points;
+        std::vector<DynamicPlanSpeedPoint> reversed_points;
         int node_index = best_node_index;
         for (std::size_t layer_index = static_cast<std::size_t>(best_layer_index);
              layer_index > 0;
              --layer_index)
         {
-            const DynamicSpeedNode &node =
+            const DPNode &node =
                 layers[layer_index][static_cast<std::size_t>(node_index)];
             reversed_points.push_back(node.point);
             node_index = node.previous_index;
@@ -353,7 +353,7 @@ namespace rsim_driver
 
         output.dpsuccess = true;
         output.total_cost = best_cost;
-        output.speed_points = std::move(reversed_points);
+        output.stpoints = std::move(reversed_points);
         *result = std::move(output);
         return true;
     }

@@ -14,8 +14,10 @@ struct CutInAndOutInfo
     int32_t id = 0;
     double tin = 0.0;
     double tout = 0.0;
-    double sin = 0.0;
-    double sout = 0.0;
+    double sinmin = 0.0;
+    double sinmax = 0.0;
+    double soutmin = 0.0;
+    double soutmax = 0.0;
 };
 
 bool Require(bool condition, const char* message)
@@ -28,6 +30,21 @@ bool Require(bool condition, const char* message)
 bool Near(double actual, double expected, double tolerance = 1e-9)
 {
     return std::fabs(actual - expected) <= tolerance;
+}
+
+double PolygonDistance(const CutInAndOutInfo& info,
+                       const rsim_driver::StPoint& point)
+{
+    std::vector<rsim_driver::PointToLineDistanceResult> distances;
+    const std::vector<CutInAndOutInfo> infos = {info};
+    if (!rsim_driver::ComputePointToCutInAndOutLineDistances(infos,
+                                                             point,
+                                                             &distances) ||
+        distances.empty())
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+    return distances.front().distance;
 }
 
 }  // namespace
@@ -75,24 +92,60 @@ int main()
                  "non-finite segment endpoint should return infinity"))
         return 1;
 
+    const CutInAndOutInfo rectangle{101, 1.0, 3.0, 10.0, 20.0, 10.0, 20.0};
+    if (!Require(Near(PolygonDistance(rectangle, {15.0, 2.0}), 0.0),
+                 "point inside cut in and out polygon should return zero"))
+        return 1;
+
+    if (!Require(Near(PolygonDistance(rectangle, {10.0, 2.0}), 0.0),
+                 "point on cut in and out polygon should return zero"))
+        return 1;
+
+    if (!Require(Near(PolygonDistance(rectangle, {15.0, 0.0}), 1.0),
+                 "point before entry boundary should use p1 to p2 distance"))
+        return 1;
+
+    if (!Require(Near(PolygonDistance(rectangle, {8.0, 2.0}), 2.0),
+                 "point below boundary should use p1 to p3 distance"))
+        return 1;
+
+    if (!Require(Near(PolygonDistance(rectangle, {15.0, 4.0}), 1.0),
+                 "point after exit boundary should use p3 to p4 distance"))
+        return 1;
+
+    if (!Require(Near(PolygonDistance(rectangle, {23.0, 2.0}), 3.0),
+                 "point above boundary should use p2 to p4 distance"))
+        return 1;
+
+    const CutInAndOutInfo nonFinite{102,
+                                    1.0,
+                                    std::numeric_limits<double>::infinity(),
+                                    10.0,
+                                    20.0,
+                                    10.0,
+                                    20.0};
+    if (!Require(std::isinf(PolygonDistance(nonFinite, {15.0, 2.0})),
+                 "non-finite cut in and out polygon should return infinity"))
+        return 1;
+
     const std::vector<CutInAndOutInfo> cutInAndOutInfos = {
-        {101, 0.0, 0.0, 0.0, 10.0},
-        {102, 0.0, 0.0, 0.0, 0.0},
+        rectangle,
+        {103, 0.0, 2.0, 0.0, 2.0, 0.0, 2.0},
     };
     std::vector<rsim_driver::PointToLineDistanceResult> distances;
     if (!Require(rsim_driver::ComputePointToCutInAndOutLineDistances(
                      cutInAndOutInfos,
-                     start,
+                     {4.0, 1.0},
                      &distances),
                  "cut in and out line distance computation should succeed"))
         return 1;
 
     if (!Require(distances.size() == 2 &&
                      distances[0].id == 101 &&
-                     Near(distances[0].distance, 3.0) &&
-                     distances[1].id == 102 &&
-                     Near(distances[1].distance, std::sqrt(34.0)),
-                 "line distance result should keep obstacle ids and distances"))
+                     Near(distances[0].distance, 6.0) &&
+                     distances[1].id == 103 &&
+                     Near(distances[1].distance, 2.0),
+                 "line distance result should keep obstacle ids and polygon distances"))
         return 1;
 
     if (!Require(!rsim_driver::ComputePointToCutInAndOutLineDistances(

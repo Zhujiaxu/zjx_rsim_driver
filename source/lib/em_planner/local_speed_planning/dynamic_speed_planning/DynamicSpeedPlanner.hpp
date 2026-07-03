@@ -11,12 +11,12 @@
 namespace rsim_driver
 {
 
-struct DynamicSpeedPlanConfig
+struct DynamicPlanSpeedConfig
 {
     double time_step = 0.5;
     int time_step_count = 16;
     double s_step = 0.5;
-    int s_step_count = 40;
+    int s_step_count = 70;
 
     double reference_speed = 8.0;
     double weight_reference_speed = 5.0;
@@ -24,35 +24,35 @@ struct DynamicSpeedPlanConfig
     double weight_jerk = 1.0;
     double weight_collision = 70.0;
 
-    DynamicCollisionCostConfig collision;
+    DynamicCollisionCostConfig collisionconfig;
 };
 
-struct DynamicSpeedPoint
+struct DynamicPlanSpeedPoint
 {
     double t = 0.0;
     double s = 0.0;
     double v = 0.0;
     double a = 0.0;
-    double jerk = 0.0;
-    int rowindex = -1;
+    //double jerk = 0.0;
+    //int rowindex = -1;
 };
-struct DynamicSpeedPlanStartPoint
+/*struct DynamicPlanSpeedStartPoint
 {
     double t = 0.0;
     double s = 0.0;
     double v = 0.0;
     double a = 0.0;
-};
+};*/
 
-struct DynamicSpeedPlanResult
+struct DynamicPlanSpeedResult
 {
     bool dpsuccess = false;
     double total_cost = 0.0;
-    std::vector<DynamicSpeedPoint> speed_points;
+    std::vector<DynamicPlanSpeedPoint> stpoints;
 };
-inline DynamicSpeedPlanStartPoint GetDynamicSpeedPlanStartPoint(PlanningStartResult startpoint)
+inline DynamicPlanSpeedPoint GetDynamicSpeedPlanStartPoint(PlanningStartResult startpoint)
 {
-    DynamicSpeedPlanStartPoint result;
+    DynamicPlanSpeedPoint result;
     result.t = 0;
     result.s = 0;
     result.v = startpoint.start_point.speed;
@@ -60,22 +60,22 @@ inline DynamicSpeedPlanStartPoint GetDynamicSpeedPlanStartPoint(PlanningStartRes
     return result;
 }
 
-class DynamicSpeedPlanner
+class DynamicPlanSpeedPlanner
 {
 public:
-    explicit DynamicSpeedPlanner(const DynamicSpeedPlanConfig& config = {});
+    explicit DynamicPlanSpeedPlanner(const DynamicPlanSpeedConfig& config = {});
 
-    const DynamicSpeedPlanConfig& config() const;
-    void SetConfig(const DynamicSpeedPlanConfig& config);
+    const DynamicPlanSpeedConfig& config() const;
+    void SetConfig(const DynamicPlanSpeedConfig& config);
 
-    bool Plan(const DynamicSpeedPlanStartPoint& start,
+    bool Plan(const DynamicPlanSpeedPoint& start,
               const localreferencelinepath& reference_line,
               const DynamicFrenetObstaclePerceptionResult& dynamic_obstacles,
-              DynamicSpeedPlanResult* result) const;
+              DynamicPlanSpeedResult* result) const;
 
 private:
-    DynamicSpeedPlanConfig config_;
-    ComputeCutInAndOut compute_cut_in_and_out_;
+    DynamicPlanSpeedConfig config_;
+    ComputeCutInAndOut STBoundaryBuilder_;
 };
 
 }  // namespace rsim_driver

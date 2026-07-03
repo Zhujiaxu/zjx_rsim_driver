@@ -39,7 +39,7 @@ struct PlanningStartPoint
 
 struct PlanningStartConfig
 {
-    double planningPeriod = 0.01;
+    double planningPeriod = 0.05;
     double mismatchDistanceThreshold = 0.3;
 };
 

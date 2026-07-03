@@ -64,11 +64,17 @@ namespace rsim_driver
         const double riskDistance = std::max(collisionDistance, config.risk_distance);
         double totalCost = 0.0;
 
-        for (const CutInAndOutInfoT &cutInAndOutInfo : cutInAndOutInfos)
+        std::vector<PointToBoundaryDistanceResult> distances;
+        if (!ComputePointToBoundaryDistances(cutInAndOutInfos,
+                                                    point,
+                                                    &distances))
         {
-            const StPoint cutInPoint{cutInAndOutInfo.sin, cutInAndOutInfo.tin};
-            const StPoint cutOutPoint{cutInAndOutInfo.sout, cutInAndOutInfo.tout};
-            const double distance = PointToLineSegmentDistance(point, cutInPoint, cutOutPoint);
+            return config.infinity_cost;
+        }
+
+        for (const PointToBoundaryDistanceResult &distanceResult : distances)
+        {
+            const double distance = distanceResult.distance;
 
             if (distance <= collisionDistance)
                 return config.infinity_cost;
