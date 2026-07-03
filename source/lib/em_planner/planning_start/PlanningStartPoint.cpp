@@ -237,7 +237,7 @@ namespace rsim_driver
     {
     }
 
-    const PlanningStartConfig& PlanningStart::config() const
+    const PlanningStartConfig &PlanningStart::config() const
     {
         return planningStartPointConfig_;
     }

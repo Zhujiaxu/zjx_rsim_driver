@@ -57,17 +57,17 @@ namespace rsim_driver
             double accel = 0.0;
         };
 
-        inline double ActorPlanarSpeed(const rsim_plugin::ActorState &actor)
+        inline double ActorActualSpeed(const rsim_plugin::ActorState &actor)
         {
             const double velocitySpeed =
                 std::sqrt(actor.vel_x * actor.vel_x + actor.vel_y * actor.vel_y);
             return std::max(std::fabs(actor.speed), velocitySpeed);
         }
 
-        inline double ActorLongitudinalAccel(const rsim_plugin::ActorState &actor)
+        /*inline double ActorActualAccel(const rsim_plugin::ActorState &actor)
         {
             return std::sqrt(actor.acc_x * actor.acc_x + actor.acc_y * actor.acc_y);
-        }
+        }*/
 
         template <typename RefPointT>
         StaticFrenetObstacle ToStaticFrenetObstacle(
@@ -107,8 +107,8 @@ namespace rsim_driver
             point.x = actor.x;
             point.y = actor.y;
             point.heading = actor.h;
-            point.speed = ActorPlanarSpeed(actor);
-            point.accel = ActorLongitudinalAccel(actor);
+            point.speed = ActorActualSpeed(actor);
+            point.accel = actor.acc_x;
             return point;
         }
 
@@ -144,7 +144,7 @@ namespace rsim_driver
                     continue;
 
                 const double speed =
-                    frenet_obstacle_perception_detail::ActorPlanarSpeed(actor);
+                    frenet_obstacle_perception_detail::ActorActualSpeed(actor);
                 if (speed <= staticSpeedThreshold)
                 {
                     converted.staticobstacles.push_back(
@@ -178,7 +178,7 @@ namespace rsim_driver
                     continue;
 
                 const double speed =
-                    frenet_obstacle_perception_detail::ActorPlanarSpeed(actor);
+                    frenet_obstacle_perception_detail::ActorActualSpeed(actor);
                 if (speed <= staticSpeedThreshold)
                     continue;
 

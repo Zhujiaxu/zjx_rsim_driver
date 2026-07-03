@@ -147,7 +147,7 @@ namespace rsim_driver
             const double lDot = cartesianPoint.speed * sinDeltaTheta;
             // sDdot ;
             const double sDdot =
-                (cartesianPoint.accel * cosDeltaTheta /*- cartesianPoint.speed * cartesianPoint.speed * curvature * sinDeltaTheta*/) / (oneMinusKappaRefL) +
+                (cartesianPoint.accel * cosDeltaTheta - cartesianPoint.speed * cartesianPoint.speed * curvature * sinDeltaTheta) / (oneMinusKappaRefL) +
                 (referenceKappa * sDot * sDot * lPrime) / (oneMinusKappaRefL) +
                 (referenceDkappa * sDot * l + referenceKappa * lDot) * sDot / oneMinusKappaRefL;
 

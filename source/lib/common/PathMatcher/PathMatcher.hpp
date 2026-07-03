@@ -94,6 +94,41 @@ namespace rsim_driver
         return bestIndex;
     }
 
+    // 重载匹配点索引函数
+    template <typename PointT>
+    std::size_t FindMatchPointIndex(const std::vector<PointT> &points,
+                                    const double &x,
+                                    const double &y,
+                                    const std::size_t &startIndex)
+    {
+        if (points.empty())
+            return 0;
+
+        std::size_t bestIndex = startIndex;
+        std::size_t nonImprovingCount = 0;
+        double bestDistance = std::numeric_limits<double>::infinity();
+        for (std::size_t i = startIndex; i < points.size(); ++i)
+        {
+            const double distance =
+                path_matcher_detail::DistanceSquared(points[i].x, points[i].y, x, y);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestIndex = i;
+                nonImprovingCount = 0;
+                continue;
+            }
+
+            ++nonImprovingCount;
+            if (nonImprovingCount >= path_matcher_detail::kMatchConfirmLookahead)
+            {
+                break;
+            }
+        }
+
+        return bestIndex;
+    }
+
     template <typename PointT>
     PointT FindProjectionPoint(const std::vector<PointT> &points,
                                double x,

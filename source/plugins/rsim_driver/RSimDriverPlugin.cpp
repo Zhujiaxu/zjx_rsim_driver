@@ -558,7 +558,7 @@ namespace
                 return;
 
             const rsim_driver::ReferencePoint projectionPoint =
-                reference_line_generator_.lastProjectionPoint();
+                reference_line_generator_.curProjectionPoint();
             for (std::size_t i = 0; i < reference_line_->points.size(); ++i)
             {
                 const rsim_driver::ReferencePoint &point = reference_line_->points[i];

@@ -45,7 +45,7 @@ public:
         double egoX,
         double egoY);
     std::size_t lastMatchPointIndex() const { return last_match_point_index_; }
-    ReferencePoint lastProjectionPoint() const { return last_projection_point_; }
+    ReferencePoint curProjectionPoint() const { return cur_projection_point_; }
 
     static void RecomputeGeometry(std::vector<ReferencePoint>* points);
     static void RecomputeGeometry(std::vector<ReferencePoint>* points,
@@ -58,7 +58,7 @@ private:
 
     ReferenceLineSmoother smoother_;
     std::size_t last_match_point_index_ = 0;
-    ReferencePoint last_projection_point_;
+    ReferencePoint cur_projection_point_;
     bool isfirst_ = true;
 };
 

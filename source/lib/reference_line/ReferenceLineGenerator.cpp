@@ -74,7 +74,7 @@ namespace rsim_driver
         {
             const double vx = b.x - a.x;
             const double vy = b.y - a.y;
-            const double len2 = vx * vx + vy * vy;
+            const double len2 = sqrt(vx * vx + vy * vy);
             if (len2 <= 1e-12)
                 return 0.0;
 
@@ -169,9 +169,8 @@ namespace rsim_driver
             path_matcher_detail::kMatchConfirmLookahead = Generateconfig.matchConfirmForwardPoints - 8;
         }
 
-        const std::size_t matchIndex = FindMatchPointIndex(globalPath, egoX, egoY);
+        const std::size_t matchIndex = FindMatchPointIndex(globalPath, egoX, egoY, last_match_point_index_);
         last_match_point_index_ = matchIndex;
-
         std::vector<ReferencePoint> raw = BuildRawWindow(globalPath, matchIndex);
         if (raw.size() < static_cast<std::size_t>(std::max(1, Generateconfig.minPoints)))
             return nullptr;
@@ -181,12 +180,12 @@ namespace rsim_driver
             return nullptr;
         ReferenceLineGenerator::RecomputeGeometry(&smoothed);
 
-        last_projection_point_ = FindProjectionPoint(smoothed, egoX, egoY);
-        last_projection_point_.s = 0.0;
-        last_projection_point_.k = 0.0;
-        last_projection_point_.dk = 0.0;
+        cur_projection_point_ = FindProjectionPoint(smoothed, egoX, egoY);
+        cur_projection_point_.s = 0.0;
+        cur_projection_point_.k = 0.0;
+        cur_projection_point_.dk = 0.0;
 
-        ReferenceLineGenerator::RecomputeGeometry(&smoothed, last_projection_point_);
+        ReferenceLineGenerator::RecomputeGeometry(&smoothed, cur_projection_point_);
 
         auto result = std::make_unique<ReferenceLine>();
         result->points = std::move(smoothed);
