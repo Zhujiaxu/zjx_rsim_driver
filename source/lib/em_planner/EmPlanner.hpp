@@ -17,18 +17,7 @@ namespace rsim_driver
         DpPlannerConfig dp_config;
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
-        DynamicPlanSpeedConfig dpspeed_config;
-    };
-
-    struct EmTrajectoryPoint
-    {
-        double x = 0.0;
-        double y = 0.0;
-        double theta = 0.0;
-        double k = 0.0;
-        double v = 0.0;
-        double a = 0.0;
-        double time = 0.0;
+        DynamicPlanSpeedConfig speed_config;
     };
 
     struct EmPlannerResult
@@ -54,7 +43,7 @@ namespace rsim_driver
         QpPathResult qp_result;
         localreferencelinepath speed_reference_line;
         DynamicPlanSpeedResult speed_result;
-        std::vector<EmTrajectoryPoint> trajectory;
+        std::vector<PlanningTrajectoryPoint> trajectory;
     };
 
     class EmPlanner
@@ -65,26 +54,27 @@ namespace rsim_driver
         const EmPlannerConfig &config() const;
         void SetConfig(const EmPlannerConfig &config);
 
-        // Main pipeline: actors + ego actor → DP path
-        // Templated on RefPointT because perception conversion and
-        // planning_start::ToFrenet are templated.
         template <typename RefPointT>
-        bool EMPlan(const std::vector<rsim_plugin::ActorState> &actors,
-                    int32_t egoActorId,
-                    const rsim_plugin::ActorState &ego,
-                    double currentTime,
-                    const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
-                    const std::vector<RefPointT> &referencePoints,
-                    DpPlannerResult *result) const;
+        bool EMPlanPathDetailed(
+            const std::vector<rsim_plugin::ActorState> &actors,
+            int32_t egoActorId,
+            const rsim_plugin::ActorState &ego,
+            double currentTime,
+            const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
+            const std::vector<RefPointT> &referencePoints,
+            EmPlannerResult *result) const;
 
-        template <typename RefPointT>
-        bool EMPlanDetailed(const std::vector<rsim_plugin::ActorState> &actors,
-                            int32_t egoActorId,
-                            const rsim_plugin::ActorState &ego,
-                            double currentTime,
-                            const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
-                            const std::vector<RefPointT> &referencePoints,
-                            EmPlannerResult *result) const;
+        bool EMPlanSpeedDetailed(
+            const PlanningStartResult &planningStartResult,
+            const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
+            const QpPathResult &qpPathResult,
+            EmPlannerResult *result) const;
+
+        bool EMPlanPostProcessDetailed(
+            const PlanningStartResult &planningStartResult,
+            const QpPathResult &qpPathResult,
+            const DynamicPlanSpeedResult &speedResult,
+            std::vector<PlanningTrajectoryPoint> *result) const;
 
         const FrenetObstaclePerception &get_perception() const;
         const PlanningStart &get_planning_start() const;
@@ -106,8 +96,8 @@ namespace rsim_driver
         bool BuildTrajectory(
             const localreferencelinepath &referenceLine,
             const DynamicPlanSpeedResult &speedResult,
-            double absoluteStartTime,
-            std::vector<EmTrajectoryPoint> *result) const;
+            const PlanningStartResult &planningStartResult,
+            std::vector<PlanningTrajectoryPoint> *result) const;
         template <typename RefPointT>
         bool RunQuadraticProgramming(
             const CartesianFrenetState &start,
@@ -130,38 +120,6 @@ namespace rsim_driver
     // --- template implementation ---
 
     template <typename RefPointT>
-    bool EmPlanner::EMPlan(
-        const std::vector<rsim_plugin::ActorState> &actors,
-        int32_t egoActorId,
-        const rsim_plugin::ActorState &ego,
-        double currentTime,
-        const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
-        const std::vector<RefPointT> &referencePoints,
-        DpPlannerResult *result) const
-    {
-        if (result == nullptr)
-            return false;
-
-        EmPlannerResult detailedResult;
-        if (!EMPlanDetailed(actors,
-                            egoActorId,
-                            ego,
-                            currentTime,
-                            previousTrajectory,
-                            referencePoints,
-                            &detailedResult))
-        {
-            *result = detailedResult.dp_result;
-            return false;
-        }
-
-        result->dpsuccess = detailedResult.qp_result.qpsuccess;
-        result->total_cost = detailedResult.qp_result.objective;
-        result->path = detailedResult.localfrenetpath;
-        return true;
-    }
-
-    template <typename RefPointT>
     bool EmPlanner::RunQuadraticProgramming(
         const CartesianFrenetState &start,
         const std::vector<DpPathPoint> &coarsePath,
@@ -180,7 +138,7 @@ namespace rsim_driver
     }
 
     template <typename RefPointT>
-    bool EmPlanner::EMPlanDetailed(
+    bool EmPlanner::EMPlanPathDetailed(
         const std::vector<rsim_plugin::ActorState> &actors,
         int32_t egoActorId,
         const rsim_plugin::ActorState &ego,
@@ -259,7 +217,7 @@ namespace rsim_driver
         output.drivable_area_success = true;
 
         // Step 6: QuadraticProgramming — smooth DP path inside drivable area
-        localfrenetpath_.clear();
+         localfrenetpath_.clear();
         if (!RunQuadraticProgramming(output.frenet_start_result,
                                      output.dp_result.path,
                                      output.drivable_area,
@@ -273,39 +231,10 @@ namespace rsim_driver
         output.qp_success = output.qp_result.qpsuccess;
         output.localfrenetpath = localfrenetpath_;
 
-        if (!QpPathResultToLocalReferenceLinePath(output.qp_result,
-                                                  &output.speed_reference_line))
-        {
-            *result = output;
-            return false;
-        }
-
-        if (!RunDynamicSpeedPlanning(output.planning_start_result,
-                                     output.speed_reference_line,
-                                     output.dynamic_perception_result,
-                                     &output.speed_result))
-        {
-            *result = output;
-            return false;
-        }
-        output.speed_success = output.speed_result.dpsuccess;
-
-        if (!BuildTrajectory(output.speed_reference_line,
-                             output.speed_result,
-                             output.planning_start_result.start_point.time,
-                             &output.trajectory))
-        {
-            *result = output;
-            return false;
-        }
-        output.trajectory_success = true;
-
         *result = output;
         return output.dp_success &&
                output.drivable_area_success &&
-               output.qp_success &&
-               output.speed_success &&
-               output.trajectory_success;
+               output.qp_success;
     }
 
 } // namespace rsim_driver

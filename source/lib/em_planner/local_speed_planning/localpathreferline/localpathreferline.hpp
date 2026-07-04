@@ -37,7 +37,7 @@ inline double CalculateDkBetween(const localreferencelinepoint& previous,
 
 }  // namespace local_reference_line_detail
 
-inline bool CalculateLocalReferenceLineDk(localreferencelinepath* path)
+/*inline bool CalculateLocalReferenceLineDk(localreferencelinepath* path)
 {
     if (path == nullptr)
         return false;
@@ -74,7 +74,7 @@ inline bool CalculateLocalReferenceLineDk(localreferencelinepath* path)
     }
 
     return true;
-}
+}*/
 
 inline bool LocalCartesianPathToReferenceLinePath(
     const std::vector<CartesianPathPoint>& localcartesianpath,
@@ -106,7 +106,7 @@ inline bool LocalCartesianPathToReferenceLinePath(
                            accumulatedS});
     }
 
-    CalculateLocalReferenceLineDk(result);
+    // CalculateLocalReferenceLineDk(result);
     return true;
 }
 

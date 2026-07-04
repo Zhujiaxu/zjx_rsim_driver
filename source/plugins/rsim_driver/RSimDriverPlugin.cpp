@@ -211,13 +211,7 @@ namespace
             }
 
             rsim_driver::EmPlannerResult plannerResult;
-            if (!em_planner_.EMPlanDetailed(ctx.actors,
-                                            ego->id,
-                                            *ego,
-                                            ctx.sim_time,
-                                            previous_trajectory_,
-                                            reference_line_->points,
-                                            &plannerResult))
+            if (!RunEmPlannerDetailed(ctx, *ego, &plannerResult))
             {
                 CachePlannerResult(plannerResult);
                 if (plannerResult.planning_start_success)
@@ -248,7 +242,7 @@ namespace
                 return updates;
             }
             const std::size_t target_idx = 0;
-            const rsim_driver::EmTrajectoryPoint &target =
+            const rsim_driver::PlanningTrajectoryPoint &target =
                 plannerResult.trajectory[target_idx];
 
             WriteEgoTrajectoryCsv(ctx,
@@ -261,14 +255,59 @@ namespace
             rsim_driver::CartesianPathPoint debugTarget;
             debugTarget.x = target.x;
             debugTarget.y = target.y;
-            debugTarget.heading = target.theta;
-            debugTarget.kappa = target.k;
+            debugTarget.heading = target.heading;
+            debugTarget.kappa = target.curvature;
             WriteReferenceLineDebugCsv(ctx, *ego, target_idx, debugTarget);
 
             return updates;
         }
 
     private:
+        bool RunEmPlannerDetailed(
+            const TickContext &ctx,
+            const ActorState &ego,
+            rsim_driver::EmPlannerResult *result)
+        {
+            if (result == nullptr || reference_line_ == nullptr)
+                return false;
+
+            rsim_driver::EmPlannerResult output;
+            if (!em_planner_.EMPlanPathDetailed(ctx.actors,
+                                                ego.id,
+                                                ego,
+                                                ctx.sim_time,
+                                                previous_trajectory_,
+                                                reference_line_->points,
+                                                &output))
+            {
+                *result = std::move(output);
+                return false;
+            }
+
+            if (!em_planner_.EMPlanSpeedDetailed(output.planning_start_result,
+                                                 output.dynamic_perception_result,
+                                                 output.qp_result,
+                                                 &output))
+            {
+                *result = std::move(output);
+                return false;
+            }
+
+            if (!em_planner_.EMPlanPostProcessDetailed(output.planning_start_result,
+                                                       output.qp_result,
+                                                       output.speed_result,
+                                                       &output.trajectory))
+            {
+                output.trajectory_success = false;
+                *result = std::move(output);
+                return false;
+            }
+            output.trajectory_success = true;
+
+            *result = std::move(output);
+            return true;
+        }
+
         const char *PlanningStartSourceName(
             rsim_driver::PlanningStartSource source) const
         {
@@ -297,20 +336,7 @@ namespace
 
             if (result.trajectory_success)
             {
-                previous_trajectory_.clear();
-                previous_trajectory_.reserve(result.trajectory.size());
-                for (const rsim_driver::EmTrajectoryPoint &point : result.trajectory)
-                {
-                    rsim_driver::PlanningTrajectoryPoint trajectoryPoint;
-                    trajectoryPoint.x = point.x;
-                    trajectoryPoint.y = point.y;
-                    trajectoryPoint.heading = point.theta;
-                    trajectoryPoint.curvature = point.k;
-                    trajectoryPoint.speed = point.v;
-                    trajectoryPoint.accel = point.a;
-                    trajectoryPoint.time = point.time;
-                    previous_trajectory_.push_back(trajectoryPoint);
-                }
+                previous_trajectory_ = result.trajectory;
             }
         }
 
@@ -367,7 +393,7 @@ namespace
                          result.dynamic_perception_result.dynamicobstacles.size(),
                          result.dp_result.path.size(),
                          result.qp_result.localcartesianpath.size(),
-                         result.speed_result.speed_points.size(),
+                         result.speed_result.stpoints.size(),
                          result.trajectory.size(),
                          previous_trajectory_.size());
         }
@@ -498,14 +524,14 @@ namespace
         // 将规划出的速度点按仿真步长积分成 SceneRunner controller 更新
         ActorUpdate BuildActorUpdateFromTrajectoryPoint(
             const ActorState &ego,
-            const rsim_driver::EmTrajectoryPoint &target,
+            const rsim_driver::PlanningTrajectoryPoint &target,
             double dt) const
         {
             ActorUpdate update;
             update.actor_id = ego.id;
             const double heading =
-                std::isfinite(target.theta) ? target.theta : ego.h;
-            const double speed = ClampUpdateSpeed(ego, target.v, dt);
+                std::isfinite(target.heading) ? target.heading : ego.h;
+            const double speed = ClampUpdateSpeed(ego, target.speed, dt);
             const double distance = dt > kMinTimeStep ? speed * dt : 0.0;
 
             update.x = ego.x + distance * std::cos(heading);
@@ -703,7 +729,7 @@ namespace
             const ActorState &ego,
             std::size_t targetIdx,
             const std::vector<rsim_driver::DpPathPoint> &localfrenetpath,
-            const std::vector<rsim_driver::EmTrajectoryPoint> &path)
+            const std::vector<rsim_driver::PlanningTrajectoryPoint> &path)
         {
             if (ego_trajectory_csv_fp_ == nullptr)
                 return;
@@ -713,7 +739,7 @@ namespace
             {
                 const rsim_driver::DpPathPoint *frenetPoint =
                     i < localfrenetpath.size() ? &localfrenetpath[i] : nullptr;
-                const rsim_driver::EmTrajectoryPoint &point = path[i];
+                const rsim_driver::PlanningTrajectoryPoint &point = path[i];
                 std::fprintf(ego_trajectory_csv_fp_,
                              "%llu,%.9f,%.9f,%.9f,%.9f,%.9f,"
                              "%zu,%zu,%.9f,%.9f,%.9f,%.9f,"
@@ -732,10 +758,10 @@ namespace
                              frenetPoint != nullptr ? frenetPoint->l_double_prime : nan,
                              point.x,
                              point.y,
-                             point.theta,
-                             point.k,
-                             point.v,
-                             point.a,
+                             point.heading,
+                             point.curvature,
+                             point.speed,
+                             point.accel,
                              point.time,
                              i == targetIdx ? 1 : 0);
             }
@@ -882,7 +908,7 @@ namespace
         rsim_driver::DpPlannerResult dp_planning_result_;
         std::vector<rsim_driver::DpPathPoint> localfrenetpath_;
         std::vector<rsim_driver::CartesianPathPoint> cartesian_plan_path_;
-        std::vector<rsim_driver::EmTrajectoryPoint> planned_trajectory_;
+        std::vector<rsim_driver::PlanningTrajectoryPoint> planned_trajectory_;
 
         // ---- ego 初始状态 ----
         double set_speed_ = 8.0;
