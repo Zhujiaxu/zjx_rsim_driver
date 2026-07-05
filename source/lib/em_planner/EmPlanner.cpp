@@ -204,6 +204,8 @@ namespace rsim_driver
             *result = output;
             return false;
         }
+        output.dynamic_perception_success = true;
+        output.perception_success = true;
 
         if (!RunDynamicSpeedPlanning(planningStartResult,
                                      output.speed_reference_line,

@@ -171,9 +171,6 @@ namespace rsim_driver
         output.static_perception_success = true;
 
        
-        output.dynamic_perception_success = true;
-        output.perception_success = true;
-
         // Step 2: PlanningStart — compute start point in Cartesian
         output.planning_start_result =
             planning_start_.Compute(ego, currentTime, previousTrajectory);
