@@ -45,10 +45,9 @@ namespace rsim_driver
 
         double EgoPlanarAccel(const rsim_plugin::ActorState &actor)
         {
-           /*return std::sqrt(actor.acc_x * actor.acc_x +
-                             actor.acc_y * actor.acc_y);*/
-            return actor.acc_x ;
-
+            return std::sqrt(actor.acc_x * actor.acc_x +
+                             actor.acc_y * actor.acc_y);
+            // return actor.acc_x ;
         }
 
         PlanningStartPoint ToStartPoint(const PlanningTrajectoryPoint &point,

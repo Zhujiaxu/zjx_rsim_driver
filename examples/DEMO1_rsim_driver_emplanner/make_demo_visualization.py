@@ -481,11 +481,12 @@ def compute_ego_speeds(trajectory_by_frame):
     return speeds
 
 
-def draw_ego_info_card(ax, first_plan_row, current_speed, obstacles):
+def draw_ego_info_card(ax, ego_row, motion_row, obstacles):
     from matplotlib.offsetbox import AnnotationBbox, TextArea, VPacker
 
     target_speed = TARGET_SPEED_MPS
-    acceleration = first_plan_row.get("a", float("nan"))
+    current_speed = motion_row.get("v", float("nan"))
+    acceleration = motion_row.get("a", float("nan"))
     state, edge_color, face_color = ego_motion_style(
         acceleration, target_speed, current_speed)
     lines = [
@@ -494,7 +495,7 @@ def draw_ego_info_card(ax, first_plan_row, current_speed, obstacles):
         f"Mode      {state}",
     ]
 
-    nearest = nearest_obstacle(first_plan_row, obstacles)
+    nearest = nearest_obstacle(ego_row, obstacles)
     if nearest is not None and nearest["distance"] <= NEAR_DISTANCE_DISPLAY_M:
         lines.append(f"Nearest   {nearest['label']} {nearest['distance']:.2f} m")
 
@@ -517,7 +518,7 @@ def draw_ego_info_card(ax, first_plan_row, current_speed, obstacles):
 
     card = AnnotationBbox(
         packed_text,
-        (first_plan_row["ego_x"], first_plan_row["ego_y"]),
+        (ego_row["ego_x"], ego_row["ego_y"]),
         xybox=EGO_INFO_CARD_OFFSET_POINTS,
         xycoords="data",
         boxcoords="offset points",
@@ -640,7 +641,6 @@ def make_gif(global_csv: Path,
         raise SystemExit(f"ERROR: no trajectory frames: {trajectory_csv}")
 
     frame_ids = sample_ids(sorted(trajectory_by_frame), max_frames)
-    ego_speeds = compute_ego_speeds(trajectory_by_frame)
     output_gif.parent.mkdir(parents=True, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(10.8, 6.4))
@@ -798,8 +798,7 @@ def make_gif(global_csv: Path,
             f"view={'global route' if full_route else 'follow'}"
         )
         ax.legend(loc="upper right", fontsize=8, framealpha=0.92)
-        draw_ego_info_card(ax, first, ego_speeds.get(frame_id, float("nan")),
-                           current_obstacles)
+        draw_ego_info_card(ax, first, target, current_obstacles)
         return []
 
     animation = FuncAnimation(fig,
