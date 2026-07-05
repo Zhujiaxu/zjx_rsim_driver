@@ -50,8 +50,8 @@ namespace rsim_driver
                 point.x = previous.x + (next.x - previous.x) * ratio;
                 point.y = previous.y + (next.y - previous.y) * ratio;
                 point.k = previous.k + (next.k - previous.k) * ratio;
-                point.theta = NormalizeAngle(
-                    previous.theta + NormalizeAngle(next.theta - previous.theta) * ratio);
+                point.hdg = NormalizeAngle(
+                    previous.hdg + NormalizeAngle(next.hdg - previous.hdg) * ratio);
                 point.s = s;
                 // point.dk = previous.dk + (next.dk - previous.dk) * ratio;
                 return point;
@@ -155,7 +155,7 @@ namespace rsim_driver
             PlanningTrajectoryPoint point;
             point.x = pathPoint.x;
             point.y = pathPoint.y;
-            point.heading = pathPoint.theta;
+            point.heading = pathPoint.hdg;
             point.curvature = pathPoint.k;
             point.speed = speedPoint.v;
             point.accel = speedPoint.a;
@@ -174,8 +174,10 @@ namespace rsim_driver
     }
 
     bool EmPlanner::EMPlanSpeedDetailed(
+        const std::vector<rsim_plugin::ActorState> &actors,
+        int32_t egoActorId,
         const PlanningStartResult &planningStartResult,
-        const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
+        // const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
         const QpPathResult &qpPathResult,
         EmPlannerResult *result) const
     {
@@ -193,10 +195,20 @@ namespace rsim_driver
             *result = output;
             return false;
         }
+        if (!perception_.ConvertDynamicObstacles(
+                actors,
+                egoActorId,
+                output.speed_reference_line,
+                &output.dynamic_perception_result))
+        {
+            *result = output;
+            return false;
+        }
 
         if (!RunDynamicSpeedPlanning(planningStartResult,
                                      output.speed_reference_line,
-                                     dynamicObstacles,
+                                     // dynamicObstacles,
+                                     output.dynamic_perception_result,
                                      &output.speed_result))
         {
             *result = output;

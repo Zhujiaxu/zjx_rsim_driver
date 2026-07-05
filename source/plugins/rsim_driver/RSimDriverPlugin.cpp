@@ -243,7 +243,7 @@ namespace
             planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
             ego_trajectory_csv_path_ = getStr("egoTrajectoryCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
-            set_speed_ = getDouble("setSpeed",8.0);
+            set_speed_ = getDouble("setSpeed", 8.0);
             rsim_driver::EmPlannerConfig emPlannerConfig = em_planner_.config();
             emPlannerConfig.speed_config.reference_speed = set_speed_;
             em_planner_.SetConfig(emPlannerConfig);
@@ -419,10 +419,13 @@ namespace
                 return false;
             }
 
-            if (!em_planner_.EMPlanSpeedDetailed(output.planning_start_result,
-                                                 output.dynamic_perception_result,
-                                                 output.qp_result,
-                                                 &output))
+            if (!em_planner_.EMPlanSpeedDetailed(
+                    ctx.actors,
+                    ego.id,
+                    output.planning_start_result,
+                    //output.dynamic_perception_result,
+                    output.qp_result,
+                    &output))
             {
                 *result = std::move(output);
                 return false;
@@ -796,8 +799,8 @@ namespace
                          startResult.start_curvature,
                          slSuccess ? 1 : 0,
                          frenet.s,
-                         //frenet.s_dot,
-                         //frenet.s_ddot,
+                         // frenet.s_dot,
+                         // frenet.s_ddot,
                          frenet.l,
                          frenet.l_prime,
                          frenet.l_double_prime,

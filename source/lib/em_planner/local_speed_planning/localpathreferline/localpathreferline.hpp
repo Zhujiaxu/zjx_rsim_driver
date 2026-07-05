@@ -14,7 +14,7 @@ struct localreferencelinepoint
     double x = 0.0;
     double y = 0.0;
     double k = 0.0;
-    double theta = 0.0;
+    double hdg = 0.0;
     double s = 0.0;
     double dk = 0.0;
 };

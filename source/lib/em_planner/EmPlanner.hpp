@@ -65,8 +65,9 @@ namespace rsim_driver
             EmPlannerResult *result) const;
 
         bool EMPlanSpeedDetailed(
+            const std::vector<rsim_plugin::ActorState> &actors,
+            int32_t egoActorId,
             const PlanningStartResult &planningStartResult,
-            const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
             const QpPathResult &qpPathResult,
             EmPlannerResult *result) const;
 
@@ -169,15 +170,7 @@ namespace rsim_driver
         }
         output.static_perception_success = true;
 
-        if (!perception_.ConvertDynamicObstacles(
-                actors,
-                egoActorId,
-                referencePoints,
-                &output.dynamic_perception_result))
-        {
-            *result = output;
-            return false;
-        }
+       
         output.dynamic_perception_success = true;
         output.perception_success = true;
 
