@@ -69,8 +69,131 @@ namespace
 {
 
     constexpr double kFallbackDeceleration = 6.0;
-    constexpr double kMaxUpdateAcceleration = 6.0;
     constexpr double kMinTimeStep = 1e-6;
+    constexpr double kPi = 3.14159265358979323846;
+    constexpr double kTrajectoryUpdateLookahead = 0.05;
+
+    double NormalizeAngle(double angle)
+    {
+        while (angle > kPi)
+            angle -= 2.0 * kPi;
+        while (angle < -kPi)
+            angle += 2.0 * kPi;
+        return angle;
+    }
+
+    double InterpolateAngle(double from, double to, double ratio)
+    {
+        return NormalizeAngle(from + NormalizeAngle(to - from) * ratio);
+    }
+
+    bool IsValidTrajectoryPoint(
+        const rsim_driver::PlanningTrajectoryPoint &point)
+    {
+        return std::isfinite(point.x) &&
+               std::isfinite(point.y) &&
+               std::isfinite(point.heading) &&
+               std::isfinite(point.curvature) &&
+               std::isfinite(point.speed) &&
+               point.speed >= 0.0 &&
+               std::isfinite(point.accel) &&
+               std::isfinite(point.time);
+    }
+
+    rsim_driver::PlanningTrajectoryPoint InterpolateTrajectoryPoint(
+        const rsim_driver::PlanningTrajectoryPoint &previous,
+        const rsim_driver::PlanningTrajectoryPoint &next,
+        double time)
+    {
+        const double dt = next.time - previous.time;
+        const double ratio = dt > kMinTimeStep
+                                 ? std::clamp((time - previous.time) / dt,
+                                              0.0,
+                                              1.0)
+                                 : 0.0;
+
+        rsim_driver::PlanningTrajectoryPoint point;
+        point.x = previous.x + (next.x - previous.x) * ratio;
+        point.y = previous.y + (next.y - previous.y) * ratio;
+        point.heading = InterpolateAngle(previous.heading, next.heading, ratio);
+        point.curvature =
+            previous.curvature + (next.curvature - previous.curvature) * ratio;
+        point.speed = previous.speed + (next.speed - previous.speed) * ratio;
+        point.accel = previous.accel + (next.accel - previous.accel) * ratio;
+        point.time = time;
+        return point;
+    }
+
+    bool FindTrajectoryPointAtTime(
+        const std::vector<rsim_driver::PlanningTrajectoryPoint> &trajectory,
+        double queryTime,
+        rsim_driver::PlanningTrajectoryPoint *point,
+        std::size_t *targetIdx)
+    {
+        if (point == nullptr || targetIdx == nullptr ||
+            trajectory.empty() || !std::isfinite(queryTime))
+        {
+            return false;
+        }
+
+        for (std::size_t i = 0; i < trajectory.size(); ++i)
+        {
+            const auto &trajectoryPoint = trajectory[i];
+            if (!IsValidTrajectoryPoint(trajectoryPoint))
+                return false;
+            if (i > 0 &&
+                trajectoryPoint.time < trajectory[i - 1].time - kMinTimeStep)
+            {
+                return false;
+            }
+        }
+
+        if (trajectory.size() == 1)
+        {
+            if (std::fabs(queryTime - trajectory.front().time) > kMinTimeStep)
+                return false;
+            *point = trajectory.front();
+            point->time = queryTime;
+            *targetIdx = 0;
+            return true;
+        }
+
+        if (queryTime < trajectory.front().time - kMinTimeStep ||
+            queryTime > trajectory.back().time + kMinTimeStep)
+        {
+            return false;
+        }
+
+        if (queryTime <= trajectory.front().time + kMinTimeStep)
+        {
+            *point = trajectory.front();
+            point->time = queryTime;
+            *targetIdx = 0;
+            return true;
+        }
+
+        for (std::size_t i = 1; i < trajectory.size(); ++i)
+        {
+            const auto &previous = trajectory[i - 1];
+            const auto &current = trajectory[i];
+            if (current.time < previous.time - kMinTimeStep)
+                return false;
+            if (queryTime > current.time + kMinTimeStep)
+                continue;
+
+            if (queryTime < previous.time - kMinTimeStep)
+                return false;
+
+            *point = InterpolateTrajectoryPoint(previous, current, queryTime);
+            *targetIdx = i;
+            return IsValidTrajectoryPoint(*point);
+        }
+
+        *point = trajectory.back();
+        point->time = queryTime;
+        *targetIdx = trajectory.size() - 1;
+        return true;
+    }
 
     class RSimDriverPlugin : public IPluginController
     {
@@ -241,16 +364,28 @@ namespace
                 updates.push_back(BuildControlledStopActorUpdate(*ego, ctx.time_step));
                 return updates;
             }
-            const std::size_t target_idx = 0;
-            const rsim_driver::PlanningTrajectoryPoint &target =
-                plannerResult.trajectory[target_idx];
+            std::size_t target_idx = 0;
+            rsim_driver::PlanningTrajectoryPoint target;
+            const double target_time = ctx.sim_time + kTrajectoryUpdateLookahead;
+            if (!FindTrajectoryPointAtTime(plannerResult.trajectory,
+                                           target_time,
+                                           &target,
+                                           &target_idx))
+            {
+                ReportPlannerStageStatus(ctx, plannerResult);
+                ReportPlanningFailure(ctx,
+                                      *ego,
+                                      "EM planner trajectory does not cover update time");
+                updates.push_back(BuildControlledStopActorUpdate(*ego, ctx.time_step));
+                return updates;
+            }
 
             WriteEgoTrajectoryCsv(ctx,
                                   *ego,
                                   target_idx,
                                   plannerResult.localfrenetpath,
                                   plannerResult.trajectory);
-            updates.push_back(BuildActorUpdateFromTrajectoryPoint(*ego, target, ctx.time_step));
+            updates.push_back(BuildActorUpdateFromTrajectoryPoint(*ego, target));
 
             rsim_driver::CartesianPathPoint debugTarget;
             debugTarget.x = target.x;
@@ -503,44 +638,20 @@ namespace
             return update;
         }
 
-        double ClampUpdateSpeed(
-            const ActorState &ego,
-            double targetSpeed,
-            double dt) const
-        {
-            const double target =
-                std::isfinite(targetSpeed) ? std::max(0.0, targetSpeed) : 0.0;
-            if (dt <= kMinTimeStep || !std::isfinite(ego.speed))
-                return target;
-
-            const double current = std::max(0.0, ego.speed);
-            const double minSpeed =
-                std::max(0.0, current - kFallbackDeceleration * dt);
-            const double maxSpeed =
-                current + kMaxUpdateAcceleration * dt;
-            return std::clamp(target, minSpeed, maxSpeed);
-        }
-
-        // 将规划出的速度点按仿真步长积分成 SceneRunner controller 更新
+        // 使用目标时间的规划轨迹点直接更新 SceneRunner controller 状态。
         ActorUpdate BuildActorUpdateFromTrajectoryPoint(
             const ActorState &ego,
-            const rsim_driver::PlanningTrajectoryPoint &target,
-            double dt) const
+            const rsim_driver::PlanningTrajectoryPoint &target) const
         {
             ActorUpdate update;
             update.actor_id = ego.id;
-            const double heading =
-                std::isfinite(target.heading) ? target.heading : ego.h;
-            const double speed = ClampUpdateSpeed(ego, target.speed, dt);
-            const double distance = dt > kMinTimeStep ? speed * dt : 0.0;
-
-            update.x = ego.x + distance * std::cos(heading);
-            update.y = ego.y + distance * std::sin(heading);
+            update.x = target.x;
+            update.y = target.y;
             update.z = ego.z;
-            update.h = heading;
+            update.h = target.heading;
             update.p = ego.p;
             update.r = ego.r;
-            update.speed = speed;
+            update.speed = target.speed;
             update.wheel_angle = 0.0;
             update.position_valid = 1;
             update.speed_valid = 1;

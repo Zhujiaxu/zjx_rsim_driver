@@ -160,13 +160,13 @@ namespace rsim_driver
             point.speed = speedPoint.v;
             point.accel = speedPoint.a;
             point.time = planningStartResult.start_point.time + speedPoint.t;
-            if (planningStartResult.start_point.source == PlanningStartSource::PreviousTrajectory)
+            /*if (planningStartResult.start_point.source == PlanningStartSource::PreviousTrajectory)
             {
                 for (const PlanningTrajectoryPoint &point : planningStartResult.stitching_trajectory)
                 {
                     result->push_back(point);
                 }
-            }
+            }*/
             result->push_back(point);
         }
 
@@ -224,10 +224,21 @@ namespace rsim_driver
             return false;
         }
 
-        return BuildTrajectory(referenceLine,
-                               speedResult,
-                               planningStartResult,
-                               result);
+        const bool forwardTrajectory = BuildTrajectory(referenceLine,
+                                                       speedResult,
+                                                       planningStartResult,
+                                                       result);
+        if (!forwardTrajectory)
+            return false;
+
+        if (planningStartResult.start_point.source ==
+            PlanningStartSource::PreviousTrajectory)
+        {
+            result->insert(result->begin(),
+                           planningStartResult.stitching_trajectory.begin(),
+                           planningStartResult.stitching_trajectory.end());
+        }
+        return true;
     }
 
 } // namespace rsim_driver
