@@ -216,6 +216,8 @@ namespace rsim_driver
         result->reserve(cutInAndOutInfos.size());
         for (const CutInAndOutInfoT &info : cutInAndOutInfos)
         {
+            if (info=={})
+                continue;
             const point_to_boundary_distance_detail::StPolygon polygon =
                 point_to_boundary_distance_detail::MakePolygon(
                     info.tin,

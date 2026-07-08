@@ -18,13 +18,6 @@ namespace rsim_driver
         {
             return (lhs < 0.0 && rhs > 0.0) || (lhs > 0.0 && rhs < 0.0);
         }
-
-        double ReferenceLineLength(const localreferencelinepath &referenceLine)
-        {
-            if (referenceLine.size() < 2)
-                return 0.0;
-            return std::max(0.0, referenceLine.back().s - referenceLine.front().s);
-        }
         bool HasPersistentLaneOverlap(
             const DynamicFrenetObstacle &obstacle,
             const ComputeCutInAndOutConfig &config)
@@ -33,7 +26,7 @@ namespace rsim_driver
             const double halfWidthL = std::max(0.0, config.half_vehicle_width_l);
             const double ldotEpsilon = std::max(0.0, config.ldot_epsilon);
             return std::fabs(state.ldot) <= 0.5 &&
-                   std::fabs(state.l) <= halfWidthL;
+                   std::fabs(state.l -obstacle.length/2.0) <= halfWidthL&& state.s>0.0;
         }
 
         bool SameSeed(const VirtualObstacleSeed &lhs,
@@ -122,7 +115,7 @@ namespace rsim_driver
             info.id = obstacle.id;
 
             if (std::fabs(state.ldot) <= ldotEpsilon &&
-                std::fabs(state.l) > halfWidthL)
+                std::fabs(state.l - obstacle.length / 2.0) > halfWidthL)
             {
                 info.tin = PositiveInfinity();
                 info.tout = PositiveInfinity();
