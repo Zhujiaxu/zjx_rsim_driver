@@ -10,7 +10,7 @@ namespace rsim_driver
 
     struct DrivableAreaConfig
     {
-        double left_road_boundary_l = 3.5;
+        double left_road_boundary_l =3.5;
         double right_road_boundary_l = -3.5;
         double obstacle_lateral_buffer = 0.8;
     };

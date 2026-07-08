@@ -2,7 +2,16 @@
 <OpenSCENARIO>
     <FileHeader revMajor="1" revMinor="1" date="2024-03-30T10:00:00" description="misc object catalog" author="thsousands sim team"/>
     <Catalog name="MiscObjectCatalog">
-        <MiscObject name="TwoWayTrafficLight" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/78wmjojqzv/b53o68/yolrsttre0vpnz3t.glb?Expires=1782474793&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=h35kKxUGDOoqM34MyqwQipvfdqs%3D">
+        <MiscObject name="SM_Rock_07" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/dlpgpjm8z5/1dcx83/yz6oacddcav4r52z.glb?Expires=1783523514&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=VXJCJYkTvRLbUrwRAf2JqwrvM8k%3D">
+            <BoundingBox>
+                <Center x="0" y="-0.2" z="0"/>
+                <Dimensions width="1.8" length="2" height="2"/>
+            </BoundingBox>
+            <Properties>
+                <Property name="model_bp" value="static.prop.sm_rock_07"/>
+            </Properties>
+        </MiscObject>
+        <MiscObject name="TwoWayTrafficLight" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/1/scenes/78wmjojqzv/b53o68/yolrsttre0vpnz3t.glb?Expires=1783523514&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=HQfFcVwFrB9IC6Rhqrxk5FnlQCs%3D">
             <BoundingBox>
                 <Center x="0.43" y="0.348" z="1.06"/>
                 <Dimensions width="0.86" length="0.696" height="2.12"/>
@@ -11,7 +20,7 @@
                 <Property name="model_bp" value="static.prop.trafficcone"/>
             </Properties>
         </MiscObject>
-        <MiscObject name="SpeedBump" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/l75d0r2zg3/urqh39/SpeedBump1.glb?Expires=1782474793&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=bt%2B7IBMw1gSp7Dps1LYOtioVZL4%3D">
+        <MiscObject name="SpeedBump" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/l75d0r2zg3/urqh39/SpeedBump1.glb?Expires=1783523514&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=wAso3Jh1X7iuStEF9N20SVBmTEc%3D">
             <BoundingBox>
                 <Center x="0.193705" y="2.04611" z="0"/>
                 <Dimensions width="0.38741" length="4.09222" height="0.38741"/>
@@ -20,7 +29,7 @@
                 <Property name="model_bp" value="static.prop.speedbump"/>
             </Properties>
         </MiscObject>
-        <MiscObject name="Detour" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/kl7d0rvd1k/mny9gu/ChangeLane_Sign1.glb?Expires=1782474793&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=s08NHTM45dIsXRvdJxq5FGiAbhw%3D">
+        <MiscObject name="Detour" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/kl7d0rvd1k/mny9gu/ChangeLane_Sign1.glb?Expires=1783523514&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=AMdy%2BKGCoaxchOJjtn5deWaPEHE%3D">
             <BoundingBox>
                 <Center x="0.592273" y="0.879758" z="0"/>
                 <Dimensions width="1.1845464" length="1.759517" height="1.571514"/>
@@ -29,7 +38,7 @@
                 <Property name="model_bp" value="static.prop.changelane_sign"/>
             </Properties>
         </MiscObject>
-        <MiscObject name="NoEntry" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/zlv0ge8pvj/ewpx6r/DoNotEnter_Sign1.glb?Expires=1782474793&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=vvpqQn%2FEyFUhJrXZoAsyNzNtweQ%3D">
+        <MiscObject name="NoEntry" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/zlv0ge8pvj/ewpx6r/DoNotEnter_Sign1.glb?Expires=1783523514&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=9rQhKX%2BCr9fJlADBd3RBMfz9r2o%3D">
             <BoundingBox>
                 <Center x="0.592273" y="0.879758" z="0"/>
                 <Dimensions width="1.1845464" length="1.759517" height="1.571514"/>
@@ -38,7 +47,7 @@
                 <Property name="model_bp" value="static.prop.donotenter_sign"/>
             </Properties>
         </MiscObject>
-        <MiscObject name="Fence" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/713v5rqog8/2jta0x/lanefence04.glb?Expires=1782474793&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=k26qQZJJqz3DUXO5HfENmvf3rDM%3D">
+        <MiscObject name="Fence" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/713v5rqog8/2jta0x/lanefence04.glb?Expires=1783523514&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=fgeqHc71SFIrMAXEOeHLMNrNVd8%3D">
             <BoundingBox>
                 <Center x="0" y="0" z="0.5"/>
                 <Dimensions width="0.16732" length="8.2514" height="1.1917"/>
@@ -47,7 +56,7 @@
                 <Property name="model_bp" value="static.prop.lanefence"/>
             </Properties>
         </MiscObject>
-        <MiscObject name="WarningCone" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/526vlqdqke/stelou/zhuixingtong1.glb?Expires=1782474793&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=hZFsDTADNodfTLEnwNIzqYwEfIM%3D">
+        <MiscObject name="WarningCone" miscObjectCategory="miscObjectCategory" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/526vlqdqke/stelou/zhuixingtong1.glb?Expires=1783523514&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=4Y6IulNCfGAiG1%2B43x%2BTQF%2BP%2Bes%3D">
             <BoundingBox>
                 <Center x="0.441406" y="0.441094" z="0.566653"/>
                 <Dimensions width="0.882188" length="0.882812" height="1.133306"/>

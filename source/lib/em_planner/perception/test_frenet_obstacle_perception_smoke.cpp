@@ -1,4 +1,4 @@
-#include "perception/FrenetObstaclePerception.hpp"
+#include "FrenetObstaclePerception.hpp"
 
 #include <cmath>
 #include <cstdint>
@@ -80,12 +80,12 @@ int main()
                  "static frenet obstacle perception should succeed"))
         return 1;
 
-    if (!Require(staticResult.obstacles.size() == 1 &&
-                     staticResult.obstacles.front().id == 101 &&
-                     Near(staticResult.obstacles.front().s, 12.0) &&
-                     Near(staticResult.obstacles.front().l, 1.2) &&
-                     Near(staticResult.obstacles.front().length, 4.5) &&
-                     Near(staticResult.obstacles.front().width, 2.0),
+    if (!Require(staticResult.staticobstacles.size() == 1 &&
+                     staticResult.staticobstacles.front().id == 101 &&
+                     Near(staticResult.staticobstacles.front().s, 12.0) &&
+                     Near(staticResult.staticobstacles.front().l, 1.2) &&
+                     Near(staticResult.staticobstacles.front().length, 4.5) &&
+                     Near(staticResult.staticobstacles.front().width, 2.0),
                  "static obstacle should be ego-filtered and converted to s/l with size"))
         return 1;
 
@@ -97,12 +97,46 @@ int main()
                  "dynamic frenet obstacle perception should succeed"))
         return 1;
 
-    if (!Require(dynamicResult.obstacles.size() == 1 &&
-                     dynamicResult.obstacles.front().id == 102 &&
-                     Near(dynamicResult.obstacles.front().dynamicfrenetstate.s, 8.0) &&
-                     Near(dynamicResult.obstacles.front().dynamicfrenetstate.l, -0.8) &&
-                     Near(dynamicResult.obstacles.front().dynamicfrenetstate.s_dot, 4.0),
+    if (!Require(dynamicResult.dynamicobstacles.size() == 1 &&
+                     dynamicResult.dynamicobstacles.front().id == 102 &&
+                     Near(dynamicResult.dynamicobstacles.front().dynamicfrenetstate.s, 8.0) &&
+                     Near(dynamicResult.dynamicobstacles.front().dynamicfrenetstate.l, -0.8) &&
+                     Near(dynamicResult.dynamicobstacles.front().dynamicfrenetstate.s_dot, 4.0),
                  "dynamic obstacle should output full frenet state"))
+        return 1;
+
+    const std::vector<rsim_plugin::ActorState> seedActors = {
+        MakeActor(1, 0.0, 0.0),
+        MakeActor(201, 10.0, 0.2, 0.0, 1.0),
+        MakeActor(202, 16.0, -0.2, 3.14159265358979323846, 4.0),
+    };
+    if (!Require(perception.ConvertDynamicObstacles(seedActors,
+                                                    1,
+                                                    StraightReferenceLine(),
+                                                    &dynamicResult),
+                 "dynamic conversion should not require virtual obstacle seed output"))
+        return 1;
+
+    const std::vector<rsim_driver::VirtualObstacleSeed> seeds = {
+        {201, rsim_driver::VirtualObstacleType::SlowLead, 0.5, 0.5},
+        {202, rsim_driver::VirtualObstacleType::OncomingConflict, 8.0, 0.5},
+    };
+    rsim_driver::VirtualFrenetObstaclePerceptionResult virtualResult;
+    if (!Require(perception.ConvertVirtualObstacles(seedActors,
+                                                    1,
+                                                    StraightReferenceLine(),
+                                                    seeds,
+                                                    &virtualResult),
+                 "virtual obstacle seeds should resolve on current reference line"))
+        return 1;
+    if (!Require(virtualResult.virtual_static_obstacles.size() == 2 &&
+                     virtualResult.virtual_static_obstacles[0].id == 201 &&
+                     virtualResult.virtual_static_obstacles[1].id == 202 &&
+                     Near(virtualResult.virtual_static_obstacles[0].length, 5.0) &&
+                     Near(virtualResult.virtual_static_obstacles[0].width, 2.5) &&
+                     Near(virtualResult.virtual_static_obstacles[1].length, 12.5) &&
+                     Near(virtualResult.virtual_static_obstacles[1].width, 2.5),
+                 "resolved virtual obstacles should keep source ids and enlarged sizes"))
         return 1;
 
     if (!Require(!perception.ConvertStaticObstacles(actors,

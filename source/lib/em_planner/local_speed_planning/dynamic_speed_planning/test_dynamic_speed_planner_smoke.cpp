@@ -112,6 +112,9 @@ int main()
     if (!Require(CheckBackwardEulerSpeed(result.stpoints),
                  "speed points should store backward Euler speeds"))
         return 1;
+    if (!Require(result.virtual_obstacle_seeds.empty(),
+                 "planner without dynamic obstacles should not output virtual obstacle seeds"))
+        return 1;
     for (const rsim_driver::DynamicPlanSpeedPoint& point : result.stpoints)
     {
         if (!Require(Near(point.v, 1.0) &&
@@ -178,6 +181,29 @@ int main()
     if (!Require(result.stpoints.size() == 3 &&
                      Near(result.stpoints.back().s, 3.0),
                  "collision cost should be part of local transition cost"))
+        return 1;
+
+    rsim_driver::DynamicFrenetObstaclePerceptionResult seed_obstacles;
+    seed_obstacles.dynamicobstacles = {
+        MakeDynamicObstacle(2.0, 1.0, 0.0, 0.0),
+    };
+    rsim_driver::DynamicPlanSpeedConfig seed_config = MakeConfig();
+    seed_config.reference_speed = 8.0;
+    planner.SetConfig(seed_config);
+    if (!Require(planner.Plan(MakeStart(8.0),
+                              MakeReferenceLine(10.0, seed_config.s_step),
+                              seed_obstacles,
+                              &result) &&
+                     result.dpsuccess,
+                 "planner should succeed when slow lead is converted to virtual seed"))
+        return 1;
+    if (!Require(result.virtual_obstacle_seeds.size() == 1 &&
+                     result.virtual_obstacle_seeds.front().source_actor_id == 101 &&
+                     result.virtual_obstacle_seeds.front().type ==
+                         rsim_driver::VirtualObstacleType::SlowLead &&
+                     Near(result.virtual_obstacle_seeds.front().longitudinal_buffer, 0.05) &&
+                     Near(result.virtual_obstacle_seeds.front().lateral_buffer, 0.5),
+                 "speed planner should expose slow lead virtual obstacle seed"))
         return 1;
 
     rsim_driver::DynamicPlanSpeedConfig invalid_config = MakeConfig();

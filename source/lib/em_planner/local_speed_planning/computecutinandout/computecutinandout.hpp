@@ -13,6 +13,7 @@ struct ComputeCutInAndOutConfig
 {
     double half_vehicle_width_l = 1.0;
     double ldot_epsilon = 1e-6;
+    double stationary_overlap_horizon = 8.0;
 };
 
 struct CutInAndOutInfo
@@ -38,7 +39,11 @@ public:
 
     bool Compute(const localreferencelinepath& referenceLine,
                  const DynamicFrenetObstaclePerceptionResult& obstacles,
-                 std::vector<CutInAndOutInfo>* result) const;
+                 double ego_s_dot,
+                 double planningPeriod,
+                 double t_plan,
+                 std::vector<CutInAndOutInfo>* result,
+                 std::vector<VirtualObstacleSeed>* seeds) const;
 
 private:
     ComputeCutInAndOutConfig config_;

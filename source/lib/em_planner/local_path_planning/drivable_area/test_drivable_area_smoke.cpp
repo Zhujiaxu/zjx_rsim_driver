@@ -78,7 +78,7 @@ int main()
         return 1;
     for (const rsim_driver::SlPoint& point : area.right_boundary)
     {
-        if (!Require(Near(point.l, 1.0),
+        if (!Require(Near(point.l, 0.5),
                      "coarse path left of obstacle should raise right boundary"))
             return 1;
     }
@@ -94,7 +94,7 @@ int main()
         return 1;
     for (const rsim_driver::SlPoint& point : area.left_boundary)
     {
-        if (!Require(Near(point.l, -1.0),
+        if (!Require(Near(point.l, -0.5),
                      "coarse path right of obstacle should lower left boundary"))
             return 1;
     }
@@ -116,8 +116,8 @@ int main()
     if (!Require(builder.Build(bracketedObstaclePath, bracketedObstacle, &area),
                  "bracketed obstacle should build"))
         return 1;
-    if (!Require(Near(area.right_boundary[0].l, 1.6) &&
-                     Near(area.right_boundary[1].l, 1.6) &&
+    if (!Require(Near(area.right_boundary[0].l, 1.5) &&
+                     Near(area.right_boundary[1].l, 1.5) &&
                      Near(area.right_boundary[2].l, -3.5),
                  "bracketed obstacle should use average coarse l for right boundary"))
         return 1;
@@ -137,13 +137,13 @@ int main()
         return 1;
     for (const rsim_driver::SlPoint& point : area.right_boundary)
     {
-        if (!Require(Near(point.l, 1.2),
+        if (!Require(Near(point.l, 0.7),
                      "multiple obstacles should keep most restrictive right boundary"))
             return 1;
     }
 
     const std::vector<rsim_driver::StaticFrenetObstacle> blockingObstacle = {
-        MakeObstacle(1.0, 0.0, 8.0, 1.0),
+        MakeObstacle(1.0, 0.0, 8.0, 8.0),
     };
     if (!Require(!builder.Build(MakePath(0.1), blockingObstacle, &area) &&
                      area.left_boundary.empty() &&

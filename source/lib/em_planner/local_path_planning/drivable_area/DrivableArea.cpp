@@ -32,8 +32,7 @@ double ObstacleHalfLength(const StaticFrenetObstacle& obstacle)
 double ObstacleHalfExtent(const StaticFrenetObstacle& obstacle,
                           const DrivableAreaConfig& config)
 {
-    return 0.5 * std::max(std::max(0.0, obstacle.length),
-                          std::max(0.0, obstacle.width)) +
+    return 0.5 * std::max(0.0, obstacle.width) +
            config.obstacle_lateral_buffer;
 }
 

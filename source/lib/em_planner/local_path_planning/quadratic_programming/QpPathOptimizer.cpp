@@ -71,8 +71,7 @@ bool ObstacleCoversS(const StaticFrenetObstacle& obstacle, double s)
 double ObstacleHalfExtent(const StaticFrenetObstacle& obstacle,
                           const QpPathOptimizerConfig& config)
 {
-    return 0.5 * std::max(std::max(0.0, obstacle.length),
-                          std::max(0.0, obstacle.width)) +
+    return 0.5 * std::max(0.0, obstacle.width) +
            config.collision_lateral_buffer;
 }
 

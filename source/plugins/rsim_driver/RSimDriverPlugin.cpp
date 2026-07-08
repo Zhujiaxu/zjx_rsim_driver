@@ -243,7 +243,7 @@ namespace
             planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
             ego_trajectory_csv_path_ = getStr("egoTrajectoryCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
-            set_speed_ = getDouble("setSpeed", 8.0);
+            set_speed_ = getDouble("setSpeed", 13.0);
             rsim_driver::EmPlannerConfig emPlannerConfig = em_planner_.config();
             emPlannerConfig.speed_config.reference_speed = set_speed_;
             em_planner_.SetConfig(emPlannerConfig);
@@ -423,7 +423,6 @@ namespace
                     ctx.actors,
                     ego.id,
                     output.planning_start_result,
-                    //output.dynamic_perception_result,
                     output.qp_result,
                     &output))
             {
@@ -512,7 +511,8 @@ namespace
                          "[RSimDriver] EM planner stages frame=%llu time=%.6f "
                          "first_failed=%s static=%d dynamic=%d start=%d frenet=%d "
                          "dp=%d drivable=%d qp=%d speed_ref=%zu speed=%d trajectory=%d "
-                         "static_obs=%zu dynamic_obs=%zu dp_points=%zu qp_points=%zu "
+                         "static_obs=%zu virtual_obs=%zu dynamic_obs=%zu "
+                         "virtual_seeds=%zu dp_points=%zu qp_points=%zu "
                          "speed_points=%zu trajectory_points=%zu previous_points=%zu\n",
                          static_cast<unsigned long long>(ctx.frame_id),
                          ctx.sim_time,
@@ -528,7 +528,9 @@ namespace
                          result.speed_success ? 1 : 0,
                          result.trajectory_success ? 1 : 0,
                          result.static_perception_result.staticobstacles.size(),
+                         result.virtual_static_obstacles.size(),
                          result.dynamic_perception_result.dynamicobstacles.size(),
+                         result.virtual_obstacle_seeds.size(),
                          result.dp_result.path.size(),
                          result.qp_result.localcartesianpath.size(),
                          result.speed_result.stpoints.size(),
@@ -770,7 +772,8 @@ namespace
 
             const rsim_driver::PlanningStartPoint &start = startResult.start_point;
             const double egoAccel =
-                std::sqrt(ego.acc_x * ego.acc_x + ego.acc_y * ego.acc_y);
+                //std::sqrt(ego.acc_x * ego.acc_x + ego.acc_y * ego.acc_y)
+                ego.acc_x;
             std::fprintf(planning_start_sl_csv_fp_,
                          "%llu,%.9f,%.9f,"
                          "%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,%.9f,"

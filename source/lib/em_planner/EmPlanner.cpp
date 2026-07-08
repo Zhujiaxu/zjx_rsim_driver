@@ -60,6 +60,14 @@ namespace rsim_driver
             return referenceLine.back();
         }
 
+        DynamicPlanSpeedConfig BuildSpeedConfig(const EmPlannerConfig &config)
+        {
+            DynamicPlanSpeedConfig speedConfig = config.speed_config;
+            speedConfig.planning_period =
+                std::max(0.0, config.planning_start_config.planningPeriod);
+            return speedConfig;
+        }
+
     } // namespace
 
     EmPlanner::EmPlanner(const EmPlannerConfig &config)
@@ -69,7 +77,7 @@ namespace rsim_driver
           dp_planner_(config.dp_config),
           drivable_area_builder_(config.drivable_area_config),
           qp_path_optimizer_(config.qp_config),
-          speed_planner_(config.speed_config)
+          speed_planner_(BuildSpeedConfig(config))
     {
     }
 
@@ -86,7 +94,7 @@ namespace rsim_driver
         dp_planner_.SetConfig(config.dp_config);
         drivable_area_builder_.SetConfig(config.drivable_area_config);
         qp_path_optimizer_.SetConfig(config.qp_config);
-        speed_planner_.SetConfig(config.speed_config);
+        speed_planner_.SetConfig(BuildSpeedConfig(config));
     }
 
     const FrenetObstaclePerception &EmPlanner::get_perception() const
@@ -160,17 +168,63 @@ namespace rsim_driver
             point.speed = speedPoint.v;
             point.accel = speedPoint.a;
             point.time = planningStartResult.start_point.time + speedPoint.t;
-            /*if (planningStartResult.start_point.source == PlanningStartSource::PreviousTrajectory)
-            {
-                for (const PlanningTrajectoryPoint &point : planningStartResult.stitching_trajectory)
-                {
-                    result->push_back(point);
-                }
-            }*/
             result->push_back(point);
         }
 
         return true;
+    }
+
+    void EmPlanner::MergeVirtualObstacleSeeds(
+        const std::vector<VirtualObstacleSeed> &seeds) const
+    {
+        for (const VirtualObstacleSeed &seed : seeds)
+        {
+            const auto sameSeed =
+                [&seed](const VirtualObstacleSeed &existing)
+            {
+                return existing.source_actor_id == seed.source_actor_id &&
+                       existing.type == seed.type;
+            };
+            auto existing = std::find_if(virtual_obstacle_seeds_.begin(),
+                                         virtual_obstacle_seeds_.end(),
+                                         sameSeed);
+            if (existing != virtual_obstacle_seeds_.end())
+            {
+                *existing = seed;
+            }
+            else
+            {
+                virtual_obstacle_seeds_.push_back(seed);
+            }
+        }
+    }
+
+    void EmPlanner::PruneVirtualObstacleSeeds(
+        const std::vector<StaticFrenetObstacle> &resolvedObstacles,
+        double planningStartS) const
+    {
+        virtual_obstacle_seeds_.erase(
+            std::remove_if(
+                virtual_obstacle_seeds_.begin(),
+                virtual_obstacle_seeds_.end(),
+                [&](const VirtualObstacleSeed &seed)
+                {
+                    const auto resolved =
+                        std::find_if(resolvedObstacles.begin(),
+                                     resolvedObstacles.end(),
+                                     [&](const StaticFrenetObstacle &obstacle)
+                                     {
+                                         return obstacle.id ==
+                                                seed.source_actor_id;
+                                     });
+                    if (resolved == resolvedObstacles.end())
+                        return true;
+
+                    const double obstacleTailS =
+                        resolved->s + 0.5 * std::max(0.0, resolved->length);
+                    return obstacleTailS < planningStartS;
+                }),
+            virtual_obstacle_seeds_.end());
     }
 
     bool EmPlanner::EMPlanSpeedDetailed(
@@ -195,6 +249,9 @@ namespace rsim_driver
             *result = output;
             return false;
         }
+
+        output.dynamic_perception_success = false;
+        output.perception_success = output.static_perception_success;
         if (!perception_.ConvertDynamicObstacles(
                 actors,
                 egoActorId,
@@ -217,6 +274,10 @@ namespace rsim_driver
             return false;
         }
         output.speed_success = output.speed_result.dpsuccess;
+        output.virtual_obstacle_seeds =
+            output.speed_result.virtual_obstacle_seeds;
+        MergeVirtualObstacleSeeds(output.speed_result.virtual_obstacle_seeds);
+        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
         *result = output;
         return output.speed_success;

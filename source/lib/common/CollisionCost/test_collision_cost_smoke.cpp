@@ -31,6 +31,14 @@ struct CutInAndOutLine
     double soutmax = 0.0;
 };
 
+struct StaticObstacleBox
+{
+    double s = 0.0;
+    double l = 0.0;
+    double length = 0.0;
+    double width = 0.0;
+};
+
 }  // namespace
 
 int main()
@@ -61,6 +69,25 @@ int main()
     config.infinity_cost = std::numeric_limits<double>::infinity();
     if (!Require(std::isinf(rsim_driver::StaticObstacleCollisionCost({0.0, 0.0}, obstacles, config)),
                  "infinite infinity cost should be supported"))
+        return 1;
+
+    config.collision_distance = 0.5;
+    config.risk_distance = 1.5;
+    config.infinity_cost = 1000.0;
+    const std::vector<StaticObstacleBox> boxes = {
+        {0.0, 0.0, 4.0, 2.0},
+    };
+    if (!Require(Near(rsim_driver::StaticObstacleCollisionCost({1.0, 0.0}, boxes, config),
+                      config.infinity_cost),
+                 "point inside static obstacle box should return infinity cost"))
+        return 1;
+    if (!Require(Near(rsim_driver::StaticObstacleCollisionCost({3.0, 0.0}, boxes, config),
+                      0.5),
+                 "static obstacle box should measure risk distance from box edge"))
+        return 1;
+    if (!Require(Near(rsim_driver::StaticObstacleCollisionCost({4.0, 0.0}, boxes, config),
+                      0.0),
+                 "point outside static obstacle box risk range should have zero cost"))
         return 1;
 
     rsim_driver::DynamicCollisionCostConfig dynamicConfig;

@@ -36,6 +36,8 @@ namespace rsim_driver
             return IsFinite(config.time_step) &&
                    config.time_step > kEpsilon &&
                    config.time_step_count > 0 &&
+                   IsFinite(config.planning_period) &&
+                   config.planning_period >= 0.0 &&
                    IsFinite(config.reference_speed) &&
                    config.reference_speed >= 0.0 &&
                    IsFinite(config.weight_reference_speed) &&
@@ -175,13 +177,20 @@ namespace rsim_driver
         }
 
         std::vector<CutInAndOutInfo> STBoundaryInfos;
+        std::vector<VirtualObstacleSeed> virtualObstacleSeeds;
         if (!STBoundaryBuilder_.Compute(reference_line,
                                         dynamic_obstacles,
-                                        &STBoundaryInfos))
+                                        start.v,
+                                        config.planning_period,
+                                        config.time_step *
+                                            static_cast<double>(config.time_step_count),
+                                        &STBoundaryInfos,
+                                        &virtualObstacleSeeds))
         {
             *result = output;
             return false;
         }
+        output.virtual_obstacle_seeds = virtualObstacleSeeds;
 
         std::vector<std::vector<DPNode>> layers(t_values.size());
         layers.front().push_back({

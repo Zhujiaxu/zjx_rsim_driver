@@ -1,6 +1,7 @@
 # rsim-driver 任务规则
 
 - 当使用规划模式时，必须输出 markdown 格式的计划书到/home/ubzjx/proj/qc_intern/work/rsim_driver/Dission_md，包含 Summary、Implementation Changes、Test Plan 三个部分，审批通过，才能执行。
+- 当使用规划模式编写代码之前，查看有无代码更改却未提交，如有，提醒我，并告知commit的message，即简短的标题；如无，编写代码
 - 本仓库是 RSim 驾驶员模型 plugin 工程, 主要代码为 C++17 + CMake; 改动应优先遵循现有 `source/lib` 与 `source/plugins` 的模块边界。
 - 不要修改或提交 `third_party` 软链及外部 worktree 内容; 需要 SDK 时默认使用 `third_party/RSimAPI/source`, 或通过 `RSIM_PLUGIN_SDK_INCLUDE` 指定。
 - 构建命令优先使用:

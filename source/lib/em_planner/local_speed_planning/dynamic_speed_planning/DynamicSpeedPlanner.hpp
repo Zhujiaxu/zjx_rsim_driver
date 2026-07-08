@@ -15,10 +15,11 @@ struct DynamicPlanSpeedConfig
 {
     double time_step = 0.5;
     int time_step_count = 16;
+    double planning_period = 0.05;
     double s_step = 0.5;
     int s_step_count = 70;
 
-    double reference_speed = 8.0;
+    double reference_speed = 13.0;
     double weight_reference_speed = 5.0;
     double weight_acceleration = 20.0;
     double weight_jerk = 1.0;
@@ -49,6 +50,7 @@ struct DynamicPlanSpeedResult
     bool dpsuccess = false;
     double total_cost = 0.0;
     std::vector<DynamicPlanSpeedPoint> stpoints;
+    std::vector<VirtualObstacleSeed> virtual_obstacle_seeds;
 };
 inline DynamicPlanSpeedPoint GetDynamicSpeedPlanStartPoint(PlanningStartResult startpoint)
 {

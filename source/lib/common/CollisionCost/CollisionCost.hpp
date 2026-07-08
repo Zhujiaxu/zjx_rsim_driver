@@ -29,12 +29,24 @@ namespace rsim_driver
         double infinity_cost = std::numeric_limits<double>::infinity();
     };
 
+    inline double DistanceCollisionCost(double distance,
+                                        const StaticCollisionCostConfig &config)
+    {
+        const double collisionDistance = std::max(0.0, config.collision_distance);
+        const double riskDistance = std::max(collisionDistance, config.risk_distance);
+
+        if (distance <= collisionDistance)
+            return config.infinity_cost;
+        if (distance >= riskDistance || riskDistance <= collisionDistance)
+            return 0.0;
+
+        return (riskDistance - distance) / (riskDistance - collisionDistance);
+    }
+
     inline double StaticObstacleCollisionCost(const SlPoint &point,
                                               const std::vector<SlPoint> &staticobstacles,
                                               const StaticCollisionCostConfig &config = {})
     {
-        const double collisionDistance = std::max(0.0, config.collision_distance);
-        const double riskDistance = std::max(collisionDistance, config.risk_distance);
         double totalCost = 0.0;
 
         for (const SlPoint &obstacle : staticobstacles)
@@ -42,15 +54,46 @@ namespace rsim_driver
             const double ds = point.s - obstacle.s;
             const double dl = point.l - obstacle.l;
             const double distance = std::sqrt(ds * ds + dl * dl);
+            const double cost = DistanceCollisionCost(distance, config);
 
-            if (distance <= collisionDistance)
+            if (!std::isfinite(cost) || cost == config.infinity_cost)
                 return config.infinity_cost;
-            if (distance >= riskDistance)
-                continue;
-            if (riskDistance <= collisionDistance)
-                continue;
+            totalCost += cost;
+        }
 
-            totalCost += (riskDistance - distance) / (riskDistance - collisionDistance);
+        return totalCost;
+    }
+
+    template <typename StaticObstacleT>
+    inline double StaticObstacleCollisionCost(
+        const SlPoint &point,
+        const std::vector<StaticObstacleT> &staticobstacles,
+        const StaticCollisionCostConfig &config = {})
+    {
+        double totalCost = 0.0;
+
+        for (const StaticObstacleT &obstacle : staticobstacles)
+        {
+            if (!std::isfinite(obstacle.s) ||
+                !std::isfinite(obstacle.l) ||
+                !std::isfinite(obstacle.length) ||
+                !std::isfinite(obstacle.width))
+            {
+                continue;
+            }
+
+            const double halfLength = 0.5 * std::max(0.0, obstacle.length);
+            const double halfWidth = 0.5 * std::max(0.0, obstacle.width);
+            const double ds =
+                std::max(0.0, std::fabs(point.s - obstacle.s) - halfLength);
+            const double dl =
+                std::max(0.0, std::fabs(point.l - obstacle.l) - halfWidth);
+            const double distance = std::hypot(ds, dl);
+            const double cost = DistanceCollisionCost(distance, config);
+
+            if (!std::isfinite(cost) || cost == config.infinity_cost)
+                return config.infinity_cost;
+            totalCost += cost;
         }
 
         return totalCost;

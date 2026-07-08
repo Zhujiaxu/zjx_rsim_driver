@@ -129,7 +129,7 @@ PLUGIN_PROPS = {}
 PORT = 9080
 STREAMING_PORT = 9081
 STEP = 0.05
-SIM_DURATION = 38.0  # 仿真 — 验证插件沿 EMPlanner 输出路径推动车辆并记录参考线
+SIM_DURATION = 60  # 仿真 — 验证插件沿 EMPlanner 输出路径推动车辆并记录参考线
 
 
 def fail(msg):
@@ -189,7 +189,7 @@ def configure_scenario(scenario):
         "obstacleCsvPath":   str(OBSTACLE_CSV),
         "planningStartSlCsvPath": str(PLANNING_START_SL_CSV),
         "egoTrajectoryCsvPath": str(EGO_TRAJECTORY_CSV),
-        "setSpeed":          "8",
+        "setSpeed":          "13.0",  # EMPlanner 参考速度 (m/s)
         "entityName":        "ego",
     }
 

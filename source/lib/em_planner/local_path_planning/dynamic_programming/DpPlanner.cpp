@@ -58,16 +58,6 @@ namespace rsim_driver
             return samples;
         }
 
-        std::vector<SlPoint> ToSlPoints(
-            const std::vector<StaticFrenetObstacle> &obstacles)
-        {
-            std::vector<SlPoint> points;
-            points.reserve(obstacles.size());
-            for (const StaticFrenetObstacle &obstacle : obstacles)
-                points.push_back({obstacle.s, obstacle.l});
-            return points;
-        }
-
         bool IsFatalCollisionCost(double cost, const StaticCollisionCostConfig &config)
         {
             if (!std::isfinite(cost))
@@ -174,7 +164,6 @@ namespace rsim_driver
                                               -1});
         }
 
-        const std::vector<SlPoint> obstaclePoints = ToSlPoints(obstacles);
         for (std::size_t layerIndex = 1; layerIndex < layers.size(); ++layerIndex)
         {
             const double deltaS = sValues[layerIndex] - sValues[layerIndex - 1];
@@ -185,7 +174,7 @@ namespace rsim_driver
             {
                 DpNode &current = currentLayer[currentIndex];
                 const double collisionCost = StaticObstacleCollisionCost(
-                    {current.point.s, current.point.l}, obstaclePoints, config.collision);
+                    {current.point.s, current.point.l}, obstacles, config.collision);
                 if (IsFatalCollisionCost(collisionCost, config.collision))
                     continue;
 
