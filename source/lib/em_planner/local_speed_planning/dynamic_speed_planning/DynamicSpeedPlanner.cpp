@@ -300,8 +300,6 @@ namespace rsim_driver
                 }
             }
         }
-
-        const std::size_t top_s_index = s_values.size() - 2;
         int best_layer_index = -1;
         int best_node_index = -1;
         double best_cost = std::numeric_limits<double>::infinity();
@@ -322,15 +320,15 @@ namespace rsim_driver
                         best_node_index = static_cast<int>(node_index);
                     }
                 }
+                break;
             }
-            double cost=layers[layer_index][layers[1].size()-1].cost;
+            double cost = layers[layer_index][layers[1].size() - 1].cost;
             if (cost < best_cost)
             {
                 best_cost = cost;
                 best_layer_index = static_cast<int>(layer_index);
-                best_node_index = static_cast<int>(layers[1].size()-1);
+                best_node_index = static_cast<int>(layers[1].size() - 1);
             }
-
         }
 
         if (best_layer_index < 0 ||

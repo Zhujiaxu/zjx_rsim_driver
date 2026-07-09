@@ -18,15 +18,15 @@ struct ComputeCutInAndOutConfig
 
 struct CutInAndOutInfo
 {
-    int32_t id = 0;
-    double tin = 0.0;
-    double tout = 0.0;
-    double sin = 0.0;
-    double sinmin=0.0;
-    double sinmax=0.0;
-    double sout = 0.0;
-    double soutmin=0.0;
-    double soutmax=0.0;
+    int32_t id = -1.0;
+    double tin = -1.0;
+    double tout = -1.0;
+    double sin = -1.0;
+    double sinmin=-1.0;
+    double sinmax=-1.0;
+    double sout = -1.0;
+    double soutmin=-1.0;
+    double soutmax=-1.0;
 };
 
 class ComputeCutInAndOut

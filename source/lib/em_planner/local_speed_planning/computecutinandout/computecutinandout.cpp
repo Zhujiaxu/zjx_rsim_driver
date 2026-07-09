@@ -25,7 +25,7 @@ namespace rsim_driver
             const DynamicFrenetState &state = obstacle.dynamicfrenetstate;
             const double halfWidthL = std::max(0.0, config.half_vehicle_width_l);
             const double ldotEpsilon = std::max(0.0, config.ldot_epsilon);
-            return std::fabs(state.ldot) <= 0.5 &&
+            return std::fabs(state.ldot) <= 0.3 &&
                    std::fabs(state.l -obstacle.length/2.0) <= halfWidthL&& state.s>0.0;
         }
 
@@ -70,7 +70,7 @@ namespace rsim_driver
                 return false;
             }
 
-            constexpr double kVirtualObstacleLateralBuffer = 0.5;
+            constexpr double kVirtualObstacleLateralBuffer =0;
             double ratio = 1;
             if (state.s_dot > 0.0 &&
                 state.s_dot <= egoSDot / 4.0 &&

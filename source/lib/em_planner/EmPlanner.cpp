@@ -199,34 +199,6 @@ namespace rsim_driver
         }
     }
 
-    void EmPlanner::PruneVirtualObstacleSeeds(
-        const std::vector<StaticFrenetObstacle> &resolvedObstacles,
-        double planningStartS) const
-    {
-        virtual_obstacle_seeds_.erase(
-            std::remove_if(
-                virtual_obstacle_seeds_.begin(),
-                virtual_obstacle_seeds_.end(),
-                [&](const VirtualObstacleSeed &seed)
-                {
-                    const auto resolved =
-                        std::find_if(resolvedObstacles.begin(),
-                                     resolvedObstacles.end(),
-                                     [&](const StaticFrenetObstacle &obstacle)
-                                     {
-                                         return obstacle.id ==
-                                                seed.source_actor_id;
-                                     });
-                    if (resolved == resolvedObstacles.end())
-                        return true;
-
-                    const double obstacleTailS =
-                        resolved->s + 0.5 * std::max(0.0, resolved->length);
-                    return obstacleTailS < planningStartS;
-                }),
-            virtual_obstacle_seeds_.end());
-    }
-
     bool EmPlanner::EMPlanSpeedDetailed(
         const std::vector<rsim_plugin::ActorState> &actors,
         int32_t egoActorId,

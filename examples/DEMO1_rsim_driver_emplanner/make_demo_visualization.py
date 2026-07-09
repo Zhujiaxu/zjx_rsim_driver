@@ -554,6 +554,18 @@ def find_target(plan_rows):
     return plan_rows[-1]
 
 
+def split_history_and_future(plan_rows):
+    if not plan_rows:
+        return [], []
+
+    target_idx = plan_rows[0]["target_idx"]
+    history_rows = [row for row in plan_rows if row["point_idx"] < target_idx]
+    future_rows = [row for row in plan_rows if row["point_idx"] >= target_idx]
+    if not future_rows:
+        future_rows = [find_target(plan_rows)]
+    return history_rows, future_rows
+
+
 def frame_points(reference_rows, plan_rows, trail_points, obstacles, extra_point_groups=None):
     xs = [row["x"] for row in plan_rows]
     ys = [row["y"] for row in plan_rows]
@@ -681,7 +693,10 @@ def make_gif(global_csv: Path,
         dp_rows = dp_by_frame.get(frame_id, [])
         reference_rows = reference_by_frame.get(frame_id, [])
         current_obstacles = obstacles_by_frame.get(frame_id, [])
-        coarse_rows = dp_rows if dp_rows else plan_rows
+        history_rows, future_rows = split_history_and_future(plan_rows)
+        dp_history_rows, dp_future_rows = split_history_and_future(dp_rows)
+        active_dp_rows = dp_future_rows if dp_future_rows else dp_rows
+        coarse_rows = active_dp_rows if active_dp_rows else future_rows
         first = plan_rows[0]
         target = find_target(plan_rows)
         trail_begin = max(0, frame_index - max(0, trail))
@@ -731,18 +746,32 @@ def make_gif(global_csv: Path,
                        s=42, facecolors="white", edgecolors="#202124",
                        linewidths=1.2, label="projection", zorder=7)
 
-        if dp_rows:
-            dp_xs = [row["x"] for row in dp_rows]
-            dp_ys = [row["y"] for row in dp_rows]
+        if dp_history_rows:
+            dp_history_xs = [row["x"] for row in dp_history_rows]
+            dp_history_ys = [row["y"] for row in dp_history_rows]
+            ax.plot(dp_history_xs, dp_history_ys, color="#8e6cc9",
+                    linewidth=0.75, linestyle=(0, (2, 4)), alpha=0.35,
+                    label="DP history/stitching", zorder=3)
+
+        if active_dp_rows:
+            dp_xs = [row["x"] for row in active_dp_rows]
+            dp_ys = [row["y"] for row in active_dp_rows]
             ax.plot(dp_xs, dp_ys, color="#7e57c2", linewidth=0.85,
                     linestyle=(0, (4, 3)), alpha=0.96,
                     label="DP coarse path", zorder=4)
 
-        plan_xs = [row["x"] for row in plan_rows]
-        plan_ys = [row["y"] for row in plan_rows]
-        ax.plot(plan_xs, plan_ys, color="#1a73e8", linewidth=1.4,
-                linestyle="-", marker=".", markersize=2.0,
-                label="QP smoothed path", zorder=5)
+        if history_rows:
+            history_xs = [row["x"] for row in history_rows]
+            history_ys = [row["y"] for row in history_rows]
+            ax.plot(history_xs, history_ys, color="#8ab4f8", linewidth=1.0,
+                    linestyle=(0, (2, 4)), marker=".", markersize=1.5,
+                    alpha=0.38, label="QP history/stitching", zorder=4)
+
+        future_xs = [row["x"] for row in future_rows]
+        future_ys = [row["y"] for row in future_rows]
+        ax.plot(future_xs, future_ys, color="#1a73e8", linewidth=1.5,
+                linestyle="-", marker=".", markersize=2.1,
+                label="QP active future path", zorder=5)
 
         if len(trail_points) >= 2:
             trail_xs, trail_ys = all_xy(trail_points)
@@ -780,7 +809,7 @@ def make_gif(global_csv: Path,
                         area_for_limits["drivable_left"],
                         area_for_limits["drivable_right"],
                     ]
-            xs, ys = frame_points(reference_rows, plan_rows, trail_points,
+            xs, ys = frame_points(reference_rows, future_rows, trail_points,
                                   current_obstacles, extra_groups)
             limits = expand_limits(xs, ys, aspect, padding=8.0)
 
