@@ -2,7 +2,6 @@
 
 #include "CollisionCost.hpp"
 #include "DpPlanner.hpp"
-
 #include <vector>
 
 namespace rsim_driver

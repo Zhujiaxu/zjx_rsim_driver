@@ -1,4 +1,4 @@
-#include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
+#include "QpPathOptimizer.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -215,6 +215,25 @@ int main()
     if (!Require(CheckJerkResidualIsSmall(localfrenetpath),
                  "QP output should satisfy requested jerk residual in simple case"))
         return 1;
+
+    const std::vector<rsim_driver::StaticFrenetObstacle> farLateralObstacles = {
+        MakeObstacle(2.0, 20.0, 4.0, 2.0),
+    };
+    if (!Require(optimizer.Optimize(MakeStart(),
+                                    path,
+                                    symmetricArea,
+                                    farLateralObstacles,
+                                    reference,
+                                    &localfrenetpath,
+                                    &result),
+                 "QP optimizer should solve far-lateral obstacle scene"))
+        return 1;
+    for (const rsim_driver::DpPathPoint& point : localfrenetpath)
+    {
+        if (!Require(Near(point.l, 0.0, 2e-4),
+                     "far-lateral obstacle should not pull path toward boundary"))
+            return 1;
+    }
 
     rsim_driver::QpPathOptimizerConfig centerConfig = config;
     centerConfig.weight_reference_l = 0.0;

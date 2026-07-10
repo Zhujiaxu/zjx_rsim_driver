@@ -18,8 +18,10 @@ namespace rsim_driver
     struct StaticCollisionCostConfig
     {
         double collision_distance = 2.0;
-        double risk_distance = 5.0;
+        double risk_distance = 4.0;
         double infinity_cost = std::numeric_limits<double>::infinity();
+        double ego_length = 4.0;
+        double ego_width = 2.0;
     };
 
     struct DynamicCollisionCostConfig
@@ -43,27 +45,6 @@ namespace rsim_driver
         return (riskDistance - distance) / (riskDistance - collisionDistance);
     }
 
-    inline double StaticObstacleCollisionCost(const SlPoint &point,
-                                              const std::vector<SlPoint> &staticobstacles,
-                                              const StaticCollisionCostConfig &config = {})
-    {
-        double totalCost = 0.0;
-
-        for (const SlPoint &obstacle : staticobstacles)
-        {
-            const double ds = point.s - obstacle.s;
-            const double dl = point.l - obstacle.l;
-            const double distance = std::sqrt(ds * ds + dl * dl);
-            const double cost = DistanceCollisionCost(distance, config);
-
-            if (!std::isfinite(cost) || cost == config.infinity_cost)
-                return config.infinity_cost;
-            totalCost += cost;
-        }
-
-        return totalCost;
-    }
-
     template <typename StaticObstacleT>
     inline double StaticObstacleCollisionCost(
         const SlPoint &point,
@@ -85,9 +66,9 @@ namespace rsim_driver
             const double halfLength = 0.5 * std::max(0.0, obstacle.length);
             const double halfWidth = 0.5 * std::max(0.0, obstacle.width);
             const double ds =
-                std::max(0.0, std::fabs(point.s - obstacle.s) - halfLength);
+                std::max(0.0, std::fabs(point.s - obstacle.s) - halfLength-0.5 * config.ego_length);
             const double dl =
-                std::max(0.0, std::fabs(point.l - obstacle.l) - halfWidth);
+                std::max(0.0, std::fabs(point.l - obstacle.l) - halfWidth-0.5 * config.ego_width);
             const double distance = std::hypot(ds, dl);
             const double cost = DistanceCollisionCost(distance, config);
 

@@ -6,6 +6,7 @@
 #include "local_path_planning/dynamic_programming/DpPlanner.hpp"
 #include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
 #include "local_speed_planning/dynamic_speed_planning/DynamicSpeedPlanner.hpp"
+#include "local_path_planning/increase_points/increasepoints.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -19,6 +20,7 @@ namespace rsim_driver
         FrenetObstaclePerceptionConfig perception_config;
         PlanningStartConfig planning_start_config;
         DpPlannerConfig dp_config;
+        IncreasePointsConfig increase_points_config;
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
         DynamicPlanSpeedConfig speed_config;
@@ -127,6 +129,7 @@ namespace rsim_driver
         FrenetObstaclePerception perception_;
         PlanningStart planning_start_;
         DpPlanner dp_planner_;
+        IncreasePoints increase_points_;
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
         DynamicPlanSpeedPlanner speed_planner_;
@@ -213,27 +216,6 @@ namespace rsim_driver
             {
                 continue;
             }
-
-            /*
-            const double speedBasis =
-                std::max(std::max(0.0, frenetStart.s_dot),
-                         std::max(0.0, EMconfig_.speed_config.reference_speed));
-            bool keepSeed = false;
-            if (seed.type == VirtualObstacleType::SlowLead)
-            {
-                keepSeed = std::isfinite(state.s_dot) &&
-                           state.s_dot > 0.0 &&
-                           state.s_dot <= speedBasis / 4.0;
-            }
-            else if (seed.type == VirtualObstacleType::OncomingConflict)
-            {
-                keepSeed = std::isfinite(state.s_dot) &&
-                           state.s_dot < 0.0;
-            }
-
-            if (!keepSeed)
-                continue;
-            */
             activeSeeds.push_back(seed);
             result->push_back(virtualObstacle);
         }
@@ -318,7 +300,9 @@ namespace rsim_driver
             return false;
         }
         output.dp_success = output.dp_result.dpsuccess;
-
+        DpPlannerResult newresult;
+        increase_points_.increasepoints(&output.dp_result, &newresult);
+        output.dp_result = newresult;
         // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
         if (!BuildDrivableArea(output.dp_result.path,
                                pathObstacles,

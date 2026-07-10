@@ -18,6 +18,7 @@ namespace
 
 constexpr double kEpsilon = 1e-9;
 constexpr double kSolverTolerance = 1e-6;
+constexpr double kLateralRiskExtraMargin = 1.0;
 
 int SIndex(int pointIndex)
 {
@@ -73,6 +74,45 @@ double ObstacleHalfExtent(const StaticFrenetObstacle& obstacle,
 {
     return 0.5 * std::max(0.0, obstacle.width) +
            config.collision_lateral_buffer;
+}
+
+bool ValidObstacle(const StaticFrenetObstacle& obstacle)
+{
+    return IsFinite(obstacle.s) &&
+           IsFinite(obstacle.l) &&
+           IsFinite(obstacle.length) &&
+           IsFinite(obstacle.width);
+}
+
+bool CollisionTargetForPoint(const DpPathPoint& point,
+                             const SlPoint& leftBoundary,
+                             const SlPoint& rightBoundary,
+                             const StaticFrenetObstacle& obstacle,
+                             const QpPathOptimizerConfig& config,
+                             double* targetL)
+{
+    if (targetL == nullptr ||
+        !ValidObstacle(obstacle) ||
+        !ObstacleCoversS(obstacle, point.s))
+    {
+        return false;
+    }
+
+    const double obstacleHalfWidth = 0.5 * std::max(0.0, obstacle.width);
+    const double lateralGap =
+        std::max(0.0, std::fabs(point.l - obstacle.l) - obstacleHalfWidth);
+    const double lateralRiskLimit =
+        config.collision_lateral_buffer + kLateralRiskExtraMargin;
+    if (lateralGap > lateralRiskLimit)
+        return false;
+
+    const double halfExtent = ObstacleHalfExtent(obstacle, config);
+    const double sideTarget =
+        point.l >= obstacle.l
+            ? obstacle.l + halfExtent
+            : obstacle.l - halfExtent;
+    *targetL = std::clamp(sideTarget, rightBoundary.l, leftBoundary.l);
+    return true;
 }
 
 bool ValidInput(const CartesianFrenetState& start,
@@ -175,30 +215,23 @@ void AddCollisionCosts(const std::vector<DpPathPoint>& coarsePath,
     for (std::size_t i = 0; i < coarsePath.size(); ++i)
     {
         const DpPathPoint& point = coarsePath[i];
+        const SlPoint& left = drivableArea.left_boundary[i];
+        const SlPoint& right = drivableArea.right_boundary[i];
         for (const StaticFrenetObstacle& obstacle : staticObstacles)
         {
-            if (!IsFinite(obstacle.s) ||
-                !IsFinite(obstacle.l) ||
-                !IsFinite(obstacle.length) ||
-                !IsFinite(obstacle.width) ||
-                !ObstacleCoversS(obstacle, point.s))
-            {
+            double target = 0.0;
+            if (!CollisionTargetForPoint(point,
+                                         left,
+                                         right,
+                                         obstacle,
+                                         config,
+                                         &target))
                 continue;
-            }
 
-            const double halfExtent = ObstacleHalfExtent(obstacle, config);
-            const double target =
-                point.l >= obstacle.l
-                    ? obstacle.l + halfExtent
-                    : obstacle.l - halfExtent;
-            const double clampedTarget =
-                std::clamp(target,
-                           drivableArea.right_boundary[i].l,
-                           drivableArea.left_boundary[i].l);
             AddTargetCost(hessianTriplets,
                           gradient,
                           LIndex(static_cast<int>(i)),
-                          clampedTarget,
+                          target,
                           weight);
         }
     }
@@ -232,26 +265,16 @@ double ComputeObjective(const std::vector<DpPathPoint>& path,
 
         for (const StaticFrenetObstacle& obstacle : staticObstacles)
         {
-            if (!IsFinite(obstacle.s) ||
-                !IsFinite(obstacle.l) ||
-                !IsFinite(obstacle.length) ||
-                !IsFinite(obstacle.width) ||
-                !ObstacleCoversS(obstacle, point.s))
-            {
+            double target = 0.0;
+            if (!CollisionTargetForPoint(point,
+                                         drivableArea.left_boundary[i],
+                                         drivableArea.right_boundary[i],
+                                         obstacle,
+                                         config,
+                                         &target))
                 continue;
-            }
 
-            const double halfExtent = ObstacleHalfExtent(obstacle, config);
-            const double target =
-                point.l >= obstacle.l
-                    ? obstacle.l + halfExtent
-                    : obstacle.l - halfExtent;
-            const double clampedTarget =
-                std::clamp(target,
-                           drivableArea.right_boundary[i].l,
-                           drivableArea.left_boundary[i].l);
-            objective += wCollision * (point.l - clampedTarget) *
-                         (point.l - clampedTarget);
+            objective += wCollision * (point.l - target) * (point.l - target);
         }
     }
 

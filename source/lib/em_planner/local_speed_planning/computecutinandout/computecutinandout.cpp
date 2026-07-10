@@ -26,7 +26,7 @@ namespace rsim_driver
             const double halfWidthL = std::max(0.0, config.half_vehicle_width_l);
             const double ldotEpsilon = std::max(0.0, config.ldot_epsilon);
             return std::fabs(state.ldot) <= 0.3 &&
-                   std::fabs(state.l -obstacle.length/2.0) <= halfWidthL&& state.s>0.0;
+                   std::fabs(state.l) <= halfWidthL && state.s > 0.0;
         }
 
         bool SameSeed(const VirtualObstacleSeed &lhs,
@@ -69,35 +69,53 @@ namespace rsim_driver
             {
                 return false;
             }
-
-            constexpr double kVirtualObstacleLateralBuffer =0;
-            double ratio = 1;
-            if (state.s_dot > 0.0 &&
-                state.s_dot <= egoSDot / 4.0 &&
+            static int slowcountes = 0;
+            static int oncomingcountes = 0;
+            constexpr double kVirtualObstacleLateralBuffer = 0;
+            double ratio = 2;
+            VirtualObstacleSeed *seedslow = new VirtualObstacleSeed();
+            if (state.s_dot <= 3 &&
                 HasPersistentLaneOverlap(obstacle, config))
             {
-                seed->source_actor_id = obstacle.id;
-                seed->type = VirtualObstacleType::SlowLead;
-                seed->longitudinal_buffer =
+                slowcountes++;
+
+                seedslow->source_actor_id = obstacle.id;
+                seedslow->type = VirtualObstacleType::SlowLead;
+                seedslow->longitudinal_buffer =
                     state.s_dot / ratio * obstacle.length;
-                seed->lateral_buffer = kVirtualObstacleLateralBuffer;
-                return true;
+                seedslow->lateral_buffer = kVirtualObstacleLateralBuffer;
+                if (slowcountes > 20)
+                {
+                    slowcountes = 0;
+                    *seed = *seedslow;
+                    return true;
+                }
+                return false;
             }
 
             const double horizon = std::max(0.0, tPlan);
             const double oncomingTravelTime = std::fabs(state.s / state.s_dot);
+            VirtualObstacleSeed *seedoncoming = new VirtualObstacleSeed();
             if (state.s_dot < 0.0 &&
                 HasPersistentLaneOverlap(obstacle, config) &&
                 oncomingTravelTime <= horizon)
             {
-                seed->source_actor_id = obstacle.id;
-                seed->type = VirtualObstacleType::OncomingConflict;
-                seed->longitudinal_buffer =
+                oncomingcountes++;
+                seedoncoming->source_actor_id = obstacle.id;
+                seedoncoming->type = VirtualObstacleType::OncomingConflict;
+                seedoncoming->longitudinal_buffer =
                     -2 * state.s_dot / ratio * obstacle.length;
-                seed->lateral_buffer = kVirtualObstacleLateralBuffer;
-                return true;
+                seedoncoming->lateral_buffer = kVirtualObstacleLateralBuffer;
+                if (oncomingcountes > 10)
+                {
+                    oncomingcountes = 0;
+                    *seed = *seedoncoming;
+                    return true;
+                }
+                return false;
             }
-
+            delete seedslow;
+            delete seedoncoming;
             return false;
         }
 
@@ -115,7 +133,7 @@ namespace rsim_driver
             info.id = obstacle.id;
 
             if (std::fabs(state.ldot) <= ldotEpsilon &&
-                std::fabs(state.l - obstacle.length / 2.0) > halfWidthL)
+                std::fabs(state.l) > halfWidthL)
             {
                 info.tin = PositiveInfinity();
                 info.tout = PositiveInfinity();
