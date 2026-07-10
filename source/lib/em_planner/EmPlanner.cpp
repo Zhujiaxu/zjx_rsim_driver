@@ -75,6 +75,7 @@ namespace rsim_driver
           perception_(config.perception_config),
           planning_start_(config.planning_start_config),
           dp_planner_(config.dp_config),
+          increase_points_(config.increase_points_config),
           drivable_area_builder_(config.drivable_area_config),
           qp_path_optimizer_(config.qp_config),
           speed_planner_(BuildSpeedConfig(config))
@@ -92,6 +93,7 @@ namespace rsim_driver
         perception_.SetConfig(config.perception_config);
         planning_start_.SetConfig(config.planning_start_config);
         dp_planner_.SetConfig(config.dp_config);
+        increase_points_.SetConfig(config.increase_points_config);
         drivable_area_builder_.SetConfig(config.drivable_area_config);
         qp_path_optimizer_.SetConfig(config.qp_config);
         speed_planner_.SetConfig(BuildSpeedConfig(config));

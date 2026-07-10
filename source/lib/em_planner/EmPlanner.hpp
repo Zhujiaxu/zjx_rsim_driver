@@ -35,6 +35,7 @@ namespace rsim_driver
         bool planning_start_success = false;
         bool frenet_start_success = false;
         bool dp_success = false;
+        bool increase_points_success = false;
         bool drivable_area_success = false;
         bool qp_success = false;
         bool speed_success = false;
@@ -301,7 +302,14 @@ namespace rsim_driver
         }
         output.dp_success = output.dp_result.dpsuccess;
         DpPlannerResult newresult;
-        increase_points_.increasepoints(&output.dp_result, &newresult);
+        if (!increase_points_.increasepoints(&output.dp_result, &newresult))
+        {
+            output.increase_points_success = false;
+            output.dp_success = false;
+            *result = output;
+            return false;
+        }
+        output.increase_points_success = true;
         output.dp_result = newresult;
         // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
         if (!BuildDrivableArea(output.dp_result.path,

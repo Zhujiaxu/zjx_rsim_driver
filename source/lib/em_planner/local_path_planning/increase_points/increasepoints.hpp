@@ -5,7 +5,7 @@ namespace rsim_driver
 {
     struct IncreasePointsConfig
     {
-        double count = 2;
+        int count = 2;
     };
     class IncreasePoints
     {
