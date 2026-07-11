@@ -135,7 +135,7 @@ SIM_DURATION = 35  # 仿真 — 验证插件沿 EMPlanner 输出路径推动车�
 def fail(msg):
     print(f"FAIL: {msg}", file=sys.stderr)
     sys.exit(1)
-
+ 
 
 def parse_args():
     parser = argparse.ArgumentParser(
