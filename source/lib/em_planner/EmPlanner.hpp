@@ -110,13 +110,6 @@ namespace rsim_driver
         void MergeVirtualObstacleSeeds(
             const std::vector<VirtualObstacleSeed> &seeds) const;
         template <typename RefPointT>
-        bool ResolveActiveVirtualObstacles(
-            const std::vector<rsim_plugin::ActorState> &actors,
-            int32_t egoActorId,
-            const std::vector<RefPointT> &referencePoints,
-            const CartesianFrenetState &frenetStart,
-            std::vector<StaticFrenetObstacle> *result) const;
-        template <typename RefPointT>
         bool RunQuadraticProgramming(
             const CartesianFrenetState &start,
             const std::vector<DpPathPoint> &coarsePath,
@@ -155,73 +148,6 @@ namespace rsim_driver
                                            referencePoints,
                                            &localfrenetpath_,
                                            result);
-    }
-
-    template <typename RefPointT>
-    bool EmPlanner::ResolveActiveVirtualObstacles(
-        const std::vector<rsim_plugin::ActorState> &actors,
-        int32_t egoActorId,
-        const std::vector<RefPointT> &referencePoints,
-        const CartesianFrenetState &frenetStart,
-        std::vector<StaticFrenetObstacle> *result) const
-    {
-        if (result == nullptr || referencePoints.empty())
-            return false;
-
-        result->clear();
-        if (virtual_obstacle_seeds_.empty())
-            return true;
-
-        constexpr double kHalfVehicleWidthL = 1.0;
-        std::vector<VirtualObstacleSeed> activeSeeds;
-        activeSeeds.reserve(virtual_obstacle_seeds_.size());
-
-        for (const VirtualObstacleSeed &seed : virtual_obstacle_seeds_)
-        {
-            const rsim_plugin::ActorState *sourceActor = nullptr;
-            for (const rsim_plugin::ActorState &actor : actors)
-            {
-                if (actor.id != egoActorId && actor.id == seed.source_actor_id)
-                {
-                    sourceActor = &actor;
-                    break;
-                }
-            }
-            if (sourceActor == nullptr)
-                continue;
-
-            DynamicFrenetObstacle dynamicObstacle;
-            if (!frenet_obstacle_perception_detail::ActorToDynamicFrenetObstacle(
-                    *sourceActor, referencePoints, &dynamicObstacle))
-            {
-                return false;
-            }
-
-            const DynamicFrenetState &state =
-                dynamicObstacle.dynamicfrenetstate;
-            const StaticFrenetObstacle virtualObstacle =
-                frenet_obstacle_perception_detail::ToVirtualFrenetObstacle(
-                    *sourceActor, referencePoints, seed);
-            const double virtualTailS =
-                virtualObstacle.s +
-                0.5 * std::max(0.0, virtualObstacle.length);
-            if (virtualTailS < frenetStart.s)
-                continue;
-
-            const double lateralConflictLimit =
-                kHalfVehicleWidthL +
-                0.5 * std::max(0.0, dynamicObstacle.length);
-            if (!std::isfinite(state.l) ||
-                std::fabs(state.l) > lateralConflictLimit)
-            {
-                continue;
-            }
-            activeSeeds.push_back(seed);
-            result->push_back(virtualObstacle);
-        }
-
-        virtual_obstacle_seeds_ = std::move(activeSeeds);
-        return true;
     }
 
     template <typename RefPointT>
@@ -273,15 +199,33 @@ namespace rsim_driver
         }
         output.frenet_start_success = true;
 
-        if (!ResolveActiveVirtualObstacles(
-                actors,
-                egoActorId,
-                referencePoints,
-                output.frenet_start_result,
-                &output.virtual_static_obstacles))
+        // Resolve virtual obstacle seeds: ToVirtualFrenetObstacle decrements ttl
         {
-            *result = output;
-            return false;
+            constexpr double kHalfVehicleWidthL = 1.0;
+            std::vector<VirtualObstacleSeed> aliveSeeds;
+            aliveSeeds.reserve(virtual_obstacle_seeds_.size());
+            for (auto &seed : virtual_obstacle_seeds_)
+            {
+                const rsim_plugin::ActorState *sourceActor = nullptr;
+                for (const rsim_plugin::ActorState &actor : actors)
+                {
+                    if (actor.id != egoActorId && actor.id == seed.source_actor_id)
+                    {
+                        sourceActor = &actor;
+                        break;
+                    }
+                }
+                if (sourceActor == nullptr)
+                    continue;
+                const StaticFrenetObstacle virtualObstacle =
+                    frenet_obstacle_perception_detail::ToVirtualFrenetObstacle(
+                        *sourceActor, referencePoints, seed);
+                if (seed.ttl < 0)
+                    continue;
+                aliveSeeds.push_back(seed);
+                output.virtual_static_obstacles.push_back(virtualObstacle);
+            }
+            virtual_obstacle_seeds_ = std::move(aliveSeeds);
         }
         output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
@@ -300,6 +244,14 @@ namespace rsim_driver
             return false;
         }
         output.dp_success = output.dp_result.dpsuccess;
+
+        // Stop fallback: DP blocked, let vehicle wait
+        if (output.dp_result.fallback == DpFallback::Stop)
+        {
+            *result = output;
+            return true;
+        }
+
         DpPlannerResult newresult;
         increase_points_.increasepoints(&output.dp_result, &newresult);
         output.dp_result = newresult;

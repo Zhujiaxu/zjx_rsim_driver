@@ -357,6 +357,13 @@ namespace
                                          plannerResult.frenet_start_result,
                                          plannerResult.frenet_start_success);
 
+            if (plannerResult.dp_result.fallback == rsim_driver::DpFallback::Stop)
+            {
+                ReportPlannerStageStatus(ctx, plannerResult);
+                updates.push_back(BuildControlledStopActorUpdate(*ego, ctx.time_step));
+                return updates;
+            }
+
             if (plannerResult.trajectory.empty())
             {
                 ReportPlannerStageStatus(ctx, plannerResult);
@@ -417,6 +424,13 @@ namespace
             {
                 *result = std::move(output);
                 return false;
+            }
+
+            // DP blocked: skip speed planning, let vehicle hold position
+            if (output.dp_result.fallback == rsim_driver::DpFallback::Stop)
+            {
+                *result = std::move(output);
+                return true;
             }
 
             if (!em_planner_.EMPlanSpeedDetailed(
@@ -510,7 +524,7 @@ namespace
             std::fprintf(stderr,
                          "[RSimDriver] EM planner stages frame=%llu time=%.6f "
                          "first_failed=%s static=%d dynamic=%d start=%d frenet=%d "
-                         "dp=%d drivable=%d qp=%d speed_ref=%zu speed=%d trajectory=%d "
+                         "dp=%d stop=%d drivable=%d qp=%d speed_ref=%zu speed=%d trajectory=%d "
                          "static_obs=%zu virtual_obs=%zu dynamic_obs=%zu "
                          "virtual_seeds=%zu dp_points=%zu qp_points=%zu "
                          "speed_points=%zu trajectory_points=%zu previous_points=%zu\n",
@@ -522,6 +536,7 @@ namespace
                          result.planning_start_success ? 1 : 0,
                          result.frenet_start_success ? 1 : 0,
                          result.dp_success ? 1 : 0,
+                         result.dp_result.fallback == rsim_driver::DpFallback::Stop ? 1 : 0,
                          result.drivable_area_success ? 1 : 0,
                          result.qp_success ? 1 : 0,
                          result.speed_reference_line.size(),

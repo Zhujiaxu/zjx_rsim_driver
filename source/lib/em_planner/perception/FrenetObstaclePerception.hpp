@@ -52,6 +52,7 @@ namespace rsim_driver
         VirtualObstacleType type = VirtualObstacleType::SlowLead;
         double longitudinal_buffer = 0.0;
         double lateral_buffer = 0.0;
+        int ttl = 10;
     };
 
     struct VirtualFrenetObstaclePerceptionResult
@@ -127,8 +128,9 @@ namespace rsim_driver
         StaticFrenetObstacle ToVirtualFrenetObstacle(
             const rsim_plugin::ActorState &actor,
             const std::vector<RefPointT> &referencePoints,
-            const VirtualObstacleSeed &seed)
+            VirtualObstacleSeed &seed)
         {
+            seed.ttl--;
             const std::size_t matchIndex =
                 FindMatchPointIndex(referencePoints, actor.x, actor.y);
             const RefPointT &matchedPoint = referencePoints[matchIndex];

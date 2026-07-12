@@ -179,22 +179,24 @@ namespace rsim_driver
     {
         for (const VirtualObstacleSeed &seed : seeds)
         {
+            VirtualObstacleSeed resetSeed = seed;
+            resetSeed.ttl = 10;
             const auto sameSeed =
-                [&seed](const VirtualObstacleSeed &existing)
+                [&resetSeed](const VirtualObstacleSeed &existing)
             {
-                return existing.source_actor_id == seed.source_actor_id &&
-                       existing.type == seed.type;
+                return existing.source_actor_id == resetSeed.source_actor_id &&
+                       existing.type == resetSeed.type;
             };
             auto existing = std::find_if(virtual_obstacle_seeds_.begin(),
                                          virtual_obstacle_seeds_.end(),
                                          sameSeed);
             if (existing != virtual_obstacle_seeds_.end())
             {
-                *existing = seed;
+                *existing = resetSeed;
             }
             else
             {
-                virtual_obstacle_seeds_.push_back(seed);
+                virtual_obstacle_seeds_.push_back(resetSeed);
             }
         }
     }

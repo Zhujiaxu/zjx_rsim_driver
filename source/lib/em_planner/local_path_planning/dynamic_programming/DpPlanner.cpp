@@ -224,8 +224,10 @@ namespace rsim_driver
 
         if (bestIndex < 0 || !std::isfinite(bestCost))
         {
+            output.fallback = DpFallback::Stop;
+            output.dpsuccess = true;
             *result = output;
-            return false;
+            return true;
         }
 
         std::vector<DpPathPoint> reversedPath;

@@ -19,14 +19,16 @@ namespace rsim_driver
             return (lhs < 0.0 && rhs > 0.0) || (lhs > 0.0 && rhs < 0.0);
         }
         bool HasPersistentLaneOverlap(
+            const DynamicFrenetObstaclePerceptionResult & /*obstacles*/,
             const DynamicFrenetObstacle &obstacle,
             const ComputeCutInAndOutConfig &config)
         {
             const DynamicFrenetState &state = obstacle.dynamicfrenetstate;
             const double halfWidthL = std::max(0.0, config.half_vehicle_width_l);
-            const double ldotEpsilon = std::max(0.0, config.ldot_epsilon);
+            const double obsHalfWidth = 0.5 * std::max(0.0, obstacle.width);
             return std::fabs(state.ldot) <= 0.3 &&
-                   std::fabs(state.l) <= halfWidthL && state.s > 0.0;
+                   std::fabs(state.l) - obsHalfWidth <= halfWidthL &&
+                   state.s > 0.0;
         }
 
         bool SameSeed(const VirtualObstacleSeed &lhs,
@@ -41,16 +43,20 @@ namespace rsim_driver
         {
             if (seeds == nullptr)
                 return;
-            for (const VirtualObstacleSeed &existing : *seeds)
+            for (VirtualObstacleSeed &existing : *seeds)
             {
                 if (SameSeed(existing, seed))
+                {
+                    existing = seed;
                     return;
+                }
             }
             seeds->push_back(seed);
         }
 
         bool BuildVirtualObstacleSeed(
             const localreferencelinepath &referenceLine,
+            const DynamicFrenetObstaclePerceptionResult &obstacles,
             const DynamicFrenetObstacle &obstacle,
             const ComputeCutInAndOutConfig &config,
             double egoSDot,
@@ -75,7 +81,7 @@ namespace rsim_driver
             double ratio = 2;
             VirtualObstacleSeed *seedslow = new VirtualObstacleSeed();
             if (state.s_dot <= 3 &&
-                HasPersistentLaneOverlap(obstacle, config))
+                HasPersistentLaneOverlap(obstacles, obstacle, config))
             {
                 slowcountes++;
 
@@ -97,7 +103,7 @@ namespace rsim_driver
             const double oncomingTravelTime = std::fabs(state.s / state.s_dot);
             VirtualObstacleSeed *seedoncoming = new VirtualObstacleSeed();
             if (state.s_dot < 0.0 &&
-                HasPersistentLaneOverlap(obstacle, config) &&
+                HasPersistentLaneOverlap(obstacles, obstacle, config) &&
                 oncomingTravelTime <= horizon)
             {
                 oncomingcountes++;
@@ -227,8 +233,12 @@ namespace rsim_driver
         seeds->reserve(obstacles.dynamicobstacles.size());
         for (const DynamicFrenetObstacle &obstacle : obstacles.dynamicobstacles)
         {
+            if (obstacle.dynamicfrenetstate.s < 0.0)
+                continue;
+
             VirtualObstacleSeed seed;
             if (BuildVirtualObstacleSeed(referenceLine,
+                                         obstacles,
                                          obstacle,
                                          config_,
                                          ego_s_dot,

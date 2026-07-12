@@ -56,6 +56,12 @@
                 <Property name="isEgo" value="false"/>
             </Properties>
         </ScenarioObject>
+        <ScenarioObject name="motorbike1">
+            <CatalogReference catalogName="VehicleCatalog" entryName="motorbike"/>
+            <Properties>
+                <Property name="isEgo" value="false"/>
+            </Properties>
+        </ScenarioObject>
         <ScenarioObject name="ego_GroundTruthObject">
             <Sensor name="ego_GroundTruthObject" horizontalFOV="0" verticalFOV="0" sensorCategory="camera">
                 <Properties>
@@ -86,169 +92,155 @@
                                         <Polyline>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="81.82215484780653" t="-1.1636458767285656">
-                                                        <Orientation h="-0.04777432460492286" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="77.75195381470569" t="-0.9327434915991744">
+                                                        <Orientation h="-0.05091866603761542" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="82.13249591971736" t="-1.1705229841872324">
-                                                        <Orientation h="-0.16805700910244892" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="78.0645970012686" t="-0.9406552249837458">
+                                                        <Orientation h="-0.1866906601953611" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="82.44283699162817" t="-1.2150290233880292">
-                                                        <Orientation h="-0.3668838408194604" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="78.3772401878315" t="-0.9914535307016558">
+                                                        <Orientation h="-0.4048381196034318" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="82.753178063539" t="-1.3252502623200981">
-                                                        <Orientation h="-0.5855106026680794" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="78.6898833743944" t="-1.1160445216085089">
+                                                        <Orientation h="-0.6334029676460765" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="83.06351913544981" t="-1.5197719762403497">
-                                                        <Orientation h="-0.7752625089456409" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="79.0025265609573" t="-1.3335274809296784">
+                                                        <Orientation h="-0.8211682756707691" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="83.37386020736064" t="-1.8086785521715916">
-                                                        <Orientation h="-0.9190857186941188" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="79.31516974752022" t="-1.6525839010403347">
+                                                        <Orientation h="-0.9568365200371515" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="83.68420127927145" t="-2.1945535934006584">
-                                                        <Orientation h="-1.0214512676123415" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="79.62781293408312" t="-2.0728665222454703">
+                                                        <Orientation h="-1.049533717183029" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="83.99454235118228" t="-2.673480023976543">
-                                                        <Orientation h="-1.0922988383578676" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="79.94045612064603" t="-2.586388371559929">
+                                                        <Orientation h="-1.1108946704708784" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="84.30488342309309" t="-3.236040193208524">
-                                                        <Orientation h="-1.1401282439978648" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="80.25309930720893" t="-3.178911801488433">
+                                                        <Orientation h="-1.1495438939161293" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="84.61522449500391" t="-3.868315980164296">
-                                                        <Orientation h="-1.1707903378671582" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="80.56574249377184" t="-3.8313375288056086">
+                                                        <Orientation h="-1.170847614582801" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="84.92556556691473" t="-4.552888898168099">
-                                                        <Orientation h="-1.187903384787937" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="80.87838568033474" t="-4.521093673336014">
+                                                        <Orientation h="-1.177653404807374" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="85.23590663882555" t="-5.269840199298853">
-                                                        <Orientation h="-1.1934051756454176" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="81.19102886689765" t="-5.223524796734167">
+                                                        <Orientation h="-1.170847614582788" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="85.54624771073637" t="-5.997750978888275">
-                                                        <Orientation h="-1.1879033847879408" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="81.50367205346056" t="-5.913280941264573">
+                                                        <Orientation h="-1.149543893916129" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="85.8565887826472" t="-6.7147022800190275">
-                                                        <Orientation h="-1.170790337867163" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="81.81631524002347" t="-6.565706668581749">
+                                                        <Orientation h="-1.1108946704708835" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="86.166929854558" t="-7.399275198022831">
-                                                        <Orientation h="-1.140128243997852" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="82.12895842658637" t="-7.158230098510252">
+                                                        <Orientation h="-1.0495337171830217" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="86.47727092646883" t="-8.031550984978605">
-                                                        <Orientation h="-1.0922988383578769" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="82.44160161314927" t="-7.67175194782471">
+                                                        <Orientation h="-0.9568365200371535" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="86.78761199837965" t="-8.594111154210585">
-                                                        <Orientation h="-1.0214512676123395" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="82.75424479971218" t="-8.092034569029845">
+                                                        <Orientation h="-0.8211682756707821" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="87.09795307029047" t="-9.073037584786467">
-                                                        <Orientation h="-0.9190857186941235" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="83.06688798627509" t="-8.411090989140503">
+                                                        <Orientation h="-0.6334029676460712" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="87.40829414220129" t="-9.458912626015534">
-                                                        <Orientation h="-0.7752625089456172" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="83.379531172838" t="-8.628573948461677">
+                                                        <Orientation h="-0.40483811960344085" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="87.71863521411211" t="-9.747819201946772">
-                                                        <Orientation h="-0.5855106026681002" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="83.6921743594009" t="-8.753164939368531">
+                                                        <Orientation h="-0.18669066019533972" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="88.02897628602292" t="-9.942340915867028">
-                                                        <Orientation h="-0.36688384081945286" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="84.0048175459638" t="-8.803963245086434">
+                                                        <Orientation h="-0.05091866603761826" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="88.33931735793375" t="-10.052562154799094">
-                                                        <Orientation h="-0.1680570091024963" p="0" r="0" type="absolute"/>
-                                                    </RoadPosition>
-                                                </Position>
-                                            </Vertex>
-                                            <Vertex>
-                                                <Position>
-                                                    <RoadPosition roadId="0" s="88.64965842984458" t="-10.097068193999906">
-                                                        <Orientation h="-0.0477743246048834" p="0" r="0" type="absolute"/>
-                                                    </RoadPosition>
-                                                </Position>
-                                            </Vertex>
-                                            <Vertex>
-                                                <Position>
-                                                    <RoadPosition roadId="0" s="88.95999950175539" t="-10.103945301458563">
-                                                        <Orientation h="-0.0477743246048834" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="84.31746073252671" t="-8.811874978471007">
+                                                        <Orientation h="-0.05091866603761826" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
@@ -6919,7 +6911,7 @@
                             <SpeedAction name="autoware1_targetspeedaction">
                                 <SpeedActionDynamics dynamicsShape="step" value="0.0" dynamicsDimension="time"/>
                                 <SpeedActionTarget>
-                                    <AbsoluteTargetSpeed value="8"/>
+                                    <AbsoluteTargetSpeed value="7.9"/>
                                 </SpeedActionTarget>
                             </SpeedAction>
                         </LongitudinalAction>
@@ -10510,203 +10502,224 @@
                                             <Vertex>
                                                 <Position>
                                                     <RoadPosition roadId="0" s="79.33655325402898" t="-5.439529958125721">
-                                                        <Orientation h="-0.0256194742514512" p="0" r="0" type="absolute"/>
+                                                        <Orientation h="-0.025771812514154738" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="79.636553254029" t="-5.439530366157237">
-                                                        <Orientation h="-0.02562702381151165" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="79.636553254029" t="-5.439576067636412">
+                                                        <Orientation h="-0.025768225968158014" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="79.93655325402901" t="-5.439533039056772">
-                                                        <Orientation h="-0.025640506437588508" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="79.93655325402901" t="-5.4396211011832785">
+                                                        <Orientation h="-0.025764613352999757" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="80.23655325402902" t="-5.43953975674413">
-                                                        <Orientation h="-0.025658287871965092" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="80.23655325402902" t="-5.439665050945573">
+                                                        <Orientation h="-0.025619324879454078" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="80.53655325402903" t="-5.439551808861808">
-                                                        <Orientation h="-0.02567887596628488" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="80.53655325402903" t="-5.43966541416549">
+                                                        <Orientation h="-0.025626045317631786" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="80.83655325402904" t="-5.439570037407796">
-                                                        <Orientation h="-0.02570092068153945" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="80.83655325402904" t="-5.439667793516861">
+                                                        <Orientation h="-0.02563804722957965" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="81.13655325402905" t="-5.4395948793683955">
-                                                        <Orientation h="-0.025723214088104657" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="81.13655325402905" t="-5.439673773441816">
+                                                        <Orientation h="-0.02565387583807351" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="81.43655325402906" t="-5.439626409351024">
-                                                        <Orientation h="-0.025744690365722144" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="81.43655325402906" t="-5.439684501949324">
+                                                        <Orientation h="-0.02567220286826615" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="81.73655325402908" t="-5.439664382217024">
-                                                        <Orientation h="-0.025764425803527766" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="81.73655325402908" t="-5.4397007285659">
+                                                        <Orientation h="-0.02569182654766669" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="82.03655325402909" t="-5.439708275714477">
-                                                        <Orientation h="-0.025781638800049994" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="82.03655325402909" t="-5.439722842286321">
+                                                        <Orientation h="-0.02571167160614404" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="82.3365532540291" t="-5.43975733311101">
-                                                        <Orientation h="-0.025795689863186345" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="82.3365532540291" t="-5.439750909524327">
+                                                        <Orientation h="-0.025730789275959936" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="82.63655325402911" t="-5.439810605826606">
-                                                        <Orientation h="-0.025806081610211022" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="82.63655325402911" t="-5.439784712063339">
+                                                        <Orientation h="-0.02574835729173845" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="82.93655325402912" t="-5.4398669960664146">
-                                                        <Orientation h="-0.025812458767767502" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="82.93655325402912" t="-5.439823785007162">
+                                                        <Orientation h="-0.02576367989048902" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="83.23655325402913" t="-5.43992529945356">
-                                                        <Orientation h="-0.02581460817184532" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="83.23655325402913" t="-5.439867454730699">
+                                                        <Orientation h="-0.025776187811612745" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="83.53655325402914" t="-5.439984247661953">
-                                                        <Orientation h="-0.02581245876777046" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="83.53655325402914" t="-5.439914876830658">
+                                                        <Orientation h="-0.025785438296859833" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="83.83655325402916" t="-5.440042551049099">
-                                                        <Orientation h="-0.025806081610211636" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="83.83655325402916" t="-5.439965074076265">
+                                                        <Orientation h="-0.025791115090351188" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="84.13655325402917" t="-5.440098941288907">
-                                                        <Orientation h="-0.025795689863182775" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="84.13655325402917" t="-5.44001697435997">
+                                                        <Orientation h="-0.02579302843857977" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="84.43655325402918" t="-5.440152214004503">
-                                                        <Orientation h="-0.025781638800052957" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="84.43655325402918" t="-5.44006944864816">
+                                                        <Orientation h="-0.025791115090353842" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="84.73655325402919" t="-5.440201271401037">
-                                                        <Orientation h="-0.025764425803527766" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="84.73655325402919" t="-5.440121348931864">
+                                                        <Orientation h="-0.02578543829686044" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="85.0365532540292" t="-5.4402451648984895">
-                                                        <Orientation h="-0.025744690365722144" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="85.0365532540292" t="-5.440171546177472">
+                                                        <Orientation h="-0.02577618781160887" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="85.33655325402921" t="-5.44028313776449">
-                                                        <Orientation h="-0.025723214088104657" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="85.33655325402921" t="-5.4402189682774305">
+                                                        <Orientation h="-0.025763679890492282" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="85.63655325402922" t="-5.440314667747118">
-                                                        <Orientation h="-0.025700920681539143" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="85.63655325402922" t="-5.440262638000967">
+                                                        <Orientation h="-0.025748357291735795" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="85.93655325402923" t="-5.440339509707718">
-                                                        <Orientation h="-0.025678875966282225" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="85.93655325402923" t="-5.44030171094479">
+                                                        <Orientation h="-0.025730789275962593" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="86.23655325402925" t="-5.440357738253706">
-                                                        <Orientation h="-0.025658287871968662" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="86.23655325402925" t="-5.440335513483802">
+                                                        <Orientation h="-0.025711671606144345" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="86.53655325402926" t="-5.440369790371383">
-                                                        <Orientation h="-0.0256405064375879" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="86.53655325402926" t="-5.440363580721808">
+                                                        <Orientation h="-0.025691826547666084" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="86.83655325402927" t="-5.440376508058741">
-                                                        <Orientation h="-0.02562702381151165" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="86.83655325402927" t="-5.440385694442229">
+                                                        <Orientation h="-0.025672202868266453" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="87.13655325402928" t="-5.440379180958276">
-                                                        <Orientation h="-0.0256194742514512" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="87.13655325402928" t="-5.440401921058806">
+                                                        <Orientation h="-0.025653875838073815" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="87.43655325402929" t="-5.440379588989792">
-                                                        <Orientation h="-0.025618114146395057" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="87.43655325402929" t="-5.440412649566313">
+                                                        <Orientation h="-0.02563804722957639" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="87.54442481883963" t="-5.440379588989792">
-                                                        <Orientation h="-0.025618114146395057" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="87.7365532540293" t="-5.440418629491268">
+                                                        <Orientation h="-0.025626045317635047" p="0" r="0" type="absolute"/>
+                                                    </RoadPosition>
+                                                </Position>
+                                            </Vertex>
+                                            <Vertex>
+                                                <Position>
+                                                    <RoadPosition roadId="0" s="88.03655325402931" t="-5.440421008842639">
+                                                        <Orientation h="-0.025619324879454078" p="0" r="0" type="absolute"/>
+                                                    </RoadPosition>
+                                                </Position>
+                                            </Vertex>
+                                            <Vertex>
+                                                <Position>
+                                                    <RoadPosition roadId="0" s="88.33655325402933" t="-5.4404213720625565">
+                                                        <Orientation h="-0.025618114146398543" p="0" r="0" type="absolute"/>
+                                                    </RoadPosition>
+                                                </Position>
+                                            </Vertex>
+                                            <Vertex>
+                                                <Position>
+                                                    <RoadPosition roadId="0" s="88.58261192044661" t="-5.4404213720625565">
+                                                        <Orientation h="-0.025618114146398543" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
@@ -10740,512 +10753,505 @@
                                         <Polyline>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="49.6047752121017" t="-9.130685728633656">
-                                                        <Orientation h="0.013516643014545433" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="41.0629984672108" t="-9.185656257430754">
+                                                        <Orientation h="0.0018765549006191766" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="49.913153733039735" t="-9.118611245332309">
-                                                        <Orientation h="0.20976988340247582" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="41.37028549541073" t="-9.177324249834301">
+                                                        <Orientation h="0.1422836831979486" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="50.22153225397777" t="-9.044651597046837">
-                                                        <Orientation h="0.4804680015737984" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="41.677572523610664" t="-9.125362039088754">
+                                                        <Orientation h="0.35520005562472234" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="50.529910774915805" t="-8.87373852361957">
-                                                        <Orientation h="0.7083424619180445" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="41.984859551810594" t="-9.00247388233729">
+                                                        <Orientation h="0.5645197433055812" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="50.83828929585383" t="-8.595557830886486">
-                                                        <Orientation h="0.8582143656738116" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="42.292146580010524" t="-8.796838788578922">
+                                                        <Orientation h="0.7265771397742988" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="51.14666781679187" t="-8.219598577478486">
-                                                        <Orientation h="0.9437699719048208" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="42.59943360821046" t="-8.509531393359197">
+                                                        <Orientation h="0.8356783252649679" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="51.455046337729904" t="-7.770202261622657">
-                                                        <Orientation h="0.9821616445495027" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="42.90672063641039" t="-8.151942833460879">
+                                                        <Orientation h="0.9009198843180947" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="51.76342485866794" t="-7.281612007943549">
-                                                        <Orientation h="0.9821616445494967" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="43.21400766461033" t="-7.743201621594658">
+                                                        <Orientation h="0.93120885507919" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="52.071803379605974" t="-6.7930217542644415">
-                                                        <Orientation h="0.943769971904827" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="43.52129469281026" t="-7.3075945210898325">
+                                                        <Orientation h="0.9312088550791964" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="52.38018190054401" t="-6.343625438408612">
-                                                        <Orientation h="0.858214365673806" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="43.82858172101019" t="-6.871987420585007">
+                                                        <Orientation h="0.9009198843180958" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="52.688560421482045" t="-5.9676661850006125">
-                                                        <Orientation h="0.7083424619180457" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="44.135868749210125" t="-6.463246208718786">
+                                                        <Orientation h="0.8356783252649653" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="52.99693894242007" t="-5.6894854922675275">
-                                                        <Orientation h="0.4804680015738028" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="44.443155777410055" t="-6.105657648820469">
+                                                        <Orientation h="0.7265771397742916" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="53.30531746335811" t="-5.518572418840259">
-                                                        <Orientation h="0.20976988340246602" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="44.75044280560999" t="-5.818350253600743">
+                                                        <Orientation h="0.5645197433056007" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="53.61369598429614" t="-5.444612770554791">
-                                                        <Orientation h="0.01351664301455111" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="45.05772983380992" t="-5.6127151598423755">
+                                                        <Orientation h="0.3573253072828932" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="53.92207450523418" t="-5.4325382872534425">
-                                                        <Orientation h="0.01351664301455111" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="45.36501686200985" t="-5.489827003090911">
+                                                        <Orientation h="0.14189711117339301" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="54.2292701743985" t="-5.432541332014896">
-                                                        <Orientation h="-0.025680780231050287" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="45.67230389020979" t="-5.437864792345364">
+                                                        <Orientation h="0.001489982876065526" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="54.53646584356283" t="-5.432560582764729">
-                                                        <Orientation h="-0.02576890441164234" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="45.97959091840972" t="-5.429532784748911">
+                                                        <Orientation h="0.001489982876065526" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="54.84366151272715" t="-5.432606904881515">
-                                                        <Orientation h="-0.025875612599844406" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="46.28739455425619" t="-5.429536975538669">
+                                                        <Orientation h="-0.02570302439062666" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="55.15085718189148" t="-5.43268600729298">
-                                                        <Orientation h="-0.025986517171224428" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="46.595198190102664" t="-5.429563111220626">
+                                                        <Orientation h="-0.025818922832902623" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="55.458052851055804" t="-5.432799179111834">
-                                                        <Orientation h="-0.02608962844033034" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="46.90300182594913" t="-5.4296249208652725">
+                                                        <Orientation h="-0.02595413767517773" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="55.76524852022013" t="-5.432944026271613">
-                                                        <Orientation h="-0.02617535466233037" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="47.2108054617956" t="-5.429728350133054">
+                                                        <Orientation h="-0.026087596468521514" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="56.072444189384456" t="-5.433115208162509">
-                                                        <Orientation h="-0.026236502032540094" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="47.51860909764208" t="-5.429872858509387">
+                                                        <Orientation h="-0.02620244125905008" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="56.379639858548785" t="-5.43330517426721">
-                                                        <Orientation h="-0.02626827468388503" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="47.826412733488546" t="-5.430052716539655">
+                                                        <Orientation h="-0.02628602858942955" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="56.68683552771311" t="-5.433504900796731">
-                                                        <Orientation h="-0.026268274683890962" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="48.13421636933502" t="-5.430258303064226">
+                                                        <Orientation h="-0.026329929494577794" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="56.99403119687743" t="-5.433704627326252">
-                                                        <Orientation h="-0.02623650203253728" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="48.44202000518149" t="-5.430477402453452">
+                                                        <Orientation h="-0.026329929494572024" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="57.30122686604176" t="-5.433894593430953">
-                                                        <Orientation h="-0.02617535466233033" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="48.74982364102796" t="-5.430696501842677">
+                                                        <Orientation h="-0.026286028589432433" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="57.60842253520608" t="-5.434065775321849">
-                                                        <Orientation h="-0.0260896284403303" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="49.057627276874435" t="-5.430902088367248">
+                                                        <Orientation h="-0.026202441259047193" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="57.91561820437041" t="-5.434210622481628">
-                                                        <Orientation h="-0.025986517171221572" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="49.3654309127209" t="-5.431081946397517">
+                                                        <Orientation h="-0.02608759646852136" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="58.22281387353473" t="-5.434323794300482">
-                                                        <Orientation h="-0.02587561259985015" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="49.67323454856738" t="-5.431226454773849">
+                                                        <Orientation h="-0.02595413767518076" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="58.53000954269906" t="-5.434402896711947">
-                                                        <Orientation h="-0.025768904411639502" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="49.98103818441385" t="-5.431329884041631">
+                                                        <Orientation h="-0.02581892283289959" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="58.837205211863385" t="-5.434449218828733">
-                                                        <Orientation h="-0.02568078023104734" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="50.288841820260316" t="-5.431391693686277">
+                                                        <Orientation h="-0.02570302439062666" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="59.144400881027714" t="-5.434468469578566">
-                                                        <Orientation h="-0.02562802561898313" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="50.59664545610679" t="-5.431417829368234">
+                                                        <Orientation h="-0.025631729286926343" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="59.451596550192036" t="-5.43447151434002">
-                                                        <Orientation h="-0.02562802561898313" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="50.90444909195326" t="-5.431422020157992">
+                                                        <Orientation h="-0.025631729286926343" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="59.76141863997355" t="-5.43447274075723">
-                                                        <Orientation h="-0.025644044878785265" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="51.20457637381048" t="-5.431424314145903">
+                                                        <Orientation h="-0.025667189476932126" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="60.07124072975506" t="-5.434480774670929">
-                                                        <Orientation h="-0.02568328477877784" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="51.50470365566771" t="-5.4314390429914745">
+                                                        <Orientation h="-0.025738479263882424" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="60.381062819536574" t="-5.434500965972474">
-                                                        <Orientation h="-0.025735035950912255" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="51.80483093752493" t="-5.43147516784719">
+                                                        <Orientation h="-0.02582822052327115" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="60.690884909318086" t="-5.434537190930455">
-                                                        <Orientation h="-0.025794955638925202" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="52.10495821938216" t="-5.4315382265039105">
+                                                        <Orientation h="-0.025926348812326788" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="61.0007069990996" t="-5.434591980331802">
-                                                        <Orientation h="-0.025859114682218833" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="52.405085501239384" t="-5.4316307361393">
+                                                        <Orientation h="-0.026024141614152202" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="61.31052908888111" t="-5.434666647622894">
-                                                        <Orientation h="-0.02592399751608608" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="52.70521278309661" t="-5.431752596066252">
+                                                        <Orientation h="-0.026114218339013125" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="61.620351178662624" t="-5.434761417050676">
-                                                        <Orientation h="-0.025986502171933996" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="53.005340064953835" t="-5.431901490481315">
+                                                        <Orientation h="-0.026190540324977498" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="61.930173268444136" t="-5.434875551803762">
-                                                        <Orientation h="-0.02604394027748155" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="53.305467346811064" t="-5.432073291213121">
+                                                        <Orientation h="-0.02624841083740457" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="62.23999535822565" t="-5.4350074821535515">
-                                                        <Orientation h="-0.02609403705671591" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="53.605594628668285" t="-5.432262460470808">
+                                                        <Orientation h="-0.026284475067682875" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="62.54981744800716" t="-5.435154933595335">
-                                                        <Orientation h="-0.02613493132986203" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="53.905721910525514" t="-5.432462453592451">
+                                                        <Orientation h="-0.02629672013152647" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="62.859639537788674" t="-5.435315054989406">
-                                                        <Orientation h="-0.026165175513060763" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="54.205849192382736" t="-5.432666121793483">
+                                                        <Orientation h="-0.026284475067682875" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="63.169461627570186" t="-5.435484546702173">
-                                                        <Orientation h="-0.026183735618159048" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="54.505976474239965" t="-5.432866114915126">
+                                                        <Orientation h="-0.026248410837407605" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="63.47928371735169" t="-5.435659788747269">
-                                                        <Orientation h="-0.026189991252382177" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="54.80610375609719" t="-5.433055284172813">
+                                                        <Orientation h="-0.026190540324977574" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="63.78910580713321" t="-5.435836968926658">
-                                                        <Orientation h="-0.026183735618161612" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="55.106231037954416" t="-5.433227084904619">
+                                                        <Orientation h="-0.026114218339013125" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="64.09892789691472" t="-5.436012210971754">
-                                                        <Orientation h="-0.026165175513062987" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="55.40635831981164" t="-5.433375979319682">
+                                                        <Orientation h="-0.02602414161414613" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="64.40874998669624" t="-5.436181702684521">
-                                                        <Orientation h="-0.026134931329857194" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="55.70648560166887" t="-5.433497839246634">
+                                                        <Orientation h="-0.025926348812326944" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="64.71857207647774" t="-5.436341824078592">
-                                                        <Orientation h="-0.026094037056720743" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="56.00661288352609" t="-5.433590348882023">
+                                                        <Orientation h="-0.025828220523274034" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="65.02839416625926" t="-5.436489275520375">
-                                                        <Orientation h="-0.026043940277479284" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="56.30674016538332" t="-5.433653407538744">
+                                                        <Orientation h="-0.0257384792638825" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="65.33821625604077" t="-5.436621205870165">
-                                                        <Orientation h="-0.025986502171936595" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="56.60686744724054" t="-5.433689532394459">
+                                                        <Orientation h="-0.02566718947693258" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="65.64803834582229" t="-5.436735340623251">
-                                                        <Orientation h="-0.025923997516083805" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="56.90699472909776" t="-5.433704261240031">
+                                                        <Orientation h="-0.02562575752988523" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="65.95786043560379" t="-5.436830110051033">
-                                                        <Orientation h="-0.025859114682220772" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="57.20712201095499" t="-5.433706555227942">
+                                                        <Orientation h="-0.02562575752988523" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="66.26768252538531" t="-5.436904777342125">
-                                                        <Orientation h="-0.025794955638923072" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="57.51151064631421" t="-5.439025532499584">
+                                                        <Orientation h="-0.1356544946037157" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="66.57750461516682" t="-5.436959566743472">
-                                                        <Orientation h="-0.02573503595091287" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="57.81589928167343" t="-5.472655195249324">
+                                                        <Orientation h="-0.2854568512549065" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="66.88732670494832" t="-5.436995791701452">
-                                                        <Orientation h="-0.025683284778780284" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="58.12028791703265" t="-5.5535765712408836">
+                                                        <Orientation h="-0.45177638413040894" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="67.19714879472984" t="-5.437015983002998">
-                                                        <Orientation h="-0.025644044878778763" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="58.42467655239187" t="-5.691762742858594">
+                                                        <Orientation h="-0.6016476176540392" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="67.50697088451136" t="-5.437024016916697">
-                                                        <Orientation h="-0.025622072602722527" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="58.72906518775109" t="-5.889465696447304">
+                                                        <Orientation h="-0.719153640644062" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="67.81679297429287" t="-5.437025243333907">
-                                                        <Orientation h="-0.025622072602722527" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="59.03345382311031" t="-6.142503171652294">
+                                                        <Orientation h="-0.8021566786892227" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="68.1332444313317" t="-5.450666808026492">
-                                                        <Orientation h="-0.2810056530343492" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="59.33784245846953" t="-6.441545510759191">
+                                                        <Orientation h="-0.8541620592008122" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="68.44969588837056" t="-5.533288703176587">
-                                                        <Orientation h="-0.5619997248994127" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="59.64223109382875" t="-6.773402508033882">
+                                                        <Orientation h="-0.8790564435379298" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="68.7661473454094" t="-5.721425965469196">
-                                                        <Orientation h="-0.785567918525823" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="59.94661972918797" t="-7.122310259062427">
+                                                        <Orientation h="-0.8790564435379433" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="69.08259880244825" t="-6.022167482619322">
-                                                        <Orientation h="-0.9240927944205477" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="60.25100836454719" t="-7.471218010090973">
+                                                        <Orientation h="-0.8541620592008119" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="69.39905025948708" t="-6.41969958203196">
-                                                        <Orientation h="-0.9960053832162798" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="60.55539699990641" t="-7.803075007365665">
+                                                        <Orientation h="-0.8021566786892196" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="69.71550171652592" t="-6.881849619462107">
-                                                        <Orientation h="-1.0180920214999407" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="60.85978563526563" t="-8.10211734647256">
+                                                        <Orientation h="-0.7191536406440622" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="70.03195317356477" t="-7.3666295676747575">
-                                                        <Orientation h="-0.9960053832162772" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="61.16417427062485" t="-8.355154821677552">
+                                                        <Orientation h="-0.6016476176540344" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="70.34840463060361" t="-7.828779605104906">
-                                                        <Orientation h="-0.9240927944205533" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="61.46856290598407" t="-8.552857775266263">
+                                                        <Orientation h="-0.45177638413040894" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="70.66485608764245" t="-8.226311704517542">
-                                                        <Orientation h="-0.7855679185258186" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="61.77295154134329" t="-8.69104394688397">
+                                                        <Orientation h="-0.28545685125490805" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="70.9813075446813" t="-8.52705322166767">
-                                                        <Orientation h="-0.5619997248994065" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="62.077340176702506" t="-8.77196532287553">
+                                                        <Orientation h="-0.13565449460370996" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="71.29775900172014" t="-8.715190483960276">
-                                                        <Orientation h="-0.2810056530343466" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="62.38172881206173" t="-8.80559498562527">
+                                                        <Orientation h="-0.04309063239418252" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
                                             <Vertex>
                                                 <Position>
-                                                    <RoadPosition roadId="0" s="71.61421045875899" t="-8.79781237911037">
-                                                        <Orientation h="-0.06869936338912039" p="0" r="0" type="absolute"/>
-                                                    </RoadPosition>
-                                                </Position>
-                                            </Vertex>
-                                            <Vertex>
-                                                <Position>
-                                                    <RoadPosition roadId="0" s="71.93066191579783" t="-8.811453943802958">
-                                                        <Orientation h="-0.06869936338912039" p="0" r="0" type="absolute"/>
+                                                    <RoadPosition roadId="0" s="62.68611744742095" t="-8.810913962896914">
+                                                        <Orientation h="-0.04309063239418252" p="0" r="0" type="absolute"/>
                                                     </RoadPosition>
                                                 </Position>
                                             </Vertex>
@@ -12709,6 +12715,25 @@
                         </RoutingAction>
                     </PrivateAction>
                 </Private>
+                <Private entityRef="motorbike1">
+                    <PrivateAction>
+                        <TeleportAction>
+                            <Position>
+                                <WorldPosition h="1.0695371627807617" p="0.00025907487724907696" r="0" x="64.90068170051553" y="-6.765662572487133" z="-0.004364645359855423"/>
+                            </Position>
+                        </TeleportAction>
+                    </PrivateAction>
+                    <PrivateAction>
+                        <LongitudinalAction>
+                            <SpeedAction name="motorbike1_targetspeedaction">
+                                <SpeedActionDynamics dynamicsShape="step" value="0.0" dynamicsDimension="time"/>
+                                <SpeedActionTarget>
+                                    <AbsoluteTargetSpeed value="0"/>
+                                </SpeedActionTarget>
+                            </SpeedAction>
+                        </LongitudinalAction>
+                    </PrivateAction>
+                </Private>
                 <GlobalAction>
                     <RsimEnvironmentAction>
                         <Environment name="Environment">
@@ -13023,9 +13048,9 @@
                                     <EntityRef entityRef="autoware1"/>
                                 </TriggeringEntities>
                                 <EntityCondition>
-                                    <DistanceCondition value="2" rule="lessOrEqual" freespace="true" coordinateSystem="entity" relativeDistanceType="euclidianDistance">
+                                    <DistanceCondition value="0" rule="lessOrEqual" freespace="true" coordinateSystem="entity" relativeDistanceType="euclidianDistance">
                                         <Position>
-                                            <WorldPosition x="-51.183543070996755" y="1.7530086239864389" z="0" h="0" p="0" r="0"/>
+                                            <WorldPosition x="-55.12300816514382" y="1.9914480217268355" z="7.105427357601002e-15" h="0" p="0" r="0"/>
                                         </Position>
                                     </DistanceCondition>
                                 </EntityCondition>
@@ -13094,7 +13119,7 @@
                                     <EntityRef entityRef="ego"/>
                                 </TriggeringEntities>
                                 <EntityCondition>
-                                    <DistanceCondition value="8" rule="lessOrEqual" freespace="true" coordinateSystem="entity" relativeDistanceType="euclidianDistance">
+                                    <DistanceCondition value="3" rule="lessOrEqual" freespace="true" coordinateSystem="entity" relativeDistanceType="euclidianDistance">
                                         <Position>
                                             <WorldPosition x="-33.33012709095925" y="1.1592801345147947" z="0" h="0" p="0" r="0"/>
                                         </Position>
@@ -13204,7 +13229,7 @@
                                         <SpeedAction>
                                             <SpeedActionDynamics dynamicsShape="linear" dynamicsDimension="rate" value="1"/>
                                             <SpeedActionTarget>
-                                                <AbsoluteTargetSpeed value="3"/>
+                                                <AbsoluteTargetSpeed value="6"/>
                                             </SpeedActionTarget>
                                         </SpeedAction>
                                     </LongitudinalAction>
