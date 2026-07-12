@@ -52,12 +52,12 @@ namespace rsim_driver
         VirtualObstacleType type = VirtualObstacleType::SlowLead;
         double longitudinal_buffer = 0.0;
         double lateral_buffer = 0.0;
-        int ttl = 10;
+        int ttl = 22;
     };
-
+    using VirtualFrenetObstacle = StaticFrenetObstacle;
     struct VirtualFrenetObstaclePerceptionResult
     {
-        std::vector<StaticFrenetObstacle> virtual_static_obstacles;
+        std::vector<VirtualFrenetObstacle> virtual_static_obstacles;
     };
 
     struct FrenetObstaclePerceptionConfig
@@ -152,8 +152,8 @@ namespace rsim_driver
                          projectionDx * tangentX +
                          projectionDy * tangentY;
             obstacle.l = lateralDx * normalX + lateralDy * normalY;
-            obstacle.length = actor.length+seed.longitudinal_buffer;
-            obstacle.width = actor.width+seed.lateral_buffer;
+            obstacle.length = actor.length + seed.longitudinal_buffer;
+            obstacle.width = actor.width + seed.lateral_buffer;
             return obstacle;
         }
 
@@ -290,17 +290,18 @@ namespace rsim_driver
             const std::vector<rsim_plugin::ActorState> &actors,
             int32_t egoActorId,
             const std::vector<RefPointT> &referencePoints,
-            const std::vector<VirtualObstacleSeed> &seeds,
-            VirtualFrenetObstaclePerceptionResult *result) const
+            std::vector<VirtualObstacleSeed> &seeds,
+            std::vector<VirtualFrenetObstacle> *result) const
         {
             if (result == nullptr || referencePoints.empty())
                 return false;
 
-            result->virtual_static_obstacles.clear();
+            result->clear();
             if (seeds.empty())
                 return true;
-
-            for (const VirtualObstacleSeed &seed : seeds)
+            std::vector<VirtualObstacleSeed> aliveSeeds;
+            aliveSeeds.reserve(seeds.size());
+            for (VirtualObstacleSeed &seed : seeds)
             {
                 const rsim_plugin::ActorState *sourceActor = nullptr;
                 for (const rsim_plugin::ActorState &actor : actors)
@@ -314,16 +315,31 @@ namespace rsim_driver
                 }
                 if (sourceActor == nullptr)
                     continue;
-                result->virtual_static_obstacles.push_back(
+                auto virtualObstacle =
                     frenet_obstacle_perception_detail::ToVirtualFrenetObstacle(
-                        *sourceActor, referencePoints, seed));
+                        *sourceActor, referencePoints, seed);
+                if (seed.ttl <= 0)
+                {
+                    std::fprintf(stderr,
+                                 "[VOB-Resolve] id=%d DROPPED ttl=%d\n",
+                                 seed.source_actor_id, seed.ttl);
+                    continue;
+                }
+                aliveSeeds.push_back(seed);
+                std::fprintf(stderr,
+                             "[VOB-Resolve] id=%d ttl=%d s=%.2f l=%.2f len=%.2f "
+                             "width=%.2f\n",
+                             seed.source_actor_id, seed.ttl,
+                             virtualObstacle.s, virtualObstacle.l,
+                             virtualObstacle.length, virtualObstacle.width);
+                result->push_back(virtualObstacle);
             }
+            seeds = std::move(aliveSeeds);
 
             return true;
         }
 
     private:
-
         FrenetObstaclePerceptionConfig perceptionConfig_;
     };
 

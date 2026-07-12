@@ -6,6 +6,7 @@
 #include "local_path_planning/dynamic_programming/DpPlanner.hpp"
 #include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
 #include "local_speed_planning/dynamic_speed_planning/DynamicSpeedPlanner.hpp"
+#include "local_speed_planning/computecutinandout/computecutinandout.hpp"
 #include "local_path_planning/increase_points/increasepoints.hpp"
 
 #include <algorithm>
@@ -43,7 +44,7 @@ namespace rsim_driver
         CartesianFrenetState frenet_start_result;
         StaticFrenetObstaclePerceptionResult static_perception_result;
         DynamicFrenetObstaclePerceptionResult dynamic_perception_result;
-        std::vector<StaticFrenetObstacle> virtual_static_obstacles;
+        std::vector<VirtualFrenetObstacle> virtual_static_obstacles;
         std::vector<VirtualObstacleSeed> virtual_obstacle_seeds;
         DpPlannerResult dp_result;
         DrivableArea drivable_area;
@@ -100,15 +101,13 @@ namespace rsim_driver
         bool RunDynamicSpeedPlanning(
             const PlanningStartResult &start,
             const localreferencelinepath &referenceLine,
-            const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
+            const std::vector<CutInAndOutInfo> &STBoundaryInfos,
             DynamicPlanSpeedResult *result) const;
         bool BuildTrajectory(
             const localreferencelinepath &referenceLine,
             const DynamicPlanSpeedResult &speedResult,
             const PlanningStartResult &planningStartResult,
             std::vector<PlanningTrajectoryPoint> *result) const;
-        void MergeVirtualObstacleSeeds(
-            const std::vector<VirtualObstacleSeed> &seeds) const;
         template <typename RefPointT>
         bool RunQuadraticProgramming(
             const CartesianFrenetState &start,
@@ -126,6 +125,7 @@ namespace rsim_driver
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
         DynamicPlanSpeedPlanner speed_planner_;
+        mutable ComputeCutInAndOut cut_in_and_out_builder_;
         mutable std::vector<DpPathPoint> localfrenetpath_;
         mutable std::vector<VirtualObstacleSeed> virtual_obstacle_seeds_;
     };
@@ -199,35 +199,17 @@ namespace rsim_driver
         }
         output.frenet_start_success = true;
 
-        // Resolve virtual obstacle seeds: ToVirtualFrenetObstacle decrements ttl
+        if (!perception_.ConvertVirtualObstacles(
+                actors,
+                egoActorId,
+                referencePoints,
+                virtual_obstacle_seeds_,
+                &output.virtual_static_obstacles))
         {
-            constexpr double kHalfVehicleWidthL = 1.0;
-            std::vector<VirtualObstacleSeed> aliveSeeds;
-            aliveSeeds.reserve(virtual_obstacle_seeds_.size());
-            for (auto &seed : virtual_obstacle_seeds_)
-            {
-                const rsim_plugin::ActorState *sourceActor = nullptr;
-                for (const rsim_plugin::ActorState &actor : actors)
-                {
-                    if (actor.id != egoActorId && actor.id == seed.source_actor_id)
-                    {
-                        sourceActor = &actor;
-                        break;
-                    }
-                }
-                if (sourceActor == nullptr)
-                    continue;
-                const StaticFrenetObstacle virtualObstacle =
-                    frenet_obstacle_perception_detail::ToVirtualFrenetObstacle(
-                        *sourceActor, referencePoints, seed);
-                if (seed.ttl < 0)
-                    continue;
-                aliveSeeds.push_back(seed);
-                output.virtual_static_obstacles.push_back(virtualObstacle);
-            }
-            virtual_obstacle_seeds_ = std::move(aliveSeeds);
+            *result = output;
+            return false;
         }
-        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
+            output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
         std::vector<StaticFrenetObstacle> pathObstacles =
             output.static_perception_result.staticobstacles;

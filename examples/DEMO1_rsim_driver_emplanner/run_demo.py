@@ -129,7 +129,7 @@ PLUGIN_PROPS = {}
 PORT = 9080
 STREAMING_PORT = 9081
 STEP = 0.05
-SIM_DURATION = 35  # 仿真 — 验证插件沿 EMPlanner 输出路径推动车辆并记录参考线
+SIM_DURATION = 55  # 仿真 — 验证插件沿 EMPlanner 输出路径推动车辆并记录参考线
 
 
 def fail(msg):

@@ -152,7 +152,7 @@ namespace rsim_driver
     bool DynamicPlanSpeedPlanner::Plan(
         const DynamicPlanSpeedPoint &start,
         const localreferencelinepath &reference_line,
-        const DynamicFrenetObstaclePerceptionResult &dynamic_obstacles,
+        const std::vector<CutInAndOutInfo> &STBoundaryInfos,
         DynamicPlanSpeedResult *result) const
     {
         if (result == nullptr)
@@ -175,22 +175,6 @@ namespace rsim_driver
             *result = output;
             return false;
         }
-
-        std::vector<CutInAndOutInfo> STBoundaryInfos;
-        std::vector<VirtualObstacleSeed> virtualObstacleSeeds;
-        if (!STBoundaryBuilder_.Compute(reference_line,
-                                        dynamic_obstacles,
-                                        start.v,
-                                        config.planning_period,
-                                        config.time_step *
-                                            static_cast<double>(config.time_step_count),
-                                        &STBoundaryInfos,
-                                        &virtualObstacleSeeds))
-        {
-            *result = output;
-            return false;
-        }
-        output.virtual_obstacle_seeds = virtualObstacleSeeds;
 
         std::vector<std::vector<DPNode>> layers(t_values.size());
         layers.front().push_back({
