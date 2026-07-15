@@ -7,7 +7,7 @@
 #include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
 #include "local_speed_planning/dynamic_speed_planning/DynamicSpeedPlanner.hpp"
 #include "local_speed_planning/computecutinandout/computecutinandout.hpp"
-#include "local_path_planning/increase_points/increasepoints.hpp"
+#include "local_path_planning/dp_increase_points/dpincreasepoints.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -21,7 +21,7 @@ namespace rsim_driver
         FrenetObstaclePerceptionConfig perception_config;
         PlanningStartConfig planning_start_config;
         DpPlannerConfig dp_config;
-        IncreasePointsConfig increase_points_config;
+        DPIncreasePointsConfig increase_points_config;
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
         DynamicPlanSpeedConfig speed_config;
@@ -121,7 +121,7 @@ namespace rsim_driver
         FrenetObstaclePerception perception_;
         PlanningStart planning_start_;
         DpPlanner dp_planner_;
-        IncreasePoints increase_points_;
+        DPIncreasePoints increase_points_;
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
         DynamicPlanSpeedPlanner speed_planner_;

@@ -17,7 +17,7 @@ enum class DpFallback
 
 struct DpPlannerConfig
 {
-    double s_step = 0.5;
+    double s_step = 0.4;
     int s_step_count = 70;
     double l_step = 0.3;
     int left_l_step_count = 11;

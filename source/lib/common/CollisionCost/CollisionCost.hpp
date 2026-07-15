@@ -17,8 +17,8 @@ namespace rsim_driver
 
     struct StaticCollisionCostConfig
     {
-        double collision_distance = 2.0;
-        double risk_distance = 4.0;
+        double collision_distance = 0.6;
+        double risk_distance = 2.5;
         double infinity_cost = std::numeric_limits<double>::infinity();
         double ego_length = 4.0;
         double ego_width = 2.0;

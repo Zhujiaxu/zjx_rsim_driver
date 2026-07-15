@@ -1,21 +1,21 @@
-#include "increasepoints.hpp"
+#include "dpincreasepoints.hpp"
 namespace rsim_driver
 {
-    IncreasePoints::IncreasePoints(IncreasePointsConfig config) : config_(config)
+    DPIncreasePoints::DPIncreasePoints(DPIncreasePointsConfig config) : config_(config)
     {
     }
 
-    void IncreasePoints::SetConfig(const IncreasePointsConfig &config)
+    void DPIncreasePoints::SetConfig(const DPIncreasePointsConfig &config)
     {
         config_ = config;
     }
 
-    const IncreasePointsConfig &IncreasePoints::config() const
+    const DPIncreasePointsConfig &DPIncreasePoints::config() const
     {
-       return config_;
+        return config_;
     }
 
-    bool rsim_driver::IncreasePoints::increasepoints(DpPlannerResult *result, DpPlannerResult *newresult) const
+    bool rsim_driver::DPIncreasePoints::increasepoints(DpPlannerResult *result, DpPlannerResult *newresult) const
     {
         for (int i = 0; i < result->path.size() - 1; ++i)
         {
@@ -32,7 +32,7 @@ namespace rsim_driver
                 return false;
             }
 
-            for (int i=0;i<config_.count;i++)
+            for (int i = 0; i < config_.count; i++)
             {
                 double s = i * s_step;
                 DpPathPoint new_point;
@@ -43,6 +43,7 @@ namespace rsim_driver
                 newresult->path.push_back(new_point);
             }
         }
+        newresult->path.push_back(result->path.back()); // Add the last point from the original path
         newresult->dpsuccess = result->dpsuccess;
         newresult->total_cost = result->total_cost;
         return true;

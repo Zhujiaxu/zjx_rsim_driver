@@ -78,7 +78,7 @@ namespace rsim_driver
             }
 
             constexpr double kVirtualObstacleLateralBuffer = 0;
-            double ratio = 6;
+            double ratio = 10;
 
             // --- Slow lead virtual obstacle ---
             // Require s_dot > 0 so oncoming traffic (s_dot < 0) falls through

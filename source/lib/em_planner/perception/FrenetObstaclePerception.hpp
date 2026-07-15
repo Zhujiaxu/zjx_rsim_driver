@@ -52,7 +52,7 @@ namespace rsim_driver
         VirtualObstacleType type = VirtualObstacleType::SlowLead;
         double longitudinal_buffer = 0.0;
         double lateral_buffer = 0.0;
-        int ttl = 22;
+        int ttl = 31;
     };
     using VirtualFrenetObstacle = StaticFrenetObstacle;
     struct VirtualFrenetObstaclePerceptionResult
