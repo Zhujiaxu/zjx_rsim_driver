@@ -1,11 +1,4 @@
-<<<<<<< HEAD:source/lib/em_planner/local_path_planning/increase_points/increasepoints.cpp
-#include "increasepoints.hpp"
-
-#include <cmath>
-
-=======
 #include "dpincreasepoints.hpp"
->>>>>>> for-qp:source/lib/em_planner/local_path_planning/dp_increase_points/dpincreasepoints.cpp
 namespace rsim_driver
 {
     DPIncreasePoints::DPIncreasePoints(DPIncreasePointsConfig config) : config_(config)
@@ -53,8 +46,6 @@ namespace rsim_driver
 
         newresult->path.clear();
 
-        // Write the first original point
-        newresult->path.push_back(result->path[0]);
 
         for (size_t i = 0; i < result->path.size() - 1; ++i)
         {
@@ -80,13 +71,7 @@ namespace rsim_driver
                 return false;
             }
 
-<<<<<<< HEAD:source/lib/em_planner/local_path_planning/increase_points/increasepoints.cpp
-            // Append j = 1..count (skip j=0 to avoid duplicating startpoint;
-            // j=count hits endpoint.s, so the last DP point is preserved)
-            for (int j = 1; j <=config_.count; ++j)
-=======
-            for (int i = 0; i < config_.count; i++)
->>>>>>> for-qp:source/lib/em_planner/local_path_planning/dp_increase_points/dpincreasepoints.cpp
+            for (int j = 0; j <config_.count; ++j)
             {
                 double s = j * s_step;
                 DpPathPoint new_point;
@@ -97,11 +82,7 @@ namespace rsim_driver
                 newresult->path.push_back(new_point);
             }
         }
-<<<<<<< HEAD:source/lib/em_planner/local_path_planning/increase_points/increasepoints.cpp
-
-=======
         newresult->path.push_back(result->path.back()); // Add the last point from the original path
->>>>>>> for-qp:source/lib/em_planner/local_path_planning/dp_increase_points/dpincreasepoints.cpp
         newresult->dpsuccess = result->dpsuccess;
         newresult->total_cost = result->total_cost;
         return true;
