@@ -11,7 +11,7 @@ namespace rsim_driver
     {
         double left_road_boundary_l =3.5;
         double right_road_boundary_l = -3.5;
-        double obstacle_lateral_buffer = 0.8;
+        double obstacle_lateral_buffer = 0.4;
     };
 
     struct DrivableArea

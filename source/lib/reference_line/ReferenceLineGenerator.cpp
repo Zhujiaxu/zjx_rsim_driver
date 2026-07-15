@@ -74,13 +74,13 @@ namespace rsim_driver
         {
             const double vx = b.x - a.x;
             const double vy = b.y - a.y;
-            const double len2 = sqrt(vx * vx + vy * vy);
-            if (len2 <= 1e-12)
+            const double len = vx * vx + vy * vy;
+            if (len <= 1e-12)
                 return 0.0;
 
             const double wx = point.x - a.x;
             const double wy = point.y - a.y;
-            return std::max(0.0, std::min(1.0, (wx * vx + wy * vy) / len2));
+            return std::max(0.0, std::min(1.0, (wx * vx + wy * vy) / len));
         }
 
         void RecomputeCurvature(std::vector<ReferencePoint> &pts)

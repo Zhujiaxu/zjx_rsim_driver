@@ -97,6 +97,7 @@ int main()
 
     if (!Require(planner.Plan(MakeStart(),
                               MakeReferenceLine(10.0, config.s_step),
+                              {},
                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                               &result) &&
                      result.dpsuccess,
@@ -112,9 +113,6 @@ int main()
     if (!Require(CheckBackwardEulerSpeed(result.stpoints),
                  "speed points should store backward Euler speeds"))
         return 1;
-    if (!Require(result.virtual_obstacle_seeds.empty(),
-                 "planner without dynamic obstacles should not output virtual obstacle seeds"))
-        return 1;
     for (const rsim_driver::DynamicPlanSpeedPoint& point : result.stpoints)
     {
         if (!Require(Near(point.v, 1.0) &&
@@ -129,6 +127,7 @@ int main()
     planner.SetConfig(truncated_config);
     if (!Require(planner.Plan(MakeStart(),
                               MakeReferenceLine(1.0, truncated_config.s_step),
+                              {},
                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                               &result) &&
                      result.dpsuccess,
@@ -152,6 +151,7 @@ int main()
     planner.SetConfig(local_choice_config);
     if (!Require(planner.Plan(MakeStart(),
                               MakeReferenceLine(10.0, local_choice_config.s_step),
+                              {},
                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                               &result) &&
                      result.dpsuccess,
@@ -173,6 +173,7 @@ int main()
     planner.SetConfig(local_choice_config);
     if (!Require(planner.Plan(MakeStart(),
                               MakeReferenceLine(10.0, local_choice_config.s_step),
+                              {},
                               dynamic_obstacles,
                               &result) &&
                      result.dpsuccess,
@@ -183,34 +184,12 @@ int main()
                  "collision cost should be part of local transition cost"))
         return 1;
 
-    rsim_driver::DynamicFrenetObstaclePerceptionResult seed_obstacles;
-    seed_obstacles.dynamicobstacles = {
-        MakeDynamicObstacle(2.0, 1.0, 0.0, 0.0),
-    };
-    rsim_driver::DynamicPlanSpeedConfig seed_config = MakeConfig();
-    seed_config.reference_speed = 8.0;
-    planner.SetConfig(seed_config);
-    if (!Require(planner.Plan(MakeStart(8.0),
-                              MakeReferenceLine(10.0, seed_config.s_step),
-                              seed_obstacles,
-                              &result) &&
-                     result.dpsuccess,
-                 "planner should succeed when slow lead is converted to virtual seed"))
-        return 1;
-    if (!Require(result.virtual_obstacle_seeds.size() == 1 &&
-                     result.virtual_obstacle_seeds.front().source_actor_id == 101 &&
-                     result.virtual_obstacle_seeds.front().type ==
-                         rsim_driver::VirtualObstacleType::SlowLead &&
-                     Near(result.virtual_obstacle_seeds.front().longitudinal_buffer, 0.05) &&
-                     Near(result.virtual_obstacle_seeds.front().lateral_buffer, 0.5),
-                 "speed planner should expose slow lead virtual obstacle seed"))
-        return 1;
-
     rsim_driver::DynamicPlanSpeedConfig invalid_config = MakeConfig();
     invalid_config.time_step = 0.0;
     planner.SetConfig(invalid_config);
     if (!Require(!planner.Plan(MakeStart(),
                                MakeReferenceLine(10.0, invalid_config.s_step),
+                               {},
                                rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                                &result) &&
                      !result.dpsuccess &&
@@ -221,12 +200,14 @@ int main()
     planner.SetConfig(MakeConfig());
     if (!Require(!planner.Plan(MakeStart(),
                                MakeReferenceLine(0.0),
+                               {},
                                rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                                &result),
                  "zero path length should fail"))
         return 1;
     if (!Require(!planner.Plan(MakeStart(),
                                MakeReferenceLine(10.0),
+                               {},
                                rsim_driver::DynamicFrenetObstaclePerceptionResult{},
                                nullptr),
                  "null dynamic speed output should fail"))

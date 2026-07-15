@@ -50,7 +50,6 @@ struct DynamicPlanSpeedResult
     bool dpsuccess = false;
     double total_cost = 0.0;
     std::vector<DynamicPlanSpeedPoint> stpoints;
-    std::vector<VirtualObstacleSeed> virtual_obstacle_seeds;
 };
 inline DynamicPlanSpeedPoint GetDynamicSpeedPlanStartPoint(PlanningStartResult startpoint)
 {
@@ -72,12 +71,11 @@ public:
 
     bool Plan(const DynamicPlanSpeedPoint& start,
               const localreferencelinepath& reference_line,
-              const DynamicFrenetObstaclePerceptionResult& dynamic_obstacles,
+              const std::vector<CutInAndOutInfo>& STBoundaryInfos,
               DynamicPlanSpeedResult* result) const;
 
 private:
     DynamicPlanSpeedConfig config_;
-    ComputeCutInAndOut STBoundaryBuilder_;
 };
 
 }  // namespace rsim_driver

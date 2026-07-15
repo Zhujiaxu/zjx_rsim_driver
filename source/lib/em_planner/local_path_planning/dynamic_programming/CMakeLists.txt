@@ -3,7 +3,7 @@ add_library(dynamic_programming STATIC
 
 target_include_directories(dynamic_programming PUBLIC
     ${CMAKE_CURRENT_LIST_DIR})
-
+    
 target_compile_features(dynamic_programming PUBLIC cxx_std_17)
 
 target_link_libraries(dynamic_programming PUBLIC

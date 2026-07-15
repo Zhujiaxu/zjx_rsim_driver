@@ -11,13 +11,15 @@ namespace rsim_driver
 
 struct QpPathOptimizerConfig
 {
+    int num_points = 36;
+    double ds = 1.0;
+    double ego_length = 4.0;
+    double ego_width = 2.0;
     double weight_reference_l = 0.5;
     double weight_smooth_l_prime = 1.0;
     double weight_smooth_l_double_prime = 1.0;
     double weight_jerk = 1.0;
-    double weight_collision = 80.0;
     double weight_drivable_area_center = 3.0;
-    double collision_lateral_buffer = 1.3;
     int max_iterations = 1000;
 };
 

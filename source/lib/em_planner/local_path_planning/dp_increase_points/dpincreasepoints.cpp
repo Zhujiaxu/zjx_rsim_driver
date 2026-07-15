@@ -1,24 +1,28 @@
+<<<<<<< HEAD:source/lib/em_planner/local_path_planning/increase_points/increasepoints.cpp
 #include "increasepoints.hpp"
 
 #include <cmath>
 
+=======
+#include "dpincreasepoints.hpp"
+>>>>>>> for-qp:source/lib/em_planner/local_path_planning/dp_increase_points/dpincreasepoints.cpp
 namespace rsim_driver
 {
-    IncreasePoints::IncreasePoints(IncreasePointsConfig config) : config_(config)
+    DPIncreasePoints::DPIncreasePoints(DPIncreasePointsConfig config) : config_(config)
     {
     }
 
-    void IncreasePoints::SetConfig(const IncreasePointsConfig &config)
+    void DPIncreasePoints::SetConfig(const DPIncreasePointsConfig &config)
     {
         config_ = config;
     }
 
-    const IncreasePointsConfig &IncreasePoints::config() const
+    const DPIncreasePointsConfig &DPIncreasePoints::config() const
     {
         return config_;
     }
 
-    bool rsim_driver::IncreasePoints::increasepoints(DpPlannerResult *result, DpPlannerResult *newresult) const
+    bool rsim_driver::DPIncreasePoints::increasepoints(DpPlannerResult *result, DpPlannerResult *newresult) const
     {
         // --- input guards ---
         if (result == nullptr || newresult == nullptr)
@@ -76,9 +80,13 @@ namespace rsim_driver
                 return false;
             }
 
+<<<<<<< HEAD:source/lib/em_planner/local_path_planning/increase_points/increasepoints.cpp
             // Append j = 1..count (skip j=0 to avoid duplicating startpoint;
             // j=count hits endpoint.s, so the last DP point is preserved)
             for (int j = 1; j <=config_.count; ++j)
+=======
+            for (int i = 0; i < config_.count; i++)
+>>>>>>> for-qp:source/lib/em_planner/local_path_planning/dp_increase_points/dpincreasepoints.cpp
             {
                 double s = j * s_step;
                 DpPathPoint new_point;
@@ -89,7 +97,11 @@ namespace rsim_driver
                 newresult->path.push_back(new_point);
             }
         }
+<<<<<<< HEAD:source/lib/em_planner/local_path_planning/increase_points/increasepoints.cpp
 
+=======
+        newresult->path.push_back(result->path.back()); // Add the last point from the original path
+>>>>>>> for-qp:source/lib/em_planner/local_path_planning/dp_increase_points/dpincreasepoints.cpp
         newresult->dpsuccess = result->dpsuccess;
         newresult->total_cost = result->total_cost;
         return true;

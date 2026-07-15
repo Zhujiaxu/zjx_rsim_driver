@@ -128,7 +128,7 @@ namespace rsim_driver
     bool EmPlanner::RunDynamicSpeedPlanning(
         const PlanningStartResult &start,
         const localreferencelinepath &referenceLine,
-        const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
+        const std::vector<CutInAndOutInfo> &STBoundaryInfos,
         DynamicPlanSpeedResult *result) const
     {
         if (referenceLine.empty())
@@ -139,7 +139,7 @@ namespace rsim_driver
         // speedStart.s = referenceLine.front().s;
         return speed_planner_.Plan(speedStart,
                                    referenceLine,
-                                   dynamicObstacles,
+                                   STBoundaryInfos,
                                    result);
     }
 
@@ -174,31 +174,6 @@ namespace rsim_driver
         }
 
         return true;
-    }
-
-    void EmPlanner::MergeVirtualObstacleSeeds(
-        const std::vector<VirtualObstacleSeed> &seeds) const
-    {
-        for (const VirtualObstacleSeed &seed : seeds)
-        {
-            const auto sameSeed =
-                [&seed](const VirtualObstacleSeed &existing)
-            {
-                return existing.source_actor_id == seed.source_actor_id &&
-                       existing.type == seed.type;
-            };
-            auto existing = std::find_if(virtual_obstacle_seeds_.begin(),
-                                         virtual_obstacle_seeds_.end(),
-                                         sameSeed);
-            if (existing != virtual_obstacle_seeds_.end())
-            {
-                *existing = seed;
-            }
-            else
-            {
-                virtual_obstacle_seeds_.push_back(seed);
-            }
-        }
     }
 
     bool EmPlanner::EMPlanSpeedDetailed(
@@ -238,19 +213,32 @@ namespace rsim_driver
         output.dynamic_perception_success = true;
         output.perception_success = true;
 
+        // Compute cut-in-and-out boundaries and virtual obstacle seeds.
+        // Seeds are written directly into virtual_obstacle_seeds_ (additive).
+        std::vector<CutInAndOutInfo> STBoundaryInfos;
+        if (!cut_in_and_out_builder_.Compute(
+                output.speed_reference_line,
+                output.dynamic_perception_result,
+                planningStartResult.start_point.speed,
+                EMconfig_.speed_config.planning_period,
+                EMconfig_.speed_config.time_step *
+                    static_cast<double>(EMconfig_.speed_config.time_step_count),
+                &STBoundaryInfos,
+                &virtual_obstacle_seeds_))
+        {
+            *result = output;
+            return false;
+        }
+
         if (!RunDynamicSpeedPlanning(planningStartResult,
                                      output.speed_reference_line,
-                                     // dynamicObstacles,
-                                     output.dynamic_perception_result,
+                                     STBoundaryInfos,
                                      &output.speed_result))
         {
             *result = output;
             return false;
         }
         output.speed_success = output.speed_result.dpsuccess;
-        output.virtual_obstacle_seeds =
-            output.speed_result.virtual_obstacle_seeds;
-        MergeVirtualObstacleSeeds(output.speed_result.virtual_obstacle_seeds);
         output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
         *result = output;

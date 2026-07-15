@@ -4,6 +4,7 @@
 #include "FrenetObstaclePerception.hpp"
 
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 namespace rsim_driver
@@ -47,6 +48,8 @@ public:
 
 private:
     ComputeCutInAndOutConfig config_;
+    mutable std::unordered_map<int32_t, int> slow_lead_counter_;
+    mutable std::unordered_map<int32_t, int> oncoming_conflict_counter_;
 };
 
 }  // namespace rsim_driver

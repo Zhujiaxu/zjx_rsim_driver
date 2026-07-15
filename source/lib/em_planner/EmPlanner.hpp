@@ -6,7 +6,8 @@
 #include "local_path_planning/dynamic_programming/DpPlanner.hpp"
 #include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
 #include "local_speed_planning/dynamic_speed_planning/DynamicSpeedPlanner.hpp"
-#include "local_path_planning/increase_points/increasepoints.hpp"
+#include "local_speed_planning/computecutinandout/computecutinandout.hpp"
+#include "local_path_planning/dp_increase_points/dpincreasepoints.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -20,7 +21,7 @@ namespace rsim_driver
         FrenetObstaclePerceptionConfig perception_config;
         PlanningStartConfig planning_start_config;
         DpPlannerConfig dp_config;
-        IncreasePointsConfig increase_points_config;
+        DPIncreasePointsConfig increase_points_config;
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
         DynamicPlanSpeedConfig speed_config;
@@ -44,7 +45,7 @@ namespace rsim_driver
         CartesianFrenetState frenet_start_result;
         StaticFrenetObstaclePerceptionResult static_perception_result;
         DynamicFrenetObstaclePerceptionResult dynamic_perception_result;
-        std::vector<StaticFrenetObstacle> virtual_static_obstacles;
+        std::vector<VirtualFrenetObstacle> virtual_static_obstacles;
         std::vector<VirtualObstacleSeed> virtual_obstacle_seeds;
         DpPlannerResult dp_result;
         DrivableArea drivable_area;
@@ -101,22 +102,13 @@ namespace rsim_driver
         bool RunDynamicSpeedPlanning(
             const PlanningStartResult &start,
             const localreferencelinepath &referenceLine,
-            const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
+            const std::vector<CutInAndOutInfo> &STBoundaryInfos,
             DynamicPlanSpeedResult *result) const;
         bool BuildTrajectory(
             const localreferencelinepath &referenceLine,
             const DynamicPlanSpeedResult &speedResult,
             const PlanningStartResult &planningStartResult,
             std::vector<PlanningTrajectoryPoint> *result) const;
-        void MergeVirtualObstacleSeeds(
-            const std::vector<VirtualObstacleSeed> &seeds) const;
-        template <typename RefPointT>
-        bool ResolveActiveVirtualObstacles(
-            const std::vector<rsim_plugin::ActorState> &actors,
-            int32_t egoActorId,
-            const std::vector<RefPointT> &referencePoints,
-            const CartesianFrenetState &frenetStart,
-            std::vector<StaticFrenetObstacle> *result) const;
         template <typename RefPointT>
         bool RunQuadraticProgramming(
             const CartesianFrenetState &start,
@@ -130,10 +122,11 @@ namespace rsim_driver
         FrenetObstaclePerception perception_;
         PlanningStart planning_start_;
         DpPlanner dp_planner_;
-        IncreasePoints increase_points_;
+        DPIncreasePoints increase_points_;
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
         DynamicPlanSpeedPlanner speed_planner_;
+        mutable ComputeCutInAndOut cut_in_and_out_builder_;
         mutable std::vector<DpPathPoint> localfrenetpath_;
         mutable std::vector<VirtualObstacleSeed> virtual_obstacle_seeds_;
     };
@@ -156,73 +149,6 @@ namespace rsim_driver
                                            referencePoints,
                                            &localfrenetpath_,
                                            result);
-    }
-
-    template <typename RefPointT>
-    bool EmPlanner::ResolveActiveVirtualObstacles(
-        const std::vector<rsim_plugin::ActorState> &actors,
-        int32_t egoActorId,
-        const std::vector<RefPointT> &referencePoints,
-        const CartesianFrenetState &frenetStart,
-        std::vector<StaticFrenetObstacle> *result) const
-    {
-        if (result == nullptr || referencePoints.empty())
-            return false;
-
-        result->clear();
-        if (virtual_obstacle_seeds_.empty())
-            return true;
-
-        constexpr double kHalfVehicleWidthL = 1.0;
-        std::vector<VirtualObstacleSeed> activeSeeds;
-        activeSeeds.reserve(virtual_obstacle_seeds_.size());
-
-        for (const VirtualObstacleSeed &seed : virtual_obstacle_seeds_)
-        {
-            const rsim_plugin::ActorState *sourceActor = nullptr;
-            for (const rsim_plugin::ActorState &actor : actors)
-            {
-                if (actor.id != egoActorId && actor.id == seed.source_actor_id)
-                {
-                    sourceActor = &actor;
-                    break;
-                }
-            }
-            if (sourceActor == nullptr)
-                continue;
-
-            DynamicFrenetObstacle dynamicObstacle;
-            if (!frenet_obstacle_perception_detail::ActorToDynamicFrenetObstacle(
-                    *sourceActor, referencePoints, &dynamicObstacle))
-            {
-                return false;
-            }
-
-            const DynamicFrenetState &state =
-                dynamicObstacle.dynamicfrenetstate;
-            const StaticFrenetObstacle virtualObstacle =
-                frenet_obstacle_perception_detail::ToVirtualFrenetObstacle(
-                    *sourceActor, referencePoints, seed);
-            const double virtualTailS =
-                virtualObstacle.s +
-                0.5 * std::max(0.0, virtualObstacle.length);
-            if (virtualTailS < frenetStart.s)
-                continue;
-
-            const double lateralConflictLimit =
-                kHalfVehicleWidthL +
-                0.5 * std::max(0.0, dynamicObstacle.length);
-            if (!std::isfinite(state.l) ||
-                std::fabs(state.l) > lateralConflictLimit)
-            {
-                continue;
-            }
-            activeSeeds.push_back(seed);
-            result->push_back(virtualObstacle);
-        }
-
-        virtual_obstacle_seeds_ = std::move(activeSeeds);
-        return true;
     }
 
     template <typename RefPointT>
@@ -274,17 +200,17 @@ namespace rsim_driver
         }
         output.frenet_start_success = true;
 
-        if (!ResolveActiveVirtualObstacles(
+        if (!perception_.ConvertVirtualObstacles(
                 actors,
                 egoActorId,
                 referencePoints,
-                output.frenet_start_result,
+                virtual_obstacle_seeds_,
                 &output.virtual_static_obstacles))
         {
             *result = output;
             return false;
         }
-        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
+            output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
         std::vector<StaticFrenetObstacle> pathObstacles =
             output.static_perception_result.staticobstacles;
@@ -301,6 +227,14 @@ namespace rsim_driver
             return false;
         }
         output.dp_success = output.dp_result.dpsuccess;
+
+        // Stop fallback: DP blocked, let vehicle wait
+        if (output.dp_result.fallback == DpFallback::Stop)
+        {
+            *result = output;
+            return true;
+        }
+
         DpPlannerResult newresult;
         if (!increase_points_.increasepoints(&output.dp_result, &newresult))
         {

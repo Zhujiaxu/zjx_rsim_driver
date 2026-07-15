@@ -14,7 +14,8 @@ add_subdirectory(local_path_planning)
 add_subdirectory(local_speed_planning)
 
 add_library(em_planner SHARED
-    EmPlanner.cpp)
+    EmPlanner.cpp
+    local_path_planning/qp_increase_points/qpincreasepoints.cpp)
 
 target_include_directories(em_planner PUBLIC
     ${CMAKE_CURRENT_LIST_DIR})

@@ -9,9 +9,15 @@
 namespace rsim_driver
 {
 
+enum class DpFallback
+{
+    None,
+    Stop,
+};
+
 struct DpPlannerConfig
 {
-    double s_step = 0.5;
+    double s_step = 0.4;
     int s_step_count = 70;
     double l_step = 0.3;
     int left_l_step_count = 11;
@@ -37,6 +43,7 @@ struct DpPlannerResult
 {
     bool dpsuccess = false;
     double total_cost = 0.0;
+    DpFallback fallback = DpFallback::None;
     std::vector<DpPathPoint> path;
 };
 
