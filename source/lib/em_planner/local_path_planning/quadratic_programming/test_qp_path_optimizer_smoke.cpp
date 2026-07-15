@@ -1,4 +1,5 @@
 #include "QpPathOptimizer.hpp"
+#include "qpincreasepoints.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -82,7 +83,7 @@ rsim_driver::DrivableArea MakeArea(
     return area;
 }
 
-// Check that optimized path satisfies Taylor expansion constraints
+// Check that optimized path satisfies both third-order Taylor constraints.
 bool CheckTaylor(const std::vector<rsim_driver::DpPathPoint>& path,
                  double ds,
                  double tolerance = 2e-4)
@@ -95,6 +96,13 @@ bool CheckTaylor(const std::vector<rsim_driver::DpPathPoint>& path,
             (ds * ds / 3.0) * path[i - 1].l_double_prime -
             (ds * ds / 6.0) * path[i].l_double_prime;
         if (std::fabs(residual) > tolerance)
+            return false;
+
+        const double lPrimeResidual =
+            path[i].l_prime - path[i - 1].l_prime -
+            0.5 * ds * path[i - 1].l_double_prime -
+            0.5 * ds * path[i].l_double_prime;
+        if (std::fabs(lPrimeResidual) > tolerance)
             return false;
     }
     return true;
@@ -230,6 +238,33 @@ int main()
     if (!Require(CheckTaylor(localfrenetpath, config.ds),
                  "QP output should satisfy Taylor expansion constraints"))
         return 1;
+
+    rsim_driver::QpIncreasePoints densifier;
+    std::vector<rsim_driver::DpPathPoint> densifiedPath;
+    if (!Require(densifier.increasepoints(localfrenetpath, &densifiedPath),
+                 "QP output should be Taylor-consistent for densification"))
+        return 1;
+    if (!Require(densifiedPath.size() ==
+                     1U + (localfrenetpath.size() - 1U) * 10U,
+                 "QP densification should add nine interior points per segment"))
+        return 1;
+    for (std::size_t i = 0; i < densifiedPath.size(); ++i)
+    {
+        const double expectedS = static_cast<double>(i) * config.ds / 10.0;
+        if (!Require(Near(densifiedPath[i].s, expectedS),
+                     "QP densification should use uniform subsegment spacing"))
+            return 1;
+    }
+    std::vector<rsim_driver::CartesianPathPoint> densifiedCartesianPath;
+    if (!Require(rsim_driver::FrenetPathToCartesian(reference,
+                                                     densifiedPath,
+                                                     &densifiedCartesianPath),
+                 "densified Frenet path should convert back to Cartesian"))
+        return 1;
+    if (!Require(densifiedCartesianPath.size() == densifiedPath.size(),
+                 "densified Cartesian path should retain all Frenet samples"))
+        return 1;
+
     // Verify corner constraints
     if (!Require(CheckCorners(localfrenetpath, symmetricArea, halfLen, halfWid),
                  "QP output should satisfy corner hard constraints"))

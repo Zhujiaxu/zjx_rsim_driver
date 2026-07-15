@@ -1,5 +1,6 @@
 add_subdirectory(dynamic_programming)
 add_subdirectory(drivable_area)
+add_subdirectory(qp_increase_points)
 add_subdirectory(quadratic_programming)
 add_subdirectory(dp_increase_points)
 
@@ -12,4 +13,5 @@ target_link_libraries(local_path_planning INTERFACE
     dynamic_programming
     drivable_area
     quadratic_programming
+    qpincreasepoints
     dpincreasepoints)

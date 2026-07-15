@@ -437,7 +437,6 @@ namespace
                     ctx.actors,
                     ego.id,
                     output.planning_start_result,
-                    output.qp_result,
                     &output))
             {
                 *result = std::move(output);
@@ -445,7 +444,6 @@ namespace
             }
 
             if (!em_planner_.EMPlanPostProcessDetailed(output.planning_start_result,
-                                                       output.qp_result,
                                                        output.speed_result,
                                                        &output.trajectory))
             {
@@ -504,10 +502,14 @@ namespace
                 return "frenet_start";
             if (!result.dp_success)
                 return "dp";
+            if (!result.increase_points_success)
+                return "dp_increase_points";
             if (!result.drivable_area_success)
                 return "drivable_area";
             if (!result.qp_success)
                 return "qp";
+            if (!result.qp_increase_points_success)
+                return "qp_increase_points";
             if (result.speed_reference_line.empty())
                 return "speed_reference_line";
             if (!result.speed_success)
@@ -524,7 +526,8 @@ namespace
             std::fprintf(stderr,
                          "[RSimDriver] EM planner stages frame=%llu time=%.6f "
                          "first_failed=%s static=%d dynamic=%d start=%d frenet=%d "
-                         "dp=%d stop=%d drivable=%d qp=%d speed_ref=%zu speed=%d trajectory=%d "
+                         "dp=%d dp_increase=%d stop=%d drivable=%d qp=%d qp_increase=%d "
+                         "speed_ref=%zu speed=%d trajectory=%d "
                          "static_obs=%zu virtual_obs=%zu dynamic_obs=%zu "
                          "virtual_seeds=%zu dp_points=%zu qp_points=%zu "
                          "speed_points=%zu trajectory_points=%zu previous_points=%zu\n",
@@ -536,9 +539,11 @@ namespace
                          result.planning_start_success ? 1 : 0,
                          result.frenet_start_success ? 1 : 0,
                          result.dp_success ? 1 : 0,
+                         result.increase_points_success ? 1 : 0,
                          result.dp_result.fallback == rsim_driver::DpFallback::Stop ? 1 : 0,
                          result.drivable_area_success ? 1 : 0,
                          result.qp_success ? 1 : 0,
+                         result.qp_increase_points_success ? 1 : 0,
                          result.speed_reference_line.size(),
                          result.speed_success ? 1 : 0,
                          result.trajectory_success ? 1 : 0,

@@ -37,44 +37,6 @@ inline double CalculateDkBetween(const localreferencelinepoint& previous,
 
 }  // namespace local_reference_line_detail
 
-/*inline bool CalculateLocalReferenceLineDk(localreferencelinepath* path)
-{
-    if (path == nullptr)
-        return false;
-
-    if (path->empty())
-        return true;
-
-    if (path->size() == 1)
-    {
-        path->front().dk = 0.0;
-        return true;
-    }
-
-    for (std::size_t i = 0; i < path->size(); ++i)
-    {
-        if (i == 0)
-        {
-            (*path)[i].dk =
-                local_reference_line_detail::CalculateDkBetween((*path)[0],
-                                                                 (*path)[1]);
-        }
-        else if (i + 1 == path->size())
-        {
-            (*path)[i].dk =
-                local_reference_line_detail::CalculateDkBetween((*path)[i - 1],
-                                                                 (*path)[i]);
-        }
-        else
-        {
-            (*path)[i].dk =
-                local_reference_line_detail::CalculateDkBetween((*path)[i-1],
-                                                                 (*path)[i + 1]);
-        }
-    }
-
-    return true;
-}*/
 
 inline bool LocalCartesianPathToReferenceLinePath(
     const std::vector<CartesianPathPoint>& localcartesianpath,
@@ -110,12 +72,6 @@ inline bool LocalCartesianPathToReferenceLinePath(
     return true;
 }
 
-inline bool QpPathResultToLocalReferenceLinePath(
-    const QpPathResult& qpPathResult,
-    localreferencelinepath* result)
-{
-    return LocalCartesianPathToReferenceLinePath(qpPathResult.localcartesianpath,
-                                                result);
-}
+
 
 }  // namespace rsim_driver

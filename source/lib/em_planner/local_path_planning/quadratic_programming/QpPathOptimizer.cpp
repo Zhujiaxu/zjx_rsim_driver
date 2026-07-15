@@ -137,13 +137,12 @@ SlPoint InterpolateRightBoundary(const std::vector<SlPoint>& boundary, double s)
 }
 
 bool ValidInput(const CartesianFrenetState& start,
-                const std::vector<DpPathPoint>& coarsePath,
                 const DrivableArea& drivableArea)
 {
     if (!cartesian_to_frenet_detail::IsFinite(start))
         return false;
 
-    if (coarsePath.size() < 2 ||
+ /*   if (coarsePath.size() < 2 ||
         drivableArea.left_boundary.size() < 2 ||
         drivableArea.right_boundary.size() < 2 ||
         drivableArea.left_boundary.size() != drivableArea.right_boundary.size())
@@ -163,7 +162,7 @@ bool ValidInput(const CartesianFrenetState& start,
         }
         if (i > 0 && coarsePath[i].s - coarsePath[i - 1].s <= kEpsilon)
             return false;
-    }
+    }*/
 
     for (std::size_t i = 0; i < drivableArea.left_boundary.size(); ++i)
     {
@@ -225,24 +224,24 @@ void QpPathOptimizer::SetConfig(const QpPathOptimizerConfig& config)
     config_ = config;
 }
 
-bool QpPathOptimizer::OptimizeFrenet(
+bool QpPathOptimizer::Optimize(
     const CartesianFrenetState& start,
-    const std::vector<DpPathPoint>& coarsePath,
     const DrivableArea& drivableArea,
     const std::vector<StaticFrenetObstacle>& /*staticObstacles*/,
-    std::vector<DpPathPoint>* localfrenetpath,
-    double* objective) const
+    /*std::vector<DpPathPoint>* localfrenetpath,
+    double* objective*/
+    QpPathResult* result) const
 {
 
-    if (localfrenetpath == nullptr || objective == nullptr)
+    if (result == nullptr)
         return false;
 
     std::vector<DpPathPoint> output;
     double outputObjective = 0.0;
-    if (!ValidConfig(config_) || !ValidInput(start, coarsePath, drivableArea))
+    if (!ValidConfig(config_) || !ValidInput(start, drivableArea))
     {
-        *localfrenetpath = output;
-        *objective = outputObjective;
+        result->localfrenetpath = output;
+        result->objective = outputObjective;
         return false;
     }
 
@@ -251,8 +250,8 @@ bool QpPathOptimizer::OptimizeFrenet(
     const double halfLen = 0.5 * config_.ego_length;
     const double halfWid = 0.5 * config_.ego_width;
     const int numVariables = 3 * n;
-    // 3 start eq + (n-1) Taylor eq + 4(n-1) corner ineq = 5n - 2
-    const int numConstraints = 5 * n - 2;
+    // 3 start eq + 2(n-1) Taylor eq + 4(n-1) corner ineq = 6n - 3
+    const int numConstraints = 6 * n - 3;
 
     // --- build uniform s grid ---
     std::vector<double> S(n);
@@ -289,8 +288,8 @@ bool QpPathOptimizer::OptimizeFrenet(
         if (rightFront[i] + halfWid > leftFront[i] - halfWid ||
             rightRear[i] + halfWid > leftRear[i] - halfWid)
         {
-            *localfrenetpath = output;
-            *objective = outputObjective;
+            result->localfrenetpath = output;
+            result->objective = outputObjective;
             return false;
         }
     }
@@ -364,7 +363,7 @@ bool QpPathOptimizer::OptimizeFrenet(
                      {{LDoublePrimeIndex(0), 1.0}},
                      start.l_double_prime, start.l_double_prime);
 
-    // --- Taylor expansion (n-1 eq, i >= 1) ---
+    // --- Taylor expansion (2(n-1) eq, i >= 1) ---
     // l_i - l_{i-1} - ds·l'_{i-1} - (ds²/3)·l''_{i-1} - (ds²/6)·l''_i = 0
     const double ds2Over3 = ds * ds / 3.0;
     const double ds2Over6 = ds * ds / 6.0;
@@ -376,6 +375,18 @@ bool QpPathOptimizer::OptimizeFrenet(
                           {LPrimeIndex(i - 1), -ds},
                           {LDoublePrimeIndex(i - 1), -ds2Over3},
                           {LDoublePrimeIndex(i), -ds2Over6}},
+                         0.0, 0.0);
+    }
+
+    // l'_i - l'_{i-1} - (ds/2) l''_{i-1} - (ds/2) l''_i = 0
+    const double dsOver2 = ds / 2.0;
+    for (int i = 1; i < n; ++i)
+    {
+        AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
+                         {{LPrimeIndex(i), 1.0},
+                          {LPrimeIndex(i - 1), -1.0},
+                          {LDoublePrimeIndex(i - 1), -dsOver2},
+                          {LDoublePrimeIndex(i), -dsOver2}},
                          0.0, 0.0);
     }
 
@@ -432,8 +443,8 @@ bool QpPathOptimizer::OptimizeFrenet(
 
     if (!solver.initSolver())
     {
-        *localfrenetpath = output;
-        *objective = outputObjective;
+        result->localfrenetpath = output;
+        result->objective = outputObjective;
         return false;
     }
 
@@ -443,8 +454,8 @@ bool QpPathOptimizer::OptimizeFrenet(
                      status == OsqpEigen::Status::SolvedInaccurate);
     if (!ok)
     {
-        *localfrenetpath = output;
-        *objective = outputObjective;
+        result->localfrenetpath = output;
+        result->objective = outputObjective;
         return false;
     }
 
@@ -484,8 +495,8 @@ bool QpPathOptimizer::OptimizeFrenet(
         }
     }
 
-    *localfrenetpath = std::move(output);
-    *objective = obj;
+    result->localfrenetpath = std::move(output);
+    result->objective = obj;
     return true;
 }
 

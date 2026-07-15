@@ -75,9 +75,10 @@ namespace rsim_driver
           perception_(config.perception_config),
           planning_start_(config.planning_start_config),
           dp_planner_(config.dp_config),
-          increase_points_(config.increase_points_config),
+          increase_points_(config.dp_increase_points_config),
           drivable_area_builder_(config.drivable_area_config),
           qp_path_optimizer_(config.qp_config),
+          qp_increase_points_(config.qp_increase_points_config),
           speed_planner_(BuildSpeedConfig(config))
     {
     }
@@ -93,10 +94,16 @@ namespace rsim_driver
         perception_.SetConfig(config.perception_config);
         planning_start_.SetConfig(config.planning_start_config);
         dp_planner_.SetConfig(config.dp_config);
-        increase_points_.SetConfig(config.increase_points_config);
+        increase_points_.SetConfig(config.dp_increase_points_config);
         drivable_area_builder_.SetConfig(config.drivable_area_config);
         qp_path_optimizer_.SetConfig(config.qp_config);
+        qp_increase_points_.SetConfig(config.qp_increase_points_config);
         speed_planner_.SetConfig(BuildSpeedConfig(config));
+    }
+
+    const PlanningStart &EmPlanner::get_planning_start() const
+    {
+        return planning_start_;
     }
 
     const FrenetObstaclePerception &EmPlanner::get_perception() const
@@ -104,9 +111,19 @@ namespace rsim_driver
         return perception_;
     }
 
-    const PlanningStart &EmPlanner::get_planning_start() const
+    const std::vector<DpPathPoint> &EmPlanner::get_local_frenet_path() const
     {
-        return planning_start_;
+        return localfrenetpath_;
+    }
+
+    const std::vector<CartesianPathPoint> &EmPlanner::get_local_cartesian_path() const
+    {
+        return localcartesianpath_;
+    }
+
+    const localreferencelinepath &EmPlanner::get_speed_reference_line() const
+    {
+        return speed_reference_line_;
     }
 
     bool EmPlanner::RunDynamicProgramming(
@@ -180,8 +197,6 @@ namespace rsim_driver
         const std::vector<rsim_plugin::ActorState> &actors,
         int32_t egoActorId,
         const PlanningStartResult &planningStartResult,
-        // const DynamicFrenetObstaclePerceptionResult &dynamicObstacles,
-        const QpPathResult &qpPathResult,
         EmPlannerResult *result) const
     {
         if (result == nullptr)
@@ -192,12 +207,14 @@ namespace rsim_driver
         output.speed_result = {};
         output.speed_success = false;
 
-        if (!QpPathResultToLocalReferenceLinePath(qpPathResult,
-                                                  &output.speed_reference_line))
+        if (!LocalCartesianPathToReferenceLinePath(localcartesianpath_,
+                                                   &output.speed_reference_line))
         {
             *result = output;
             return false;
         }
+        speed_reference_line_.clear();
+        speed_reference_line_ = std::move(output.speed_reference_line);
 
         output.dynamic_perception_success = false;
         output.perception_success = output.static_perception_success;
@@ -216,7 +233,7 @@ namespace rsim_driver
         // Compute cut-in-and-out boundaries and virtual obstacle seeds.
         // Seeds are written directly into virtual_obstacle_seeds_ (additive).
         std::vector<CutInAndOutInfo> STBoundaryInfos;
-        if (!cut_in_and_out_builder_.Compute(
+        if (!cutinandout_builder_.Compute(
                 output.speed_reference_line,
                 output.dynamic_perception_result,
                 planningStartResult.start_point.speed,
@@ -247,21 +264,13 @@ namespace rsim_driver
 
     bool EmPlanner::EMPlanPostProcessDetailed(
         const PlanningStartResult &planningStartResult,
-        const QpPathResult &qpPathResult,
         const DynamicPlanSpeedResult &speedResult,
         std::vector<PlanningTrajectoryPoint> *result) const
     {
         if (result == nullptr)
             return false;
 
-        localreferencelinepath referenceLine;
-        if (!QpPathResultToLocalReferenceLinePath(qpPathResult, &referenceLine))
-        {
-            result->clear();
-            return false;
-        }
-
-        const bool forwardTrajectory = BuildTrajectory(referenceLine,
+        const bool forwardTrajectory = BuildTrajectory(speed_reference_line_,
                                                        speedResult,
                                                        planningStartResult,
                                                        result);

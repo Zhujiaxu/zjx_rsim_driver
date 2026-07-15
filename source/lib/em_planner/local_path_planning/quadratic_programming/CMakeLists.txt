@@ -16,4 +16,5 @@ target_link_libraries(quadratic_programming PUBLIC
 add_executable(test_qp_path_optimizer_smoke EXCLUDE_FROM_ALL
     test_qp_path_optimizer_smoke.cpp)
 target_link_libraries(test_qp_path_optimizer_smoke PRIVATE
-    quadratic_programming)
+    quadratic_programming
+    qpincreasepoints)
