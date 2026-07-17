@@ -214,7 +214,7 @@ namespace rsim_driver
             return false;
         }
         speed_reference_line_.clear();
-        speed_reference_line_ = std::move(output.speed_reference_line);
+        speed_reference_line_ = output.speed_reference_line;
 
         output.dynamic_perception_success = false;
         output.perception_success = output.static_perception_success;

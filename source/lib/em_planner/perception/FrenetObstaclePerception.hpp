@@ -320,18 +320,18 @@ namespace rsim_driver
                         *sourceActor, referencePoints, seed);
                 if (seed.ttl <= 0)
                 {
-                    std::fprintf(stderr,
+                    /*std::fprintf(stderr,
                                  "[VOB-Resolve] id=%d DROPPED ttl=%d\n",
-                                 seed.source_actor_id, seed.ttl);
+                                 seed.source_actor_id, seed.ttl);*/
                     continue;
                 }
                 aliveSeeds.push_back(seed);
-                std::fprintf(stderr,
+                /*std::fprintf(stderr,
                              "[VOB-Resolve] id=%d ttl=%d s=%.2f l=%.2f len=%.2f "
                              "width=%.2f\n",
                              seed.source_actor_id, seed.ttl,
                              virtualObstacle.s, virtualObstacle.l,
-                             virtualObstacle.length, virtualObstacle.width);
+                             virtualObstacle.length, virtualObstacle.width);*/
                 result->push_back(virtualObstacle);
             }
             seeds = std::move(aliveSeeds);

@@ -480,7 +480,7 @@ namespace
             planning_start_frenet_valid_ = result.frenet_start_success;
             dp_planning_result_ = result.dp_result;
             localfrenetpath_ = result.localfrenetpath;
-            cartesian_plan_path_ = result.qp_result.localcartesianpath;
+            cartesian_plan_path_ = result.localcartesianpath;
             planned_trajectory_ = result.trajectory;
 
             if (result.trajectory_success)
@@ -502,7 +502,7 @@ namespace
                 return "frenet_start";
             if (!result.dp_success)
                 return "dp";
-            if (!result.increase_points_success)
+            if (!result.dp_increase_points_success)
                 return "dp_increase_points";
             if (!result.drivable_area_success)
                 return "drivable_area";
@@ -539,7 +539,7 @@ namespace
                          result.planning_start_success ? 1 : 0,
                          result.frenet_start_success ? 1 : 0,
                          result.dp_success ? 1 : 0,
-                         result.increase_points_success ? 1 : 0,
+                         result.dp_increase_points_success ? 1 : 0,
                          result.dp_result.fallback == rsim_driver::DpFallback::Stop ? 1 : 0,
                          result.drivable_area_success ? 1 : 0,
                          result.qp_success ? 1 : 0,
@@ -552,7 +552,7 @@ namespace
                          result.dynamic_perception_result.dynamicobstacles.size(),
                          result.virtual_obstacle_seeds.size(),
                          result.dp_result.path.size(),
-                         result.qp_result.localcartesianpath.size(),
+                         result.localcartesianpath.size(),
                          result.speed_result.stpoints.size(),
                          result.trajectory.size(),
                          previous_trajectory_.size());

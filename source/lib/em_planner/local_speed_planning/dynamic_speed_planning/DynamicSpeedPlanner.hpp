@@ -13,11 +13,13 @@ namespace rsim_driver
 
 struct DynamicPlanSpeedConfig
 {
-    double time_step = 0.5;
-    int time_step_count = 16;
+    double time_step = 1;
+    int time_step_count = 8;
     double planning_period = 0.05;
-    double s_step = 0.5;
-    int s_step_count = 70;
+    double s_nearstep = 0.2;
+    int s_step_nearcount = 70;
+    double s_farstep = 1.0;
+    int s_step_farcount = 14;
 
     double reference_speed = 13.0;
     double weight_reference_speed = 5.0;
@@ -37,13 +39,6 @@ struct DynamicPlanSpeedPoint
     //double jerk = 0.0;
     //int rowindex = -1;
 };
-/*struct DynamicPlanSpeedStartPoint
-{
-    double t = 0.0;
-    double s = 0.0;
-    double v = 0.0;
-    double a = 0.0;
-};*/
 
 struct DynamicPlanSpeedResult
 {

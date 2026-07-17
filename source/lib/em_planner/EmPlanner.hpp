@@ -230,7 +230,7 @@ namespace rsim_driver
             return false;
         }
         output.dp_increase_points_success = true;
-        output.dp_result = newresult;
+        output.dp_result = std::move(newresult);
         // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
         if (!BuildDrivableArea(output.dp_result.path,
                                pathObstacles,
@@ -242,7 +242,7 @@ namespace rsim_driver
         output.drivable_area_success = true;
 
         // Step 6: QuadraticProgramming — smooth DP path inside drivable area
-        localfrenetpath_.clear();
+
         if (!qp_path_optimizer_.Optimize(
                 output.frenet_start_result,
                 output.drivable_area,
@@ -254,21 +254,23 @@ namespace rsim_driver
         }
 
         output.qp_success = output.qp_result.qpsuccess;
-        localfrenetpath_ = output.qp_result.localfrenetpath;
 
         std::vector<DpPathPoint> newlocalFrenetPath;
-        if (!qp_increase_points_.increasepoints(localfrenetpath_,
+        if (!qp_increase_points_.increasepoints(output.qp_result.localfrenetpath,
                                                 &newlocalFrenetPath))
         {
             *result = output;
             return false;
         }
         output.qp_increase_points_success = true;
+        output.localfrenetpath = newlocalFrenetPath;
+
+        localfrenetpath_.clear();
         localfrenetpath_ = std::move(newlocalFrenetPath);
 
         std::vector<CartesianPathPoint> CartesianPath;
         if (!FrenetPathToCartesian(referencePoints,
-                                   newlocalFrenetPath,
+                                   output.localfrenetpath,
                                    &CartesianPath))
         {
             *result = output;
@@ -276,11 +278,10 @@ namespace rsim_driver
         }
         output.qp_increase_points_success = true;
         output.localcartesianpath = std::move(CartesianPath);
-        output.localfrenetpath = std::move(localfrenetpath_);
 
         // for speedplan
         localcartesianpath_.clear();
-        localcartesianpath_ = std::move(CartesianPath);
+        localcartesianpath_ = output.localcartesianpath;
         *result = output;
         return true;
     }

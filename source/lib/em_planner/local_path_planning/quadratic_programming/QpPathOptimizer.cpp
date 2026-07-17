@@ -497,6 +497,7 @@ bool QpPathOptimizer::Optimize(
 
     result->localfrenetpath = std::move(output);
     result->objective = obj;
+    result->qpsuccess = true;
     return true;
 }
 

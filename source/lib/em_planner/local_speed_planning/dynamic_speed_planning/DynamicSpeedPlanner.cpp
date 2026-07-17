@@ -64,19 +64,15 @@ namespace rsim_driver
             return values;
         }
 
-        std::vector<double> BuildSValues(const localreferencelinepath &reference_line)
+        std::vector<double> BuildSValues(const DynamicPlanSpeedConfig &config)
         {
             std::vector<double> values;
-            if (reference_line.empty())
+            if (!ValidConfig(config))
                 return values;
-            for (const localreferencelinepoint &point : reference_line)
-            {
-                if (!IsFinite(point.s))
-                    return {};
-                if (!values.empty() && point.s <= values.back() + kEpsilon)
-                    return {};
-                values.push_back(point.s);
-            }
+            for (int i = 0; i <= config.s_step_nearcount; ++i)
+                values.push_back(static_cast<double>(i) * config.s_nearstep);
+            for (int j =1; j <= config.s_step_farcount; ++j)
+                values.push_back(values.back() + config.s_farstep);
             return values;
         }
 
@@ -167,7 +163,7 @@ namespace rsim_driver
         }
 
         const std::vector<double> t_values = BuildTimeValues(config);
-        const std::vector<double> s_values = BuildSValues(reference_line);
+        const std::vector<double> s_values = BuildSValues(config);
         if (t_values.size() < 2 ||
             s_values.size() < 2 ||
             std::fabs(s_values.front() - start.s) > kEpsilon)
