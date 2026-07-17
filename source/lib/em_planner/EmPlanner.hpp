@@ -9,6 +9,7 @@
 #include "local_speed_planning/computecutinandout/computecutinandout.hpp"
 #include "local_path_planning/dp_increase_points/dpincreasepoints.hpp"
 #include "local_path_planning/qp_increase_points/qpincreasepoints.hpp"
+#include "local_speed_planning/speed_drivable_area/StDrivableArea.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -57,6 +58,7 @@ namespace rsim_driver
         std::vector<CartesianPathPoint> localcartesianpath;
         localreferencelinepath speed_reference_line;
         DynamicPlanSpeedResult speed_result;
+        StDrivableArea drivable_area_st;
         std::vector<PlanningTrajectoryPoint> trajectory;
     };
 
@@ -132,6 +134,7 @@ namespace rsim_driver
         QpPathOptimizer qp_path_optimizer_;
         QpIncreasePoints qp_increase_points_;
         DynamicPlanSpeedPlanner speed_planner_;
+        StDrivableAreaBuilder st_drivable_area_builder_;
         mutable std::vector<DpPathPoint> localfrenetpath_;
         mutable std::vector<CartesianPathPoint> localcartesianpath_;
         mutable localreferencelinepath speed_reference_line_;

@@ -246,6 +246,7 @@ namespace rsim_driver
             *result = output;
             return false;
         }
+        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
         if (!RunDynamicSpeedPlanning(planningStartResult,
                                      output.speed_reference_line,
@@ -256,10 +257,19 @@ namespace rsim_driver
             return false;
         }
         output.speed_success = output.speed_result.dpsuccess;
-        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
-        *result = output;
-        return output.speed_success;
+        if (!st_drivable_area_builder_.Build(STBoundaryInfos,
+                                         GetDynamicSpeedPlanStartPoint(planningStartResult),
+                                         EMconfig_.speed_config,
+                                         output.speed_reference_line.back().s,
+                                         &output.drivable_area_st))
+        {
+            *result = output;
+            return false;
+        }
+        
+        /**result =std::move(output);*/
+        return true;
     }
 
     bool EmPlanner::EMPlanPostProcessDetailed(

@@ -69,10 +69,8 @@ namespace rsim_driver
             std::vector<double> values;
             if (!ValidConfig(config))
                 return values;
-            for (int i = 0; i <= config.s_step_nearcount; ++i)
-                values.push_back(static_cast<double>(i) * config.s_nearstep);
-            for (int j =1; j <= config.s_step_farcount; ++j)
-                values.push_back(values.back() + config.s_farstep);
+            for (int i = 0; i <= config.s_step_count; ++i)
+                values.push_back(static_cast<double>(i) * config.s_step);
             return values;
         }
 
