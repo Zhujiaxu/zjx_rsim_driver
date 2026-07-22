@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <limits>
+#include <utility>
 #include <vector>
 
 namespace
@@ -43,6 +44,15 @@ bool SamePoint(const rsim_driver::DynamicPlanSpeedPoint& actual,
            actual.v == expected.v && actual.a == expected.a;
 }
 
+rsim_driver::QpSpeedOptimizerResult MakeQpResult(
+    std::vector<rsim_driver::DynamicPlanSpeedPoint> points)
+{
+    rsim_driver::QpSpeedOptimizerResult result;
+    result.Flag = rsim_driver::QpSpeedOptimizerFallback::Success;
+    result.stpoints = std::move(points);
+    return result;
+}
+
 }  // namespace
 
 int main()
@@ -60,7 +70,8 @@ int main()
         std::vector<rsim_driver::DynamicPlanSpeedPoint> output;
         ok &= Require(densifier.config().count == 4,
                       "default subdivision count should be four");
-        ok &= Require(densifier.increasepoints(constantSpeed, &output),
+        ok &= Require(densifier.increasepoints(MakeQpResult(constantSpeed),
+                                               &output),
                       "constant-speed trajectory should densify");
         ok &= Require(output.size() == 9U,
                       "two intervals should produce nine points");
@@ -92,7 +103,8 @@ int main()
                       "constructor config should be observable");
         densifier.SetConfig({1});
         ok &= Require(densifier.config().count == 1 &&
-                          densifier.increasepoints(constantSpeed, &output) &&
+                          densifier.increasepoints(MakeQpResult(constantSpeed),
+                                                   &output) &&
                           output.size() == constantSpeed.size(),
                       "count one should preserve the coarse point sequence");
         if (output.size() == constantSpeed.size())
@@ -112,7 +124,8 @@ int main()
             EvaluateConstantJerk(start, 1.0, jerk);
         rsim_driver::QpSpeedIncreasePoints densifier({2});
         std::vector<rsim_driver::DynamicPlanSpeedPoint> output;
-        ok &= Require(densifier.increasepoints({start, end}, &output) &&
+        ok &= Require(densifier.increasepoints(MakeQpResult({start, end}),
+                                               &output) &&
                           output.size() == 3U,
                       "constant-jerk trajectory should densify");
         if (output.size() == 3U)
@@ -132,19 +145,23 @@ int main()
         std::vector<rsim_driver::DynamicPlanSpeedPoint> output = {
             {99.0, 99.0, 99.0, 99.0},
         };
-        ok &= Require(!densifier.increasepoints({}, &output) && output.empty(),
+        ok &= Require(!densifier.increasepoints(MakeQpResult({}), &output) &&
+                          output.empty(),
                       "empty input should fail and clear stale output");
-        ok &= Require(!densifier.increasepoints({constantSpeed.front()}, &output) &&
+        ok &= Require(!densifier.increasepoints(
+                          MakeQpResult({constantSpeed.front()}), &output) &&
                           output.empty(),
                       "single-point input should fail and clear stale output");
-        ok &= Require(!densifier.increasepoints(constantSpeed, nullptr),
+        ok &= Require(!densifier.increasepoints(MakeQpResult(constantSpeed),
+                                                nullptr),
                       "null output should fail");
     }
 
     {
         rsim_driver::QpSpeedIncreasePoints densifier({0});
         std::vector<rsim_driver::DynamicPlanSpeedPoint> output;
-        ok &= Require(!densifier.increasepoints(constantSpeed, &output) &&
+        ok &= Require(!densifier.increasepoints(MakeQpResult(constantSpeed),
+                                                &output) &&
                           output.empty(),
                       "non-positive subdivision count should fail");
     }
@@ -155,34 +172,34 @@ int main()
         std::vector<rsim_driver::DynamicPlanSpeedPoint> output;
 
         invalid[1].t = invalid[0].t;
-        ok &= Require(!densifier.increasepoints(invalid, &output),
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output),
                       "duplicate time should fail");
 
         invalid = constantSpeed;
         invalid[1].t = invalid[0].t - 0.1;
-        ok &= Require(!densifier.increasepoints(invalid, &output),
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output),
                       "backward time should fail");
 
         invalid = constantSpeed;
         invalid[1].s += 0.1;
-        ok &= Require(!densifier.increasepoints(invalid, &output),
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output),
                       "kinematically inconsistent endpoint should fail");
 
         invalid = constantSpeed;
         invalid[1].v = std::numeric_limits<double>::quiet_NaN();
-        ok &= Require(!densifier.increasepoints(invalid, &output),
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output),
                       "NaN input should fail");
 
         invalid = constantSpeed;
         invalid[1].a = std::numeric_limits<double>::infinity();
-        ok &= Require(!densifier.increasepoints(invalid, &output),
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output),
                       "infinite input should fail");
 
         invalid = {
             {0.0, 1.0, 0.0, 0.0},
             {0.8, 0.9, 0.0, 0.0},
         };
-        ok &= Require(!densifier.increasepoints(invalid, &output) &&
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output) &&
                           output.empty(),
                       "backward displacement should fail");
     }
@@ -194,7 +211,8 @@ int main()
         };
         rsim_driver::QpSpeedIncreasePoints densifier;
         std::vector<rsim_driver::DynamicPlanSpeedPoint> output;
-        ok &= Require(densifier.increasepoints(numericNoise, &output) &&
+        ok &= Require(densifier.increasepoints(MakeQpResult(numericNoise),
+                                               &output) &&
                           !output.empty() && output.front().s == 0.0 &&
                           output.front().v == 0.0 && output.back().s == 0.0 &&
                           output.back().v == 0.0,
@@ -202,13 +220,13 @@ int main()
 
         auto invalid = numericNoise;
         invalid[0].v = -1e-4;
-        ok &= Require(!densifier.increasepoints(invalid, &output) &&
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output) &&
                           output.empty(),
                       "meaningful reverse speed should fail");
 
         invalid = numericNoise;
         invalid[0].s = -1e-4;
-        ok &= Require(!densifier.increasepoints(invalid, &output) &&
+        ok &= Require(!densifier.increasepoints(MakeQpResult(invalid), &output) &&
                           output.empty(),
                       "meaningful negative displacement should fail");
     }

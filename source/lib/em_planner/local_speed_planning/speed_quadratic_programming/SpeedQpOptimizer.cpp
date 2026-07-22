@@ -139,7 +139,7 @@ namespace rsim_driver
 
         const double dt = config_.dt;
         const int numVariables = 3 * n;
-        const int numConstraints = 4 * n;
+        const int numConstraints = 6 * n - 1;
 
         // ===== assemble cost =====
         std::vector<Eigen::Triplet<double>> hessianTriplets;
@@ -261,6 +261,24 @@ namespace rsim_driver
             AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
                              {{AIndex(i), 1.0}},
                              config_.a_min, config_.a_max);
+        }
+
+        // --- no-reverse velocity bounds: v_i >= 0 (n rows) ---
+        const double infinity = OsqpEigen::INFTY;
+        for (int i = 0; i < n; ++i)
+        {
+            AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
+                             {{VIndex(i), 1.0}},
+                             0.0, infinity);
+        }
+
+        // --- no-reverse progress: s_i - s_{i-1} >= 0 (n-1 rows) ---
+        for (int i = 1; i < n; ++i)
+        {
+            AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
+                             {{SIndex(i), 1.0},
+                              {SIndex(i - 1), -1.0}},
+                             0.0, infinity);
         }
 
         Eigen::SparseMatrix<double> linearMatrix(numConstraints, numVariables);
