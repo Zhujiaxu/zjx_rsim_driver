@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace rsim_driver
 {
@@ -101,7 +102,7 @@ namespace rsim_driver
         output.upper_boundary.reserve(n_steps);
         for (const DynamicPlanSpeedPoint &point : dpplan_result->stpoints)
         {
-            output.lower_boundary.push_back({0.0, point.t});
+            output.lower_boundary.push_back({0.0-config_.longitudinal_safety_buffer/2, point.t});
             output.upper_boundary.push_back({dpplan_result->total_s, point.t});
         }
 

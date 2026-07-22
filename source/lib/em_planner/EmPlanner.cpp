@@ -54,7 +54,7 @@ namespace rsim_driver
                 point.hdg = NormalizeAngle(
                     previous.hdg + NormalizeAngle(next.hdg - previous.hdg) * ratio);
                 point.s = s;
-                // point.dk = previous.dk + (next.dk - previous.dk) * ratio;
+                point.dk = previous.dk;
                 return point;
             }
 
@@ -82,7 +82,9 @@ namespace rsim_driver
           qp_path_optimizer_(config.qp_config),
           qp_increase_points_(config.qp_increase_points_config),
           speed_planner_(config.speed_dp_config),
-          speed_qp_optimizer_(config.speed_qp_config)
+          st_drivable_area_builder_(config.speed_drivable_area_config),
+          speed_qp_optimizer_(config.speed_qp_config),
+          speed_qp_increase_points_(config.speed_qp_increase_points_config)
     {
     }
 
@@ -102,7 +104,10 @@ namespace rsim_driver
         qp_path_optimizer_.SetConfig(config.qp_config);
         qp_increase_points_.SetConfig(config.qp_increase_points_config);
         speed_planner_.SetConfig(config.speed_dp_config);
+        st_drivable_area_builder_.SetConfig(config.speed_drivable_area_config);
         speed_qp_optimizer_.SetConfig(config.speed_qp_config);
+        speed_qp_increase_points_.SetConfig(
+            config.speed_qp_increase_points_config);
     }
 
     const PlanningStart &EmPlanner::get_planning_start() const
@@ -114,17 +119,6 @@ namespace rsim_driver
     {
         return perception_;
     }
-
-    const std::vector<CartesianPathPoint> &EmPlanner::get_local_cartesian_path() const
-    {
-        return localcartesianpath_;
-    }
-
-    const localreferencelinepath &EmPlanner::get_speed_reference_line() const
-    {
-        return speed_reference_line_;
-    }
-
 
     bool EmPlanner::BuildTrajectory(
         const localreferencelinepath &referenceLine,
@@ -163,23 +157,19 @@ namespace rsim_driver
     bool EmPlanner::EMPlanSpeedDetailed(
         const std::vector<rsim_plugin::ActorState> &actors,
         int32_t egoActorId,
-        const PlanningStartResult &planningStartResult,
         EmPlannerResult *result) const
     {
         if (result == nullptr)
             return false;
 
         EmPlannerResult output = *result;
-        output.speed_reference_line.clear();
 
-        if (!LocalCartesianPathToReferenceLinePath(localcartesianpath_,
+        if (!LocalCartesianPathToReferenceLinePath(output.localcartesianpath,
                                                    &output.speed_reference_line))
         {
             *result = output;
             return false;
         }
-        speed_reference_line_.clear();
-        speed_reference_line_ = output.speed_reference_line;
 
         if (!perception_.ConvertDynamicObstacles(
                 actors,
@@ -199,8 +189,8 @@ namespace rsim_driver
         if (!cutinandout_builder_.Compute(
                 output.speed_reference_line,
                 output.dynamic_perception_result,
-                planningStartResult.start_point.speed,
-                EMconfig_.planning_start_config.planning_period,
+                output.planning_start_result.start_point.speed,
+                EMconfig_.planning_start_config.planningPeriod,
                 EMconfig_.speed_dp_config.time_step *
                     static_cast<double>(EMconfig_.speed_dp_config.time_step_count),
                 &STBoundaryInfos,
@@ -212,20 +202,29 @@ namespace rsim_driver
         output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
         DynamicPlanSpeedPoint speedStart =
-            GetDynamicSpeedPlanStartPoint(planningStartResult);
+            GetDynamicSpeedPlanStartPoint(output.planning_start_result);
         if (!speed_planner_.Plan(speedStart, STBoundaryInfos, &output.speed_dp_result))
         {
-            output.speed_dp_result.Flag == DpPlannerFallback::Stop ? cout << "ST-DP规划：密集障碍物" << endl : cout << "Other" << endl;
+            std::fprintf(stderr,
+                         output.speed_dp_result.Flag ==
+                                 DynamicPlanSpeedFallback::Stop
+                             ? "ST-DP规划：密集障碍物\n"
+                             : "ST-DP规划：Other\n");
             *result = output;
             return false;
         }
-        output.speed_dp_success = output.speed_dp_result.Flag == DpPlannerFallback::Success;
+        output.speed_dp_success =
+            output.speed_dp_result.Flag == DynamicPlanSpeedFallback::Success;
 
         if (!st_drivable_area_builder_.Build(STBoundaryInfos,
-                                             output.speed_dp_result,
+                                             &output.speed_dp_result,
                                              &output.drivable_area_st))
         {
-            output.drivable_area_st.Flag == DpPlannerFallback::Stop ? cout << "ST可行驶区域过窄" << endl : cout << "Other" << endl;
+            std::fprintf(stderr,
+                         output.drivable_area_st.Flag ==
+                                 StDrivableAreaFallback::Stop
+                             ? "ST可行驶区域过窄\n"
+                             : "ST可行驶区域：Other\n");
             *result = output;
             return false;
         }
@@ -235,7 +234,11 @@ namespace rsim_driver
                                           output.drivable_area_st,
                                           &output.speed_qp_result))
         {
-            output.speed_qp_result.Flag == QpSpeedOptimizerFallback::Stop ? cout << "ST-QP优化：求解失败" << endl : cout << "Other" << endl;
+            std::fprintf(stderr,
+                         output.speed_qp_result.Flag ==
+                                 QpSpeedOptimizerFallback::Stop
+                             ? "ST-QP优化：求解失败\n"
+                             : "ST-QP优化：Other\n");
             *result = output;
             return false;
         }
@@ -255,37 +258,42 @@ namespace rsim_driver
     }
 
     bool EmPlanner::EMPlanPostProcessDetailed(
-        const PlanningStartResult &planningStartResult,
-        const std::vector<DynamicPlanSpeedPoint> &speedPoints,
-        std::vector<PlanningTrajectoryPoint> *result) const
+         EmPlannerResult &sltoutput) const
     {
-        if (result == nullptr)
-            return false;
+        EmPlannerResult output = sltoutput;
 
-        const bool forwardTrajectory = BuildTrajectory(speed_reference_line_,
-                                                       speedPoints,
-                                                       planningStartResult,
-                                                       result);
+        const bool forwardTrajectory = BuildTrajectory(output.speed_reference_line,
+                                                       output.increasepoints_speed_points,
+                                                       output.planning_start_result,
+                                                       &output.trajectory);
         if (!forwardTrajectory)
+        {
+            sltoutput = std::move(output);
             return false;
+        }
 
-        if (planningStartResult.start_point.source ==
+        if (output.planning_start_result.start_point.source ==
             PlanningStartSource::PreviousTrajectory)
         {
-            result->insert(result->begin(),
-                           planningStartResult.stitching_trajectory.begin(),
-                           planningStartResult.stitching_trajectory.end());
+            output.trajectory.insert(output.trajectory.begin(),
+                                     output.planning_start_result.stitching_trajectory.begin(),
+                                     output.planning_start_result.stitching_trajectory.end());
         }
-        for (std::size_t i = 0; i < result->size(); ++i)
+        for (std::size_t i = 0; i < output.trajectory.size(); ++i)
         {
-            if (!IsValidTrajectoryPoint((*result)[i]) ||
+            if (!IsValidTrajectoryPoint(output.trajectory[i]) ||
                 (i > 0 &&
-                 (*result)[i].time - (*result)[i - 1].time <= kEpsilon))
+                 output.trajectory[i].time - output.trajectory[i - 1].time <= kEpsilon))
             {
-                result->clear();
+                output.trajectory.clear();
+                std::cout << "拼接轨迹错误\n"
+                          << std::endl;
+                sltoutput = std::move(output);
                 return false;
             }
         }
+        output.trajectory_success = true;
+        sltoutput = std::move(output);
         return true;
     }
 

@@ -7,7 +7,7 @@ target_include_directories(dpplanner PUBLIC
 target_compile_features(dpplanner PUBLIC cxx_std_17)
 
 target_link_libraries(dpplanner PUBLIC
-    cartesian_to_frenets
+    cartesian_to_frenet
     collision_cost
     em_planner_perception
     quintic_polynomial)

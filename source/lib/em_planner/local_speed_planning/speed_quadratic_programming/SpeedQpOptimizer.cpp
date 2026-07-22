@@ -72,8 +72,8 @@ namespace rsim_driver
 
         bool ValidConfig(const QpSpeedOptimizerConfig &config)
         {
-            return config.num_points >= 2 &&
-                   IsFinite(config.dt) && config.dt > kEpsilon &&
+            return IsFinite(config.dt) && config.dt > kEpsilon &&
+                   IsFinite(config.dqpt) && config.dqpt > kEpsilon &&
                    IsFinite(config.reference_speed) && config.reference_speed >= 0.0 &&
                    IsFinite(config.ego_length) && config.ego_length > 0.0 &&
                    IsFinite(config.longitudinal_safety_buffer) && config.longitudinal_safety_buffer >= 0.0 &&
@@ -127,7 +127,7 @@ namespace rsim_driver
             return false;
         const double halfEgo = 0.5 * config_.ego_length;
         const double totalMargin = halfEgo + config_.longitudinal_safety_buffer;
-        const int n = std::floor(drivable_area.upper_boundary.back().t / config_.dt);
+        const int n = std::floor(drivable_area.upper_boundary.back().t / config_.dt)+1;
         QpSpeedOptimizerResult output;
 
         if (!ValidConfig(config_) ||
@@ -245,7 +245,7 @@ namespace rsim_driver
 
         for (int i = 1; i < n; ++i)
         {
-            double j=i*config_.dt/congif_.dqpt;
+            const double j = i * config_.dt / config_.dqpt;
 
             const double lb = drivable_area.lower_boundary[static_cast<std::size_t>(j)].s + totalMargin;
             const double ub = drivable_area.upper_boundary[static_cast<std::size_t>(j)].s - totalMargin;
@@ -286,7 +286,7 @@ namespace rsim_driver
 
         if (!solver.initSolver())
         {
-            output.Flag = QpSpeedOptimizerFallback::QpInitFail;
+            output.Flag = QpSpeedOptimizerFallback::Other;
             *result = std::move(output);
             return false;
         }

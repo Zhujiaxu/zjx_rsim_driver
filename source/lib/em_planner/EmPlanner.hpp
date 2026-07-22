@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <utility>
 
 namespace rsim_driver
@@ -49,6 +50,7 @@ namespace rsim_driver
         bool drivable_area_success = false;
         bool qp_success = false;
         bool qp_increase_points_success = false;
+        bool qp_increase_points_to_frenet=false;
         bool speed_dp_success = false;
         bool st_drivable_area_success = false;
         bool speed_qp_success = false;
@@ -65,7 +67,6 @@ namespace rsim_driver
         DrivableAreaResult drivable_area_result;
         QpPathResult qp_result;
         QpIncreasePointsResult qp_increase_points_result;
-        std::vector<DpPathPoint> localfrenetpath;
         std::vector<CartesianPathPoint> localcartesianpath;
         localreferencelinepath speed_reference_line;
         DynamicPlanSpeedResult speed_dp_result;
@@ -96,42 +97,19 @@ namespace rsim_driver
         bool EMPlanSpeedDetailed(
             const std::vector<rsim_plugin::ActorState> &actors,
             int32_t egoActorId,
-            const PlanningStartResult &planningStartResult,
             EmPlannerResult *result) const;
 
         bool EMPlanPostProcessDetailed(
-            const PlanningStartResult &planningStartResult,
-            const QpSpeedOptimizerResult &speed_qp_result,
-            std::vector<PlanningTrajectoryPoint> *result) const;
+             EmPlannerResult &sltoutput) const;
 
         const PlanningStart &get_planning_start() const;
         const FrenetObstaclePerception &get_perception() const;
-        const std::vector<CartesianPathPoint> &get_local_cartesian_path() const;
-        const localreferencelinepath &get_speed_reference_line() const;
-
     private:
-        bool BuildDrivableArea(
-            const std::vector<DpPathPoint> &coarsePath,
-            const std::vector<StaticFrenetObstacle> &obstacles,
-            DrivableArea *result) const;
-        bool RunDynamicSpeedPlanning(
-            const PlanningStartResult &start,
-            const localreferencelinepath &referenceLine,
-            const std::vector<CutInAndOutInfo> &STBoundaryInfos,
-            DynamicPlanSpeedResult *result) const;
         bool BuildTrajectory(
             const localreferencelinepath &referenceLine,
             const std::vector<DynamicPlanSpeedPoint> &newqppointspath,
             const PlanningStartResult &planningStartResult,
             std::vector<PlanningTrajectoryPoint> *result) const;
-        template <typename RefPointT>
-        bool RunQuadraticProgramming(
-            const CartesianFrenetState &start,
-            const std::vector<DpPathPoint> &coarsePath,
-            const DrivableArea &drivableArea,
-            const std::vector<StaticFrenetObstacle> &obstacles,
-            const std::vector<RefPointT> &referencePoints,
-            QpPathResult *result) const;
 
         EmPlannerConfig EMconfig_;
         FrenetObstaclePerception perception_;
@@ -146,8 +124,6 @@ namespace rsim_driver
         StDrivableAreaBuilder st_drivable_area_builder_;
         SpeedQpOptimizer speed_qp_optimizer_;
         QpSpeedIncreasePoints speed_qp_increase_points_;
-        mutable std::vector<CartesianPathPoint> localcartesianpath_;
-        mutable localreferencelinepath speed_reference_line_;
         mutable std::vector<VirtualObstacleSeed> virtual_obstacle_seeds_;
     };
 
@@ -228,10 +204,9 @@ namespace rsim_driver
                               pathObstacles,
                               &output.dp_result))
         {
-            if (output.dp_result.Flag == DpPlannerFallback::Stop)
-            {
-                std::cout << "密集障碍物||规划起点已碰撞，紧急停车" << std::endl;
-            }
+            output.dp_result.Flag == DpPlannerFallback::Stop 
+            ? std::cout << "SL-DP:密集障碍物||规划起点已碰撞，紧急停车/n" << std::endl
+            : std::cout << "SL-DP:其他错误" << std::endl;
 
             *result = output;
             return false;
@@ -287,12 +262,9 @@ namespace rsim_driver
             *result = output;
             return false;
         }
-        output.qp_increase_points_success = true;
+        output.qp_increase_points_to_frenet = true;
         output.localcartesianpath = std::move(CartesianPath);
 
-        // for speedplan
-        localcartesianpath_.clear();
-        localcartesianpath_ = output.localcartesianpath;
         *result = std::move(output);
         return true;
     }

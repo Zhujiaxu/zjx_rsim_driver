@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <utility>
 
 namespace rsim_driver
 {
@@ -155,7 +156,7 @@ namespace rsim_driver
         const DynamicPlanSpeedConfig &config = config_;
         if (!ValidConfig(config) || !ValidStart(start))
         {
-            output.Flag = DynamicPlanSpeedFallback::other;
+            output.Flag = DynamicPlanSpeedFallback::Other;
             *result = std::move(output);
             return false;
         }
@@ -166,7 +167,7 @@ namespace rsim_driver
             s_values.size() < 2 ||
             std::fabs(s_values.front() - start.s) > kEpsilon)
         {
-            output.Flag = DynamicPlanSpeedFallback::other;
+            output.Flag = DynamicPlanSpeedFallback::Other;
             *result = std::move(output);
             return false;
         }

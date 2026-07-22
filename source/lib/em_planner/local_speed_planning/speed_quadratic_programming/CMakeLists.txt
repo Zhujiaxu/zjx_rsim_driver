@@ -9,7 +9,7 @@ target_compile_features(speed_quadratic_programming PUBLIC cxx_std_17)
 target_link_libraries(speed_quadratic_programming PUBLIC
     OsqpEigen::OsqpEigen
     collision_cost
-    dynamic_speed_planning
+    dpspeedplanner
     st_drivable_area)
 
 add_executable(test_speed_qp_optimizer_smoke EXCLUDE_FROM_ALL

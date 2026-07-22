@@ -7,10 +7,10 @@ target_include_directories(speed_qp_increase_points PUBLIC
 target_compile_features(speed_qp_increase_points PUBLIC cxx_std_17)
 
 target_link_libraries(speed_qp_increase_points PUBLIC
-    dynamic_speed_planning)
+    speed_quadratic_programming)
 
 if(BUILD_TESTING)
-    add_executable(test_speed_qp_increase_points_smoke
+    add_executable(test_speed_qp_increase_points_smoke EXCLUDE_FROM_ALL
         test_speed_qp_increase_points_smoke.cpp)
     target_link_libraries(test_speed_qp_increase_points_smoke PRIVATE
         speed_qp_increase_points)

@@ -266,7 +266,8 @@ namespace
                 return;
             }
             rsim_driver::EmPlannerConfig emPlannerConfig = em_planner_.config();
-            emPlannerConfig.speed_config.reference_speed = set_speed_;
+            emPlannerConfig.speed_dp_config.reference_speed = set_speed_;
+            emPlannerConfig.speed_qp_config.reference_speed = set_speed_;
             em_planner_.SetConfig(emPlannerConfig);
             OpenReferenceLineDebugCsv();
             OpenPlanningStartSlDebugCsv();
@@ -382,7 +383,8 @@ namespace
                                          plannerResult.frenet_start_result,
                                          plannerResult.frenet_start_success);
 
-            if (plannerResult.dp_result.fallback == rsim_driver::DpFallback::Stop)
+            if (plannerResult.dp_result.Flag ==
+                rsim_driver::DpPlannerFallback::Stop)
             {
                 ReportPlannerStageStatus(ctx, plannerResult);
                 updates.push_back(BuildControlledStopActorUpdate(*ego, ctx.time_step));
@@ -451,32 +453,20 @@ namespace
                 return false;
             }
 
-            // DP blocked: skip speed planning, let vehicle hold position
-            if (output.dp_result.fallback == rsim_driver::DpFallback::Stop)
-            {
-                *result = std::move(output);
-                return true;
-            }
-
             if (!em_planner_.EMPlanSpeedDetailed(
                     ctx.actors,
                     ego.id,
-                    output.planning_start_result,
                     &output))
             {
                 *result = std::move(output);
                 return false;
             }
 
-            if (!em_planner_.EMPlanPostProcessDetailed(output.planning_start_result,
-                                                       output.dense_speed_points,
-                                                       &output.trajectory))
+            if (!em_planner_.EMPlanPostProcessDetailed(output))
             {
-                output.trajectory_success = false;
                 *result = std::move(output);
                 return false;
             }
-            output.trajectory_success = true;
 
             *result = std::move(output);
             return true;
@@ -545,8 +535,6 @@ namespace
                 return "speed_qp";
             if (!result.speed_qp_increase_points_success)
                 return "speed_qp_increase_points";
-            if (!result.speed_success)
-                return "speed";
             if (!result.trajectory_success)
                 return "trajectory";
             return "unknown";
@@ -575,7 +563,7 @@ namespace
                          result.frenet_start_success ? 1 : 0,
                          result.dp_success ? 1 : 0,
                          result.dp_increase_points_success ? 1 : 0,
-                         result.dp_result.fallback == rsim_driver::DpFallback::Stop ? 1 : 0,
+                         result.dp_result.Flag == rsim_driver::DpPlannerFallback::Stop ? 1 : 0,
                          result.drivable_area_success ? 1 : 0,
                          result.qp_success ? 1 : 0,
                          result.qp_increase_points_success ? 1 : 0,
@@ -584,17 +572,22 @@ namespace
                          result.st_drivable_area_success ? 1 : 0,
                          result.speed_qp_success ? 1 : 0,
                          result.speed_qp_increase_points_success ? 1 : 0,
-                         result.speed_success ? 1 : 0,
+                         result.speed_dp_success &&
+                                 result.st_drivable_area_success &&
+                                 result.speed_qp_success &&
+                                 result.speed_qp_increase_points_success
+                             ? 1
+                             : 0,
                          result.trajectory_success ? 1 : 0,
                          result.static_perception_result.staticobstacles.size(),
-                         result.virtual_static_obstacles.size(),
+                         result.virtual_perception_result.virtual_static_obstacles.size(),
                          result.dynamic_perception_result.dynamicobstacles.size(),
                          result.virtual_obstacle_seeds.size(),
                          result.dp_result.path.size(),
                          result.localcartesianpath.size(),
-                         result.speed_coarse_result.stpoints.size(),
+                         result.speed_dp_result.stpoints.size(),
                          result.speed_qp_result.stpoints.size(),
-                         result.dense_speed_points.size(),
+                         result.increasepoints_speed_points.size(),
                          result.trajectory.size(),
                          previous_trajectory_.size());
         }
@@ -833,7 +826,7 @@ namespace
 
             const rsim_driver::PlanningStartPoint &start = startResult.start_point;
             const double egoAccel =
-                //std::sqrt(ego.acc_x * ego.acc_x + ego.acc_y * ego.acc_y)
+                // std::sqrt(ego.acc_x * ego.acc_x + ego.acc_y * ego.acc_y)
                 ego.acc_x;
             std::fprintf(planning_start_sl_csv_fp_,
                          "%llu,%.9f,%.9f,"
