@@ -10,7 +10,11 @@ target_compile_features(em_planner_perception PUBLIC cxx_std_17)
 target_link_libraries(em_planner_perception PUBLIC
     cartesian_to_frenet)
 
-add_executable(test_frenet_obstacle_perception_smoke EXCLUDE_FROM_ALL
-    test_frenet_obstacle_perception_smoke.cpp)
-target_link_libraries(test_frenet_obstacle_perception_smoke PRIVATE
-    em_planner_perception)
+if(BUILD_TESTING)
+    add_executable(test_frenet_obstacle_perception_smoke
+        test_frenet_obstacle_perception_smoke.cpp)
+    target_link_libraries(test_frenet_obstacle_perception_smoke PRIVATE
+        em_planner_perception)
+    add_test(NAME frenet_obstacle_perception_smoke
+        COMMAND test_frenet_obstacle_perception_smoke)
+endif()

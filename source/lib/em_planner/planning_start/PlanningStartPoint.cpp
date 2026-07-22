@@ -47,7 +47,44 @@ namespace rsim_driver
         {
             return std::sqrt(actor.acc_x * actor.acc_x +
                              actor.acc_y * actor.acc_y);
-            // return actor.acc_x ;
+        }
+
+        bool IsValidTrajectoryPoint(const PlanningTrajectoryPoint &point)
+        {
+            return std::isfinite(point.x) && std::isfinite(point.y) &&
+                   std::isfinite(point.heading) &&
+                   std::isfinite(point.curvature) &&
+                   std::isfinite(point.speed) && point.speed >= 0.0 &&
+                   std::isfinite(point.accel) && std::isfinite(point.time);
+        }
+
+        bool IsValidInput(const rsim_plugin::ActorState &ego,
+                          double currentTime,
+                          const std::vector<PlanningTrajectoryPoint> &trajectory,
+                          const PlanningStartConfig &config)
+        {
+            if (!std::isfinite(ego.x) || !std::isfinite(ego.y) ||
+                !std::isfinite(ego.h) || !std::isfinite(ego.speed) ||
+                ego.speed < 0.0 || !std::isfinite(ego.acc_x) ||
+                !std::isfinite(ego.acc_y) || !std::isfinite(currentTime) ||
+                !std::isfinite(config.planningPeriod) ||
+                config.planningPeriod < 0.0 ||
+                !std::isfinite(config.mismatchDistanceThreshold) ||
+                config.mismatchDistanceThreshold < 0.0)
+            {
+                return false;
+            }
+            for (std::size_t i = 0; i < trajectory.size(); ++i)
+            {
+                if (!IsValidTrajectoryPoint(trajectory[i]))
+                    return false;
+                if (i > 0 && trajectory[i].time - trajectory[i - 1].time <=
+                                 kTimeEpsilon)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         PlanningStartPoint ToStartPoint(const PlanningTrajectoryPoint &point,
@@ -216,20 +253,6 @@ namespace rsim_driver
                          queryTime);
         }
 
-        /*void ApplyPlanningStartCurvature(PlanningStartResult *result)
-        {
-            if (result == nullptr)
-                return;
-
-            if (result->start_point.source ==
-                PlanningStartSource::KinematicExtrapolation)
-            {
-                result->start_point.curvature = 0.0;
-                return;
-            }
-
-            result->start_point.curvature = result->start_curvature;
-        }*/
 
     } // namespace
 
@@ -248,22 +271,32 @@ namespace rsim_driver
         planningStartPointConfig_ = config;
     }
 
-    PlanningStartResult PlanningStart::Compute(
+    bool PlanningStart::Compute(
         const rsim_plugin::ActorState &ego,
         double currentTime,
-        const std::vector<PlanningTrajectoryPoint> &previousTrajectory) const
+        const std::vector<PlanningTrajectoryPoint> &previousTrajectory,
+        PlanningStartResult *result) const
     {
-        const double planningPeriod = std::max(0.0, planningStartPointConfig_.planningPeriod);
+        if (result == nullptr)
+            return false;
+        if (!IsValidInput(ego, currentTime, previousTrajectory,
+                          planningStartPointConfig_))
+        {
+            return false;
+        }
+
+        const double planningPeriod = planningStartPointConfig_.planningPeriod;
         const double targetTime = currentTime + planningPeriod;
 
-        PlanningStartResult result;
-        result.start_point =
+        PlanningStartResult output;
+        output.start_point =
             ExtrapolateByKinematics(ego, currentTime, planningPeriod);
-        result.start_curvature = 0.0;
-        result.stitching_trajectory.clear();
+        output.start_curvature = 0.0;
+        output.stitching_trajectory.clear();
         if (previousTrajectory.empty())
         {
-            return result;
+            *result = std::move(output);
+            return true;
         }
 
         PreviousTrajectoryReuseCheck check = EvaluatePreviousTrajectoryReuse(
@@ -271,13 +304,15 @@ namespace rsim_driver
         if (!check.has_current_point)
         {
             LogTrajectoryTooShort("无法找到当前时间点的轨迹点", currentTime);
-            return result;
+            *result = std::move(output);
+            return true;
         }
-        result.start_point.matchDistance = check.match_distance;
+        output.start_point.matchDistance = check.match_distance;
         if (!check.reusable)
         {
             LogTrajectoryTooShort("跟踪延迟——距离过大", currentTime);
-            return result;
+            *result = std::move(output);
+            return true;
         }
         else
         {
@@ -285,15 +320,17 @@ namespace rsim_driver
             if (!FindTrajectoryPointAtTime(previousTrajectory, targetTime, &startPoint))
             {
                 LogTrajectoryTooShort("无法找到目标时间点的轨迹点", targetTime);
-                return result;
+                *result = std::move(output);
+                return true;
             }
-            result.start_point = ToStartPoint(startPoint,
+            output.start_point = ToStartPoint(startPoint,
                                               PlanningStartSource::PreviousTrajectory,
                                               check.match_distance);
-            result.start_curvature = startPoint.curvature;
-            result.stitching_trajectory = CollectStitchingTrajectory(previousTrajectory, targetTime);
+            output.start_curvature = startPoint.curvature;
+            output.stitching_trajectory = CollectStitchingTrajectory(previousTrajectory, targetTime);
         }
-        return result;
+        *result = std::move(output);
+        return true;
     }
 
 } // namespace rsim_driver

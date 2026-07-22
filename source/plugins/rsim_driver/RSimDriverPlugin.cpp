@@ -53,6 +53,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <exception>
 #include <limits>
 #include <map>
 #include <memory>
@@ -214,6 +215,7 @@ namespace
         void Init(const std::map<std::string, std::string> &properties,
                   const std::vector<int32_t> &controlled_actor_ids) override
         {
+            initialization_ok_ = true;
             controlled_ids_ = controlled_actor_ids;
 
             auto getStr = [&](const char *key, const char *def)
@@ -221,18 +223,31 @@ namespace
                 auto it = properties.find(key);
                 return (it != properties.end()) ? it->second : def;
             };
-            auto getDouble = [&](const char *key, double def) -> double
+            auto getDouble = [&](const char *key, double def, double *value) -> bool
             {
+                if (value == nullptr)
+                    return false;
                 auto it = properties.find(key);
                 if (it == properties.end())
-                    return def;
+                {
+                    *value = def;
+                    return true;
+                }
                 try
                 {
-                    return std::stod(it->second);
+                    std::size_t parsed = 0;
+                    const double parsed_value = std::stod(it->second, &parsed);
+                    if (parsed != it->second.size() ||
+                        !std::isfinite(parsed_value))
+                    {
+                        return false;
+                    }
+                    *value = parsed_value;
+                    return true;
                 }
-                catch (...)
+                catch (const std::exception &)
                 {
-                    return def;
+                    return false;
                 }
             };
             std::string xodr_path = getStr("xodrPath", "");
@@ -243,7 +258,13 @@ namespace
             planning_start_sl_csv_path_ = getStr("planningStartSlCsvPath", "");
             ego_trajectory_csv_path_ = getStr("egoTrajectoryCsvPath", "");
             entity_name_ = getStr("entityName", "ego");
-            set_speed_ = getDouble("setSpeed", 13.0);
+            if (!getDouble("setSpeed", 13.0, &set_speed_) || set_speed_ < 0.0)
+            {
+                std::fprintf(stderr,
+                             "[RSimDriver] FATAL: invalid setSpeed property\n");
+                initialization_ok_ = false;
+                return;
+            }
             rsim_driver::EmPlannerConfig emPlannerConfig = em_planner_.config();
             emPlannerConfig.speed_config.reference_speed = set_speed_;
             em_planner_.SetConfig(emPlannerConfig);
@@ -266,10 +287,12 @@ namespace
             }
 
             // ---- 从 runtime XOSC 读取 ego FollowTrajectoryAction ----
-            bool xosc_route_installed = false;
-            if (map_loaded_ && InstallGlobalPathFromXosc(route_xosc_path_))
+            if (map_loaded_ && !InstallGlobalPathFromXosc(route_xosc_path_))
             {
-                xosc_route_installed = true;
+                std::fprintf(stderr,
+                             "[RSimDriver] FATAL: failed to install route from XOSC\n");
+                initialization_ok_ = false;
+                return;
             }
 
             /*std::fprintf(stderr,
@@ -303,6 +326,8 @@ namespace
         std::vector<ActorUpdate> Step(const TickContext &ctx) override
         {
             std::vector<ActorUpdate> updates;
+            if (!initialization_ok_)
+                return updates;
             if (controlled_ids_.empty())
                 return updates;
 
@@ -444,7 +469,7 @@ namespace
             }
 
             if (!em_planner_.EMPlanPostProcessDetailed(output.planning_start_result,
-                                                       output.speed_result,
+                                                       output.dense_speed_points,
                                                        &output.trajectory))
             {
                 output.trajectory_success = false;
@@ -512,6 +537,14 @@ namespace
                 return "qp_increase_points";
             if (result.speed_reference_line.empty())
                 return "speed_reference_line";
+            if (!result.speed_dp_success)
+                return "speed_dp";
+            if (!result.st_drivable_area_success)
+                return "st_drivable_area";
+            if (!result.speed_qp_success)
+                return "speed_qp";
+            if (!result.speed_qp_increase_points_success)
+                return "speed_qp_increase_points";
             if (!result.speed_success)
                 return "speed";
             if (!result.trajectory_success)
@@ -527,10 +560,12 @@ namespace
                          "[RSimDriver] EM planner stages frame=%llu time=%.6f "
                          "first_failed=%s static=%d dynamic=%d start=%d frenet=%d "
                          "dp=%d dp_increase=%d stop=%d drivable=%d qp=%d qp_increase=%d "
-                         "speed_ref=%zu speed=%d trajectory=%d "
+                         "speed_ref=%zu speed_dp=%d st_area=%d speed_qp=%d "
+                         "speed_dense=%d speed=%d trajectory=%d "
                          "static_obs=%zu virtual_obs=%zu dynamic_obs=%zu "
                          "virtual_seeds=%zu dp_points=%zu qp_points=%zu "
-                         "speed_points=%zu trajectory_points=%zu previous_points=%zu\n",
+                         "speed_dp_points=%zu speed_qp_points=%zu dense_points=%zu "
+                         "trajectory_points=%zu previous_points=%zu\n",
                          static_cast<unsigned long long>(ctx.frame_id),
                          ctx.sim_time,
                          PlannerFailureStage(result),
@@ -545,6 +580,10 @@ namespace
                          result.qp_success ? 1 : 0,
                          result.qp_increase_points_success ? 1 : 0,
                          result.speed_reference_line.size(),
+                         result.speed_dp_success ? 1 : 0,
+                         result.st_drivable_area_success ? 1 : 0,
+                         result.speed_qp_success ? 1 : 0,
+                         result.speed_qp_increase_points_success ? 1 : 0,
                          result.speed_success ? 1 : 0,
                          result.trajectory_success ? 1 : 0,
                          result.static_perception_result.staticobstacles.size(),
@@ -553,7 +592,9 @@ namespace
                          result.virtual_obstacle_seeds.size(),
                          result.dp_result.path.size(),
                          result.localcartesianpath.size(),
-                         result.speed_result.stpoints.size(),
+                         result.speed_coarse_result.stpoints.size(),
+                         result.speed_qp_result.stpoints.size(),
+                         result.dense_speed_points.size(),
                          result.trajectory.size(),
                          previous_trajectory_.size());
         }
@@ -1051,10 +1092,11 @@ namespace
         double set_speed_ = 8.0;
         double current_speed_ = 0.0;
         double current_s_ = 0.0;
-        int32_t current_road_ = 0;
+        int64_t current_road_ = 0;
         int current_lane_ = 0;
         bool latched_ = false;
         bool map_loaded_ = false;
+        bool initialization_ok_ = false;
     };
 
 } // namespace

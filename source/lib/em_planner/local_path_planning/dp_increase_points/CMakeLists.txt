@@ -4,5 +4,5 @@ target_include_directories(dpincreasepoints PUBLIC
     ${CMAKE_CURRENT_LIST_DIR})
     
 target_link_libraries(dpincreasepoints PUBLIC
-    dynamic_programming
+    dpplanner
     quintic_polynomial)

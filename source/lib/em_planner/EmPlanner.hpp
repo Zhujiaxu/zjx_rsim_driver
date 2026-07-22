@@ -3,13 +3,15 @@
 #include "perception/FrenetObstaclePerception.hpp"
 #include "planning_start/PlanningStartPoint.hpp"
 #include "local_path_planning/drivable_area/DrivableArea.hpp"
-#include "local_path_planning/dynamic_programming/DpPlanner.hpp"
-#include "local_path_planning/quadratic_programming/QpPathOptimizer.hpp"
+#include "local_path_planning/dpplanner/DpPlanner.hpp"
+#include "local_path_planning/qpplanner/QpPathOptimizer.hpp"
 #include "local_speed_planning/dynamic_speed_planning/DynamicSpeedPlanner.hpp"
 #include "local_speed_planning/computecutinandout/computecutinandout.hpp"
 #include "local_path_planning/dp_increase_points/dpincreasepoints.hpp"
 #include "local_path_planning/qp_increase_points/qpincreasepoints.hpp"
 #include "local_speed_planning/speed_drivable_area/StDrivableArea.hpp"
+#include "local_speed_planning/speed_quadratic_programming/SpeedQpOptimizer.hpp"
+#include "local_speed_planning/speed_qp_increase_points/SpeedQpIncreasePoints.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -27,7 +29,10 @@ namespace rsim_driver
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
         QpIncreasePointsConfig qp_increase_points_config;
-        DynamicPlanSpeedConfig speed_config;
+        DynamicPlanSpeedConfig speed_dp_config;
+        StDrivableAreaConfig speed_drivable_area_config;
+        QpSpeedOptimizerConfig speed_qp_config;
+        QpSpeedIncreasePointsConfig speed_qp_increase_points_config;
     };
 
     struct EmPlannerResult
@@ -36,6 +41,7 @@ namespace rsim_driver
         bool perception_success = false;
         bool static_perception_success = false;
         bool dynamic_perception_success = false;
+        bool virtual_perception_success = false;
         bool planning_start_success = false;
         bool frenet_start_success = false;
         bool dp_success = false;
@@ -44,21 +50,29 @@ namespace rsim_driver
         bool qp_success = false;
         bool qp_increase_points_success = false;
         bool speed_success = false;
+        bool speed_dp_success = false;
+        bool st_drivable_area_success = false;
+        bool speed_qp_success = false;
+        bool speed_qp_increase_points_success = false;
         bool trajectory_success = false;
         PlanningStartResult planning_start_result;
         CartesianFrenetState frenet_start_result;
         StaticFrenetObstaclePerceptionResult static_perception_result;
         DynamicFrenetObstaclePerceptionResult dynamic_perception_result;
-        std::vector<VirtualFrenetObstacle> virtual_static_obstacles;
+        VirtualFrenetObstaclePerceptionResult virtual_perception_result;
         std::vector<VirtualObstacleSeed> virtual_obstacle_seeds;
         DpPlannerResult dp_result;
-        DrivableArea drivable_area;
+        DpIncreasePointsResult dp_increase_points_result;
+        DrivableAreaResult drivable_area_result;
         QpPathResult qp_result;
+        QpIncreasePointsResult qp_increase_points_result;
         std::vector<DpPathPoint> localfrenetpath;
         std::vector<CartesianPathPoint> localcartesianpath;
         localreferencelinepath speed_reference_line;
-        DynamicPlanSpeedResult speed_result;
-        StDrivableArea drivable_area_st;
+        DynamicPlanSpeedResult speed_dp_result;
+        StDrivableAreaResult drivable_area_st;
+        QpSpeedOptimizerResult speed_qp_result;
+        std::vector<DynamicPlanSpeedPoint> increasepoints_speed_points;
         std::vector<PlanningTrajectoryPoint> trajectory;
     };
 
@@ -88,20 +102,15 @@ namespace rsim_driver
 
         bool EMPlanPostProcessDetailed(
             const PlanningStartResult &planningStartResult,
-            const DynamicPlanSpeedResult &speedResult,
+            const QpSpeedOptimizerResult &speed_qp_result,
             std::vector<PlanningTrajectoryPoint> *result) const;
 
         const PlanningStart &get_planning_start() const;
         const FrenetObstaclePerception &get_perception() const;
-        const std::vector<DpPathPoint> &get_local_frenet_path() const;
         const std::vector<CartesianPathPoint> &get_local_cartesian_path() const;
         const localreferencelinepath &get_speed_reference_line() const;
 
     private:
-        bool RunDynamicProgramming(
-            const CartesianFrenetState &start,
-            const std::vector<StaticFrenetObstacle> &obstacles,
-            DpPlannerResult *result) const;
         bool BuildDrivableArea(
             const std::vector<DpPathPoint> &coarsePath,
             const std::vector<StaticFrenetObstacle> &obstacles,
@@ -113,7 +122,7 @@ namespace rsim_driver
             DynamicPlanSpeedResult *result) const;
         bool BuildTrajectory(
             const localreferencelinepath &referenceLine,
-            const DynamicPlanSpeedResult &speedResult,
+            const std::vector<DynamicPlanSpeedPoint> &newqppointspath,
             const PlanningStartResult &planningStartResult,
             std::vector<PlanningTrajectoryPoint> *result) const;
         template <typename RefPointT>
@@ -135,7 +144,8 @@ namespace rsim_driver
         QpIncreasePoints qp_increase_points_;
         DynamicPlanSpeedPlanner speed_planner_;
         StDrivableAreaBuilder st_drivable_area_builder_;
-        mutable std::vector<DpPathPoint> localfrenetpath_;
+        SpeedQpOptimizer speed_qp_optimizer_;
+        QpSpeedIncreasePoints speed_qp_increase_points_;
         mutable std::vector<CartesianPathPoint> localcartesianpath_;
         mutable localreferencelinepath speed_reference_line_;
         mutable ComputeCutInAndOut cutinandout_builder_;
@@ -173,12 +183,35 @@ namespace rsim_driver
             return false;
         }
         output.static_perception_success = true;
-        output.dynamic_perception_success = true;
-        output.perception_success = true;
+
+        if (!perception_.ConvertVirtualObstacles(
+                actors,
+                egoActorId,
+                referencePoints,
+                virtual_obstacle_seeds_,
+                &output.virtual_perception_result))
+        {
+            *result = output;
+            return false;
+        }
+        output.virtual_perception_success = true;
+        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
+
+        std::vector<StaticFrenetObstacle> pathObstacles =
+            output.static_perception_result.staticobstacles;
+        pathObstacles.insert(pathObstacles.end(),
+                             output.virtual_perception_result.virtual_static_obstacles.begin(),
+                             output.virtual_perception_result.virtual_static_obstacles.end());
 
         // Step 2: PlanningStart — compute start point in Cartesian
-        output.planning_start_result =
-            planning_start_.Compute(ego, currentTime, previousTrajectory);
+        if (!planning_start_.Compute(ego,
+                                     currentTime,
+                                     previousTrajectory,
+                                     &output.planning_start_result))
+        {
+            *result = output;
+            return false;
+        }
         output.planning_start_success = true;
 
         // Step 3: Convert start point to Frenet
@@ -191,89 +224,65 @@ namespace rsim_driver
         }
         output.frenet_start_success = true;
 
-        if (!perception_.ConvertVirtualObstacles(
-                actors,
-                egoActorId,
-                referencePoints,
-                virtual_obstacle_seeds_,
-                &output.virtual_static_obstacles))
-        {
-            *result = output;
-            return false;
-        }
-        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
-
-        std::vector<StaticFrenetObstacle> pathObstacles =
-            output.static_perception_result.staticobstacles;
-        pathObstacles.insert(pathObstacles.end(),
-                             output.virtual_static_obstacles.begin(),
-                             output.virtual_static_obstacles.end());
-
         // Step 4: Dynamic Programming — plan path
-        if (!RunDynamicProgramming(output.frenet_start_result,
-                                   pathObstacles,
-                                   &output.dp_result))
+        if (!dp_planner_.Plan(output.frenet_start_result,
+                              pathObstacles,
+                              &output.dp_result))
         {
+            if (output.dp_result.Flag == DpPlannerFallback::Stop)
+            {
+                std::cout << "密集障碍物||规划起点已碰撞，紧急停车" << std::endl;
+            }
+
             *result = output;
             return false;
         }
-        output.dp_success = output.dp_result.dpsuccess;
+        output.dp_success = output.dp_result.Flag == DpPlannerFallback::Success;
 
-        // Stop fallback: DP blocked, let vehicle wait
-        if (output.dp_result.fallback == DpFallback::Stop)
-        {
-            *result = output;
-            return true;
-        }
-
-        DpPlannerResult newresult;
-        if (!increase_points_.increasepoints(&output.dp_result, &newresult))
+        if (!increase_points_.increasepoints(output.dp_result, &output.dp_increase_points_result))
         {
             *result = output;
             return false;
         }
         output.dp_increase_points_success = true;
-        output.dp_result = std::move(newresult);
         // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
-        if (!BuildDrivableArea(output.dp_result.path,
-                               pathObstacles,
-                               &output.drivable_area))
+        if (!drivable_area_builder_.Build(output.dp_increase_points_result.path,
+                                          pathObstacles,
+                                          &output.drivable_area_result))
         {
+            output.drivable_area_result.Flag == DrivableAreaFallback::Stop ? std::cout << "可行使区域过窄" << std::endl  : std::cout << "可行驶区域其他错误" << std::endl ;
             *result = output;
             return false;
         }
-        output.drivable_area_success = true;
+        output.drivable_area_success = output.drivable_area_result.Flag == DrivableAreaFallback::Success;
 
         // Step 6: QuadraticProgramming — smooth DP path inside drivable area
 
         if (!qp_path_optimizer_.Optimize(
                 output.frenet_start_result,
-                output.drivable_area,
-                pathObstacles,
+                output.drivable_area_result,
                 &output.qp_result))
         {
+            output.qp_result.Flag == QpPathOptimizerFallback::SolveFailStop ? std::cout << "QP求解失败" << std::endl : std::cout << "QP Path其他错误" << std::endl ;
             *result = output;
             return false;
         }
 
-        output.qp_success = output.qp_result.qpsuccess;
+        output.qp_success = output.qp_result.Flag == QpPathOptimizerFallback::Success;
 
-        std::vector<DpPathPoint> newlocalFrenetPath;
-        if (!qp_increase_points_.increasepoints(output.qp_result.localfrenetpath,
-                                                &newlocalFrenetPath))
+
+        if (!qp_increase_points_.increasepoints(output.qp_result,
+                                                &output.qp_increase_points_result))
         {
             *result = output;
             return false;
         }
         output.qp_increase_points_success = true;
-        output.localfrenetpath = newlocalFrenetPath;
 
-        localfrenetpath_.clear();
-        localfrenetpath_ = std::move(newlocalFrenetPath);
 
         std::vector<CartesianPathPoint> CartesianPath;
         if (!FrenetPathToCartesian(referencePoints,
-                                   output.localfrenetpath,
+                                   output.qp_increase_points_result.localfrenetpath,
                                    &CartesianPath))
         {
             *result = output;
@@ -285,7 +294,7 @@ namespace rsim_driver
         // for speedplan
         localcartesianpath_.clear();
         localcartesianpath_ = output.localcartesianpath;
-        *result = output;
+        *result = std::move(output);
         return true;
     }
 

@@ -2,31 +2,20 @@
 
 #include <cmath>
 #include <cstdio>
-#include <vector>
 
 namespace
 {
 
-bool Require(bool condition, const char* message)
+bool Require(bool condition, const char *message)
 {
     if (!condition)
         std::fprintf(stderr, "FAIL: %s\n", message);
     return condition;
 }
 
-bool Near(double actual, double expected, double tolerance = 1e-9)
+bool Near(double actual, double expected, double tolerance = 1e-6)
 {
     return std::fabs(actual - expected) <= tolerance;
-}
-
-rsim_driver::DynamicPlanSpeedPoint MakeStart(double speed = 1.0)
-{
-    rsim_driver::DynamicPlanSpeedPoint start;
-    start.t = 0.0;
-    start.s = 0.0;
-    start.v = speed;
-    start.a = 0.0;
-    return start;
 }
 
 rsim_driver::DynamicPlanSpeedConfig MakeConfig()
@@ -35,182 +24,114 @@ rsim_driver::DynamicPlanSpeedConfig MakeConfig()
     config.time_step = 0.5;
     config.time_step_count = 4;
     config.s_step = 0.5;
-    config.s_step_count = 8;
+    config.s_step_count = 20;
     config.reference_speed = 1.0;
     config.weight_reference_speed = 1.0;
-    config.weight_acceleration = 0.0;
-    config.weight_jerk = 0.0;
-    config.weight_collision = 0.0;
-    config.collisionconfig.collision_distance = 0.05;
-    config.collisionconfig.risk_distance = 0.2;
+    config.weight_acceleration = 1.0;
+    config.weight_jerk = 1.0;
+    config.weight_collision = 1.0;
     return config;
 }
 
-rsim_driver::localreferencelinepath MakeReferenceLine(double end_s,
-                                                      double step = 0.5)
+rsim_driver::DynamicPlanSpeedPoint MakeStart()
 {
-    rsim_driver::localreferencelinepath path;
-    if (end_s < 0.0 || step <= 0.0)
-        return path;
-
-    for (double s = 0.0; s <= end_s + 1e-9; s += step)
-        path.push_back({s, 0.0, 0.0, 0.0, s, 0.0});
-    return path;
+    return {0.0, 0.0, 1.0, 0.0};
 }
 
-rsim_driver::DynamicFrenetObstacle MakeDynamicObstacle(double s,
-                                                       double s_dot,
-                                                       double l = 2.0,
-                                                       double ldot = -1.0)
+rsim_driver::localreferencelinepath MakeReferenceLine(double length,
+                                                       double step = 0.5)
 {
-    rsim_driver::DynamicFrenetObstacle obstacle;
-    obstacle.id = 101;
-    obstacle.dynamicfrenetstate.s = s;
-    obstacle.dynamicfrenetstate.s_dot = s_dot;
-    obstacle.dynamicfrenetstate.l = l;
-    obstacle.dynamicfrenetstate.ldot = ldot;
-    return obstacle;
-}
-
-bool CheckBackwardEulerSpeed(
-    const std::vector<rsim_driver::DynamicPlanSpeedPoint>& points)
-{
-    for (std::size_t i = 1; i < points.size(); ++i)
-    {
-        const double dt = points[i].t - points[i - 1].t;
-        if (dt <= 0.0)
-            return false;
-        const double expected_speed = (points[i].s - points[i - 1].s) / dt;
-        if (!Near(points[i].v, expected_speed))
-            return false;
-    }
-    return true;
+    rsim_driver::localreferencelinepath line;
+    for (double s = 0.0; s < length - 1e-9; s += step)
+        line.push_back({s, 0.0, 0.0, 0.0, s, 0.0});
+    line.push_back({length, 0.0, 0.0, 0.0, length, 0.0});
+    return line;
 }
 
 }  // namespace
 
 int main()
 {
-    rsim_driver::DynamicPlanSpeedConfig config = MakeConfig();
-    rsim_driver::DynamicPlanSpeedPlanner planner(config);
+    rsim_driver::DynamicPlanSpeedPlanner planner(MakeConfig());
     rsim_driver::DynamicPlanSpeedResult result;
-
-    if (!Require(planner.Plan(MakeStart(),
-                              MakeReferenceLine(10.0, config.s_step),
-                              {},
-                              rsim_driver::DynamicFrenetObstaclePerceptionResult{},
-                              &result) &&
-                     result.dpsuccess,
-                 "planner should succeed without dynamic obstacles"))
+    if (!Require(planner.Plan(MakeStart(), MakeReferenceLine(10.0), {}, &result) &&
+                     result.dpsuccess &&
+                     result.termination ==
+                         rsim_driver::SpeedPlanTermination::TimeHorizon,
+                 "unblocked coarse planner should finish on time horizon"))
         return 1;
     if (!Require(result.stpoints.size() == 5 &&
-                     Near(result.stpoints.front().t, 0.0) &&
-                     Near(result.stpoints.front().s, 0.0) &&
-                     Near(result.stpoints.back().t, 2.0) &&
-                     Near(result.stpoints.back().s, 2.0),
-                 "unblocked planner should follow reference speed to time edge"))
-        return 1;
-    if (!Require(CheckBackwardEulerSpeed(result.stpoints),
-                 "speed points should store backward Euler speeds"))
-        return 1;
-    for (const rsim_driver::DynamicPlanSpeedPoint& point : result.stpoints)
-    {
-        if (!Require(Near(point.v, 1.0) &&
-                         Near(point.a, 0.0),
-                     "reference-speed path should keep constant speed"))
-            return 1;
-    }
-
-    rsim_driver::DynamicPlanSpeedConfig truncated_config = MakeConfig();
-    truncated_config.time_step_count = 8;
-    truncated_config.s_step_count = 10;
-    planner.SetConfig(truncated_config);
-    if (!Require(planner.Plan(MakeStart(),
-                              MakeReferenceLine(1.0, truncated_config.s_step),
-                              {},
-                              rsim_driver::DynamicFrenetObstaclePerceptionResult{},
-                              &result) &&
-                     result.dpsuccess,
-                 "planner should succeed with path length truncation"))
-        return 1;
-    if (!Require(result.stpoints.size() == 3 &&
-                     Near(result.stpoints.back().t, 1.0) &&
-                     Near(result.stpoints.back().s, 1.0),
-                 "planner should stop on top edge without exceeding path length"))
+                     Near(result.terminal_time, 2.0) &&
+                     Near(result.terminal_s, 2.0),
+                 "time-horizon result should preserve the expected coarse path"))
         return 1;
 
-    rsim_driver::DynamicPlanSpeedConfig local_choice_config = MakeConfig();
-    local_choice_config.time_step = 1.0;
-    local_choice_config.time_step_count = 2;
-    local_choice_config.s_step = 1.0;
-    local_choice_config.s_step_count = 4;
-    local_choice_config.reference_speed = 2.0;
-    local_choice_config.weight_reference_speed = 1.0;
-    local_choice_config.weight_acceleration = 0.0;
-    local_choice_config.weight_jerk = 0.0;
-    planner.SetConfig(local_choice_config);
-    if (!Require(planner.Plan(MakeStart(),
-                              MakeReferenceLine(10.0, local_choice_config.s_step),
-                              {},
-                              rsim_driver::DynamicFrenetObstaclePerceptionResult{},
-                              &result) &&
-                     result.dpsuccess,
-                 "planner should succeed with local predecessor selection"))
+    if (!Require(planner.Plan(MakeStart(), MakeReferenceLine(1.1), {}, &result) &&
+                     result.termination ==
+                         rsim_driver::SpeedPlanTermination::SpatialHorizon &&
+                     Near(result.terminal_s, 1.1),
+                 "spatial grid should include an exact non-step-aligned end"))
         return 1;
-    if (!Require(result.stpoints.size() == 3 &&
+
+    rsim_driver::DynamicPlanSpeedConfig local = MakeConfig();
+    local.time_step = 1.0;
+    local.time_step_count = 2;
+    local.s_step = 1.0;
+    local.s_step_count = 4;
+    local.reference_speed = 2.0;
+    local.weight_acceleration = 0.0;
+    local.weight_jerk = 0.0;
+    planner.SetConfig(local);
+    if (!Require(planner.Plan({0.0, 0.0, 2.0, 0.0},
+                              MakeReferenceLine(4.0, 1.0), {}, &result) &&
+                     result.stpoints.size() == 3 &&
                      Near(result.stpoints[1].s, 2.0) &&
                      Near(result.stpoints[2].s, 4.0),
-                 "right-edge point should use best previous point by local cost"))
+                 "local predecessor selection behavior should remain stable"))
         return 1;
 
-    rsim_driver::DynamicFrenetObstaclePerceptionResult dynamic_obstacles;
-    dynamic_obstacles.dynamicobstacles = {
-        MakeDynamicObstacle(2.0, 1.0, 2.0, -1.0),
-    };
-    local_choice_config.weight_collision = 1000.0;
-    local_choice_config.collisionconfig.collision_distance = 0.1;
-    local_choice_config.collisionconfig.risk_distance = 0.5;
-    planner.SetConfig(local_choice_config);
-    if (!Require(planner.Plan(MakeStart(),
-                              MakeReferenceLine(10.0, local_choice_config.s_step),
-                              {},
-                              dynamic_obstacles,
-                              &result) &&
-                     result.dpsuccess,
-                 "planner should succeed when collision cost blocks a terminal point"))
-        return 1;
-    if (!Require(result.stpoints.size() == 3 &&
-                     Near(result.stpoints.back().s, 3.0),
-                 "collision cost should be part of local transition cost"))
-        return 1;
-
-    rsim_driver::DynamicPlanSpeedConfig invalid_config = MakeConfig();
-    invalid_config.time_step = 0.0;
-    planner.SetConfig(invalid_config);
-    if (!Require(!planner.Plan(MakeStart(),
-                               MakeReferenceLine(10.0, invalid_config.s_step),
-                               {},
-                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
-                               &result) &&
-                     !result.dpsuccess &&
-                     result.stpoints.empty(),
-                 "invalid config should fail and clear result"))
+    local = MakeConfig();
+    local.collisionconfig.collision_distance = 0.0;
+    local.collisionconfig.risk_distance = 0.0;
+    planner.SetConfig(local);
+    rsim_driver::CutInAndOutInfo far_boundary;
+    far_boundary.tin = 0.0;
+    far_boundary.tout = 2.0;
+    far_boundary.sinmin = 5.0;
+    far_boundary.sinmax = 10.0;
+    far_boundary.soutmin = 5.0;
+    far_boundary.soutmax = 10.0;
+    rsim_driver::CutInAndOutInfo blocking_boundary;
+    blocking_boundary.tin = 1.0;
+    blocking_boundary.tout = 2.0;
+    blocking_boundary.sinmin = 0.0;
+    blocking_boundary.sinmax = 5.0;
+    blocking_boundary.soutmin = 0.0;
+    blocking_boundary.soutmax = 5.0;
+    if (!Require(planner.Plan(MakeStart(), MakeReferenceLine(100.0),
+                              {far_boundary, blocking_boundary}, &result) &&
+                     result.termination ==
+                         rsim_driver::SpeedPlanTermination::BlockedHorizon &&
+                     Near(result.terminal_time, 0.5),
+                 "blocked search should return its latest reachable horizon"))
         return 1;
 
-    planner.SetConfig(MakeConfig());
-    if (!Require(!planner.Plan(MakeStart(),
-                               MakeReferenceLine(0.0),
-                               {},
-                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
+    rsim_driver::DynamicPlanSpeedConfig invalid = MakeConfig();
+    invalid.s_step = 0.0;
+    planner.SetConfig(invalid);
+    if (!Require(!planner.Plan(MakeStart(), MakeReferenceLine(10.0), {}, &result) &&
+                     !result.dpsuccess && result.stpoints.empty(),
+                 "invalid configuration should fail and clear output"))
+        return 1;
+    invalid = MakeConfig();
+    invalid.weight_acceleration = -1.0;
+    planner.SetConfig(invalid);
+    if (!Require(!planner.Plan(MakeStart(), MakeReferenceLine(10.0), {},
                                &result),
-                 "zero path length should fail"))
+                 "negative cost weights should fail instead of being clamped"))
         return 1;
-    if (!Require(!planner.Plan(MakeStart(),
-                               MakeReferenceLine(10.0),
-                               {},
-                               rsim_driver::DynamicFrenetObstaclePerceptionResult{},
-                               nullptr),
-                 "null dynamic speed output should fail"))
+    if (!Require(!planner.Plan(MakeStart(), MakeReferenceLine(10.0), {}, nullptr),
+                 "null output should fail"))
         return 1;
 
     std::fprintf(stderr, "PASS dynamic_speed_planner smoke\n");

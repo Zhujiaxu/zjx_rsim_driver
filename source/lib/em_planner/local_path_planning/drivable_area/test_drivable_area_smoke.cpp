@@ -1,4 +1,4 @@
-#include "local_path_planning/drivable_area/DrivableArea.hpp"
+#include "DrivableArea.hpp"
 
 #include <cmath>
 #include <cstdio>

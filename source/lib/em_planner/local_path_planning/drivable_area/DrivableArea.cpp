@@ -110,15 +110,16 @@ namespace rsim_driver
     bool DrivableAreaBuilder::Build(
         const std::vector<DpPathPoint> &coarsePath,
         const std::vector<StaticFrenetObstacle> &staticObstacles,
-        DrivableArea *result) const
+        DrivableAreaResult *result) const
     {
         if (result == nullptr)
             return false;
 
-        DrivableArea output;
+        DrivableAreaResult output;
         if (!ValidRoadBoundary(config_) || coarsePath.empty())
         {
-            *result = output;
+            output.Flag = DrivableAreaFallback::Other;
+            *result = std::move(output);
             return false;
         }
 
@@ -132,7 +133,8 @@ namespace rsim_driver
                 !IsFinite(point.l) ||
                 (hasPreviousS && point.s < previousS))
             {
-                *result = DrivableArea{};
+                output.Flag = DrivableAreaFallback::Other;
+                *result = std::move(output);
                 return false;
             }
             output.left_boundary.push_back({point.s, config_.left_road_boundary_l});
@@ -182,7 +184,8 @@ namespace rsim_driver
         {
             if (output.right_boundary[i].l+config_.ego_width > output.left_boundary[i].l)
             {
-                *result = DrivableArea{};
+                output.Flag = DrivableAreaFallback::Stop;
+                *result = std::move(output);
                 return false;
             }
         }

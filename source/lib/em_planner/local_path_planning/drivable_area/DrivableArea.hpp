@@ -14,9 +14,16 @@ namespace rsim_driver
         double obstacle_lateral_buffer = 0.2;
         double ego_width = 2.0;
     };
-
-    struct DrivableArea
+    enum class DrivableAreaFallback
     {
+        Success,
+        Stop,
+        Other,
+    };
+
+    struct DrivableAreaResult
+    {
+        DrivableAreaFallback Flag = DrivableAreaFallback::Success;
         std::vector<SlPoint> left_boundary;
         std::vector<SlPoint> right_boundary;
     };
@@ -31,7 +38,7 @@ namespace rsim_driver
 
         bool Build(const std::vector<DpPathPoint> &coarsePath,
                    const std::vector<StaticFrenetObstacle> &staticObstacles,
-                   DrivableArea *result) const;
+                   DrivableAreaResult *result) const;
 
     private:
         DrivableAreaConfig config_;

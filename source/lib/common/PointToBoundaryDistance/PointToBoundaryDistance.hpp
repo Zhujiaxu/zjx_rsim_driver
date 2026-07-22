@@ -169,7 +169,7 @@ namespace rsim_driver
     namespace point_to_boundary_distance_detail
     {
 
-        inline double PointToLineDistance(
+        inline double PointToPolygonDistance(
             const StPoint &point,
             const StPolygon &polygon)
         {
@@ -192,10 +192,9 @@ namespace rsim_driver
                 polygon.p4,
                 polygon.p2,
             };
-            if (std::fabs(SignedDoubleArea(vertices, 4)) > kDistanceEpsilon &&
-                IsInsideConvexPolygon(point, vertices, 4))
+            if (IsInsideConvexPolygon(point, vertices, 4))
             {
-                return 0.0;
+                return -1.0;
             }
 
             return minDistance;
@@ -216,14 +215,6 @@ namespace rsim_driver
         result->reserve(cutInAndOutInfos.size());
         for (const CutInAndOutInfoT &info : cutInAndOutInfos)
         {
-            if (info.id == -1.0 &&
-                info.tin == -1.0 &&
-                info.tout == -1.0 &&
-                info.sinmin == -1.0 &&
-                info.sinmax == -1.0 &&
-                info.soutmin == -1.0 &&
-                info.soutmax == -1.0)
-                continue;
             const point_to_boundary_distance_detail::StPolygon polygon =
                 point_to_boundary_distance_detail::MakePolygon(
                     info.tin,
@@ -235,7 +226,7 @@ namespace rsim_driver
 
             result->push_back(
                 {info.id,
-                 point_to_boundary_distance_detail::PointToLineDistance(
+                 point_to_boundary_distance_detail::PointToPolygonDistance(
                      startPoint,
                      polygon)});
         }

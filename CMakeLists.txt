@@ -3,6 +3,10 @@ project(rsim_driver
     DESCRIPTION "RSim driver plugins (default-driver, plugin-acc, ...)"
     LANGUAGES CXX)
 
+include(CTest)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/CTestCustom.cmake.in
+               ${CMAKE_BINARY_DIR}/CTestCustom.cmake @ONLY)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -25,23 +29,35 @@ endif()
 message(STATUS "RSim plugin SDK include: ${RSIM_PLUGIN_SDK_INCLUDE}")
 
 # --- Eigen3 (header-only) ---
-# Eigen source tree lives under third_party/eigen.
-set(EIGEN3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/third_party/eigen CACHE PATH "Eigen3 include directory")
+# Keep all project-side Eigen code on the repository-pinned headers.  Define
+# the canonical target before loading OsqpEigen so its exported dependency also
+# resolves to this target instead of a system Eigen installation.
+set(EIGEN3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/third_party/eigen/include CACHE PATH
+    "Vendored Eigen3 include directory")
+if(NOT EXISTS ${EIGEN3_INCLUDE_DIR}/Eigen/Core)
+    message(FATAL_ERROR
+        "Vendored Eigen headers not found under ${EIGEN3_INCLUDE_DIR}.")
+endif()
 if(NOT TARGET Eigen3::Eigen)
-    add_library(Eigen3_Eigen INTERFACE)
-    target_include_directories(Eigen3_Eigen INTERFACE ${EIGEN3_INCLUDE_DIR})
-    add_library(Eigen3::Eigen ALIAS Eigen3_Eigen)
+    add_library(rsim_eigen INTERFACE)
+    target_include_directories(rsim_eigen SYSTEM INTERFACE
+        ${EIGEN3_INCLUDE_DIR})
+    # libOsqpEigen is a prebuilt, unsanitized shared library.  Keep Eigen's
+    # allocation convention identical on both sides of that ABI boundary;
+    # Eigen otherwise changes it automatically when ASan is enabled.
+    target_compile_definitions(rsim_eigen INTERFACE
+        EIGEN_MALLOC_ALREADY_ALIGNED=1)
+    add_library(Eigen3::Eigen ALIAS rsim_eigen)
 endif()
 
 # --- OsqpEigen (C++ Eigen wrapper for OSQP) ---
 # Locally installed at /usr/local; provides OsqpEigen::OsqpEigen.
-# Transitive deps: osqp, Eigen3 (already defined above from third_party/eigen).
+# Transitive deps: osqp and the vendored Eigen3 target above.
 find_package(OsqpEigen REQUIRED)
 
-# Pull in third_party as a sub-build to expose the OpenDriveParser target
-# (and its transitive deps: eigen, proj, pugixml, CommonMini, ...).
-# EXCLUDE_FROM_ALL keeps the rsim-driver default build minimal — only OpenDriveParser
-# and the targets we actually link will get compiled.
+# Build only the third-party targets used by this plugin. Adding the entire
+# external worktree configures RSimAPI and rpclib, both of which generate files
+# in their source trees and therefore break read-only/clean worktrees.
 set(RSIM_THIRD_PARTY_SRC ${CMAKE_SOURCE_DIR}/third_party CACHE PATH
     "Path to third_party source tree (defaults to repo's symlink).")
 
@@ -62,7 +78,33 @@ set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL
     "Suppress CMake deprecation warnings while configuring third_party." FORCE)
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON CACHE BOOL
     "Suppress CMake developer warnings while configuring third_party." FORCE)
-add_subdirectory(${RSIM_THIRD_PARTY_SRC} ${CMAKE_BINARY_DIR}/_third_party EXCLUDE_FROM_ALL)
+if(NOT TARGET eigen)
+    add_library(eigen INTERFACE)
+    target_link_libraries(eigen INTERFACE Eigen3::Eigen)
+endif()
+
+if(NOT TARGET pugixml)
+    add_library(pugixml STATIC
+        ${RSIM_THIRD_PARTY_SRC}/pugixml/src/pugixml.cpp)
+    target_include_directories(pugixml PUBLIC
+        ${RSIM_THIRD_PARTY_SRC}/pugixml/src)
+    add_library(pugixml::pugixml ALIAS pugixml)
+endif()
+
+set(PROJ_TESTS OFF CACHE BOOL "Disable bundled PROJ tests" FORCE)
+set(BUILD_CCT OFF CACHE BOOL "" FORCE)
+set(BUILD_CS2CS OFF CACHE BOOL "" FORCE)
+set(BUILD_GEOD OFF CACHE BOOL "" FORCE)
+set(BUILD_GIE OFF CACHE BOOL "" FORCE)
+set(BUILD_NAD2BIN OFF CACHE BOOL "" FORCE)
+set(BUILD_PROJ OFF CACHE BOOL "" FORCE)
+add_subdirectory(${RSIM_THIRD_PARTY_SRC}/PROJ
+                 ${CMAKE_BINARY_DIR}/_third_party/PROJ EXCLUDE_FROM_ALL)
+add_subdirectory(${RSIM_THIRD_PARTY_SRC}/OpenDriveParser
+                 ${CMAKE_BINARY_DIR}/_third_party/OpenDriveParser EXCLUDE_FROM_ALL)
+target_include_directories(OpenDriveParser PUBLIC
+    ${RSIM_THIRD_PARTY_SRC}/utils
+    ${RSIM_THIRD_PARTY_SRC}/spdlog/include)
 
 if(_RSIM_WARN_DEPRECATED_WAS_DEFINED)
     set(CMAKE_WARN_DEPRECATED ${_RSIM_WARN_DEPRECATED_PREVIOUS} CACHE BOOL

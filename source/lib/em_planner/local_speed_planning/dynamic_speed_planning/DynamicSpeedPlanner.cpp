@@ -145,7 +145,6 @@ namespace rsim_driver
 
     bool DynamicPlanSpeedPlanner::Plan(
         const DynamicPlanSpeedPoint &start,
-        const localreferencelinepath &reference_line,
         const std::vector<CutInAndOutInfo> &STBoundaryInfos,
         DynamicPlanSpeedResult *result) const
     {
@@ -222,8 +221,6 @@ namespace rsim_driver
                 if (IsFatalCollisionCost(collision_cost, config.collisionconfig))
                     continue;
 
-                double best_transition_cost =
-                    std::numeric_limits<double>::infinity();
                 int best_previous_index = -1;
 
                 for (std::size_t previous_index = 0;
@@ -254,27 +251,16 @@ namespace rsim_driver
                                        acceleration,
                                        jerk,
                                        collision_cost,
-                                       config);
-                    if (transition_cost < best_transition_cost)
+                                       config) +
+                        previous.cost;
+                    if (transition_cost < curnode.cost)
                     {
-                        best_transition_cost = transition_cost;
-                        best_previous_index = static_cast<int>(previous_index);
+                        curnode.cost = transition_cost;
+                        curnode.previous_index = static_cast<int>(previous_index);
                         curnode.point.v = speed;
                         curnode.point.a = acceleration;
                         curnode.jerk = jerk;
                     }
-
-                    /*if (first_speed_column)
-                        break;*/
-                }
-
-                if (best_previous_index >= 0 &&
-                    std::isfinite(best_transition_cost))
-                {
-                    const DPNode &previous =
-                        previous_layer[static_cast<std::size_t>(best_previous_index)];
-                    curnode.previous_index = best_previous_index;
-                    curnode.cost = previous.cost + best_transition_cost;
                 }
             }
         }
@@ -313,6 +299,7 @@ namespace rsim_driver
             best_node_index < 0 ||
             !std::isfinite(best_cost))
         {
+            output.Flag = DynamicPlanSpeedFallback::Stop;
             *result = output;
             return false;
         }
@@ -327,17 +314,13 @@ namespace rsim_driver
                 layers[layer_index][static_cast<std::size_t>(node_index)];
             reversed_points.push_back(node.point);
             node_index = node.previous_index;
-            if (node_index < 0)
-            {
-                *result = output;
-                return false;
-            }
         }
         reversed_points.push_back(layers.front().front().point);
         std::reverse(reversed_points.begin(), reversed_points.end());
 
-        output.dpsuccess = true;
+        output.Flag = DynamicPlanSpeedFallback::Success;
         output.total_cost = best_cost;
+        output.total_s = reversed_points.back().s;
         output.stpoints = std::move(reversed_points);
         *result = std::move(output);
         return true;

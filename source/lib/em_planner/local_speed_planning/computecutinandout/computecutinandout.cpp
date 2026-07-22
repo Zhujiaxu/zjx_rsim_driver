@@ -2,18 +2,13 @@
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
+#include <optional>
 #include <unordered_set>
 
 namespace rsim_driver
 {
     namespace
     {
-
-        double PositiveInfinity()
-        {
-            return std::numeric_limits<double>::infinity();
-        }
 
         bool IsOppositeSign(double lhs, double rhs)
         {
@@ -26,7 +21,7 @@ namespace rsim_driver
             const DynamicFrenetState &state = obstacle.dynamicfrenetstate;
             const double halfWidthL = std::max(0.0, config.half_vehicle_width_l);
             const double obsHalfWidth = 0.5 * std::max(0.0, obstacle.width);
-            return std::fabs(state.ldot) <= 0.3 &&
+            return std::fabs(state.l_dot) <= 0.3 &&
                    std::fabs(state.l) - obsHalfWidth <= halfWidthL &&
                    state.s > 0.0;
         }
@@ -55,7 +50,6 @@ namespace rsim_driver
         }
 
         bool BuildVirtualObstacleSeed(
-            const localreferencelinepath &referenceLine,
             const DynamicFrenetObstacle &obstacle,
             const ComputeCutInAndOutConfig &config,
             double egoSDot,
@@ -159,12 +153,12 @@ namespace rsim_driver
             return false;
         }
 
-        CutInAndOutInfo ComputeObstacleCutInAndOut(
+        std::optional<CutInAndOutInfo> ComputeObstacleCutInAndOut(
             const DynamicFrenetObstacle &obstacle,
             const ComputeCutInAndOutConfig &config)
         {
             const double halfWidthL = std::max(0.0, config.half_vehicle_width_l);
-            const double ldotEpsilon = std::max(0.0, config.ldot_epsilon);
+            const double l_dotEpsilon = std::max(0.0, config.ldot_epsilon);
             const double stationaryHorizon =
                 std::max(0.0, config.stationary_overlap_horizon);
             const DynamicFrenetState &state = obstacle.dynamicfrenetstate;
@@ -172,60 +166,56 @@ namespace rsim_driver
             CutInAndOutInfo info;
             info.id = obstacle.id;
 
-            if (std::fabs(state.ldot) <= ldotEpsilon &&
+            /*if (std::fabs(state.l_dot) <= l_dotEpsilon &&
                 std::fabs(state.l) > halfWidthL)
             {
-                info.tin = PositiveInfinity();
-                info.tout = PositiveInfinity();
-                info.sin = PositiveInfinity();
-                info.sinmin = PositiveInfinity();
-                info.sinmax = PositiveInfinity();
-                info.sout = PositiveInfinity();
-                info.soutmin = PositiveInfinity();
-                info.soutmax = PositiveInfinity();
-                return {};
+                return std::nullopt;
             }
-            if (std::fabs(state.ldot) <= ldotEpsilon)
+            if (std::fabs(state.l_dot) <= l_dotEpsilon)
             {
                 info.tin = 0.0;
                 info.tout = stationaryHorizon;
                 info.sin = state.s;
-                info.sinmin = state.s - obstacle.width / 2.0;
-                info.sinmax = state.s + obstacle.width / 2.0;
+                info.sinmin = state.s - obstacle.length / 2.0;
+                info.sinmax = state.s + obstacle.length / 2.0;
                 info.sout = state.s + state.s_dot * stationaryHorizon;
-                info.soutmin = info.sout - obstacle.width / 2.0;
-                info.soutmax = info.sout + obstacle.width / 2.0;
+                info.soutmin = info.sout - obstacle.length / 2.0;
+                info.soutmax = info.sout + obstacle.length / 2.0;
                 return info;
-            }
+            }*/
 
-            const double leftBoundaryTime = (halfWidthL - state.l) / state.ldot;
-            const double rightBoundaryTime = (-halfWidthL - state.l) / state.ldot;
+            const double leftBoundaryTime = (halfWidthL - state.l) / state.l_dot;
+            const double rightBoundaryTime = (-halfWidthL - state.l) / state.l_dot;
 
             info.tin = std::min(leftBoundaryTime, rightBoundaryTime);
             info.tout = std::max(leftBoundaryTime, rightBoundaryTime);
             if (IsOppositeSign(info.tin, info.tout))
             {
                 info.tin = 0.0;
+                info.tout >=stationaryHorizon ? stationaryHorizon : info.tout;
             }
 
             if (info.tin < 0.0 && info.tout < 0.0)
             {
-                /*info.sin = PositiveInfinity();
-                info.sinmin = PositiveInfinity();
-                info.sinmax = PositiveInfinity();
-                info.sout = PositiveInfinity();
-                info.soutmin = PositiveInfinity();
-                info.soutmax = PositiveInfinity();*/
-                return {};
+
+                return std::nullopt;
             }
             else
             {
+                if(info.tin > stationaryHorizon)
+                {
+                    return std::nullopt;
+                }
+                if(info.tout >= stationaryHorizon)
+                {
+                    info.tout = stationaryHorizon;
+                }
                 info.sin = state.s + info.tin * state.s_dot;
-                info.sinmin = info.sin - obstacle.width / 2.0;
-                info.sinmax = info.sin + obstacle.width / 2.0;
+                info.sinmin = info.sin - obstacle.length / 2.0;
+                info.sinmax = info.sin + obstacle.length / 2.0;
                 info.sout = state.s + info.tout * state.s_dot;
-                info.soutmin = info.sout - obstacle.width / 2.0;
-                info.soutmax = info.sout + obstacle.width / 2.0;
+                info.soutmin = info.sout - obstacle.length / 2.0;
+                info.soutmax = info.sout + obstacle.length / 2.0;
             }
 
             return info;
@@ -265,12 +255,19 @@ namespace rsim_driver
         result->reserve(obstacles.dynamicobstacles.size());
         for (const DynamicFrenetObstacle &obstacle : obstacles.dynamicobstacles)
         {
+            const DynamicFrenetState &state = obstacle.dynamicfrenetstate;
+            if (!std::isfinite(state.s) || !std::isfinite(state.s_dot) ||
+                !std::isfinite(state.l) || !std::isfinite(state.l_dot) ||
+                !std::isfinite(obstacle.length) || obstacle.length <= 0.0 ||
+                !std::isfinite(obstacle.width) || obstacle.width <= 0.0)
+            {
+                continue;
+            }
             if (obstacle.dynamicfrenetstate.s < 0.0)
                 continue;
 
             VirtualObstacleSeed seed;
-            if (BuildVirtualObstacleSeed(referenceLine,
-                                         obstacle,
+            if (BuildVirtualObstacleSeed(obstacle,
                                          config_,
                                          ego_s_dot,
                                          planningPeriod,
@@ -283,7 +280,10 @@ namespace rsim_driver
                 continue;
             }
 
-            result->push_back(ComputeObstacleCutInAndOut(obstacle, config_));
+            const std::optional<CutInAndOutInfo> boundary =
+                ComputeObstacleCutInAndOut(obstacle, config_);
+            if (boundary.has_value())
+                result->push_back(*boundary);
         }
 
         // Prune counters for obstacles that no longer exist

@@ -54,11 +54,23 @@ inline bool LocalCartesianPathToReferenceLinePath(
     for (std::size_t i = 0; i < localcartesianpath.size(); ++i)
     {
         const CartesianPathPoint& point = localcartesianpath[i];
+        if (!std::isfinite(point.x) || !std::isfinite(point.y) ||
+            !std::isfinite(point.heading) || !std::isfinite(point.kappa))
+        {
+            result->clear();
+            return false;
+        }
         if (i > 0)
         {
             const CartesianPathPoint& previous = localcartesianpath[i - 1];
-            accumulatedS += std::hypot(point.x - previous.x,
-                                       point.y - previous.y);
+            const double segment_length =
+                std::hypot(point.x - previous.x, point.y - previous.y);
+            if (!std::isfinite(segment_length) || segment_length <= 1e-9)
+            {
+                result->clear();
+                return false;
+            }
+            accumulatedS += segment_length;
         }
 
         result->push_back({point.x,
@@ -68,7 +80,6 @@ inline bool LocalCartesianPathToReferenceLinePath(
                            accumulatedS});
     }
 
-    // CalculateLocalReferenceLineDk(result);
     return true;
 }
 

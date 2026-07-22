@@ -6,7 +6,7 @@ target_include_directories(qpincreasepoints PUBLIC
 target_compile_features(qpincreasepoints PUBLIC cxx_std_17)
 
 target_link_libraries(qpincreasepoints PUBLIC
-    dynamic_programming)
+    qpplanner)
 
 add_executable(test_qp_increase_points_smoke EXCLUDE_FROM_ALL
     test_qp_increase_points_smoke.cpp)

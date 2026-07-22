@@ -15,7 +15,7 @@ namespace rsim_driver
         double s_dot = 0.0;
         //double s_ddot = 0.0;
         double l = 0.0;
-        double ldot = 0.0;
+        double l_dot = 0.0;
         //double lDdot = 0.0;
         double l_prime = 0.0;
         double l_double_prime = 0.0;
@@ -39,9 +39,10 @@ namespace rsim_driver
         inline bool IsFinite(const CartesianFrenetState &state)
         {
             return std::isfinite(state.s) &&
-                   //std::isfinite(state.s_dot) &&
+                   std::isfinite(state.s_dot) &&
                    //std::isfinite(state.s_ddot) &&
                    std::isfinite(state.l) &&
+                   std::isfinite(state.l_dot) &&
                    std::isfinite(state.l_prime) &&
                    std::isfinite(state.l_double_prime);
         }
@@ -168,7 +169,7 @@ namespace rsim_driver
             state.s_dot = sDot;
             //state.s_ddot = sDdot;
             state.l = l;
-            state.ldot = lDot;
+            state.l_dot = lDot;
             //state.lDdot = lDdot;
             state.l_prime = lPrime;
             state.l_double_prime = lDoublePrime;

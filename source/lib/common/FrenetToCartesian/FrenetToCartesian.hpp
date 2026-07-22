@@ -82,21 +82,50 @@ namespace rsim_driver
 
         const RefPointT ref =
             frenet_to_cartesian_detail::InterpolateReferencePoint(referencePoints, frenetPoint.s);
+        if (!std::isfinite(ref.x) || !std::isfinite(ref.y) ||
+            !std::isfinite(ref.hdg) || !std::isfinite(ref.k) ||
+            !std::isfinite(ref.dk) || !std::isfinite(frenetPoint.s) ||
+            !std::isfinite(frenetPoint.l) ||
+            !std::isfinite(frenetPoint.l_prime) ||
+            !std::isfinite(frenetPoint.l_double_prime))
+        {
+            return false;
+        }
         const double normalX = -std::sin(ref.hdg);
         const double normalY = std::cos(ref.hdg);
+        const double oneMinusKappaRefL = 1.0 - ref.k * frenetPoint.l;
+        if (std::fabs(oneMinusKappaRefL) <=
+            frenet_to_cartesian_detail::kEpsilon)
+        {
+            return false;
+        }
+        const double deltaTheta =
+            std::atan2(frenetPoint.l_prime, oneMinusKappaRefL);
+        const double cosDeltaTheta = std::cos(deltaTheta);
+        const double tanDeltaTheta = std::tan(deltaTheta);
 
         CartesianPathPoint point;
         point.x = ref.x + frenetPoint.l * normalX;
         point.y = ref.y + frenetPoint.l * normalY;
-        point.heading = +std::atan(frenetPoint.l_prime / (1 - ref.k * frenetPoint.l)) + ref.hdg;
-        int deltatheta=std::atan(frenetPoint.l_prime / (1 - ref.k * frenetPoint.l));
-        point.kappa = (frenetPoint.l_double_prime +tan(deltatheta)*(ref.dk*frenetPoint.l+ref.k*frenetPoint.l_prime))/
-                      (tan(deltatheta)*tan(deltatheta)*(1-ref.k*frenetPoint.l)+std::pow(1 - ref.k * frenetPoint.l, 3));
+        point.heading = frenet_to_cartesian_detail::NormalizeAngle(
+            ref.hdg + deltaTheta);
+        point.kappa =
+            ((frenetPoint.l_double_prime +
+              (ref.dk * frenetPoint.l + ref.k * frenetPoint.l_prime) *
+                  tanDeltaTheta) *
+                 cosDeltaTheta * cosDeltaTheta / oneMinusKappaRefL +
+             ref.k) *
+            cosDeltaTheta / oneMinusKappaRefL;
         /*point.v = frenetPoint.s_prime * std::sqrt(std::pow(1 - ref.k * frenetPoint.l, 2) + std::pow(frenetPoint.l_prime, 2));
         point.a = frenetPoint.s_double_prime * std::sqrt(std::pow(1 - ref.k * frenetPoint.l, 2) + std::pow(frenetPoint.l_prime, 2)) +
                   frenetPoint.s_prime * ((1 - ref.k * frenetPoint.l) * (-ref.k * frenetPoint.l_prime) + frenetPoint.l_double_prime) /
                       std::sqrt(std::pow(1 - ref.k * frenetPoint.l, 2) + std::pow(frenetPoint.l_prime, 2));
         */
+        if (!std::isfinite(point.x) || !std::isfinite(point.y) ||
+            !std::isfinite(point.heading) || !std::isfinite(point.kappa))
+        {
+            return false;
+        }
         *cartesianPoint = point;
         return true;
     }

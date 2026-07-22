@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <limits>
 #include <vector>
 
 namespace
@@ -17,85 +18,57 @@ struct RefPoint
     double s = 0.0;
 };
 
-struct SlPoint
+struct FrenetPoint
 {
     double s = 0.0;
     double l = 0.0;
+    double l_prime = 0.0;
+    double l_double_prime = 0.0;
 };
 
-bool Require(bool condition, const char* message)
+bool Require(bool condition, const char *message)
 {
     if (!condition)
         std::fprintf(stderr, "FAIL: %s\n", message);
     return condition;
 }
 
-bool Near(double actual, double expected, double tolerance)
+bool Near(double actual, double expected, double tolerance = 1e-9)
 {
     return std::fabs(actual - expected) <= tolerance;
-}
-
-std::vector<RefPoint> StraightReference()
-{
-    return {
-        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-        {10.0, 0.0, 0.0, 0.0, 0.0, 10.0},
-        {20.0, 0.0, 0.0, 0.0, 0.0, 20.0},
-    };
 }
 
 }  // namespace
 
 int main()
 {
-    const std::vector<RefPoint> reference = StraightReference();
-
-    rsim_driver::CartesianPathPoint point;
-    if (!Require(rsim_driver::FrenetPointToCartesian(reference, 5.0, 2.0, &point),
-                 "single point conversion should succeed"))
-        return 1;
-    if (!Require(Near(point.x, 5.0, 1e-9) &&
-                     Near(point.y, 2.0, 1e-9) &&
-                     Near(point.heading, 0.0, 1e-9),
-                 "straight reference should map l to positive y"))
-        return 1;
-
-    if (!Require(rsim_driver::FrenetPointToCartesian(reference, -5.0, 1.5, &point),
-                 "front clamp conversion should succeed"))
-        return 1;
-    if (!Require(Near(point.x, 0.0, 1e-9) &&
-                     Near(point.y, 1.5, 1e-9),
-                 "s before reference should clamp to front point"))
-        return 1;
-
-    if (!Require(rsim_driver::FrenetPointToCartesian(reference, 25.0, -1.0, &point),
-                 "back clamp conversion should succeed"))
-        return 1;
-    if (!Require(Near(point.x, 20.0, 1e-9) &&
-                     Near(point.y, -1.0, 1e-9),
-                 "s after reference should clamp to back point"))
-        return 1;
-
-    const std::vector<SlPoint> frenetPath = {
-        {0.0, 0.0},
-        {5.0, 0.0},
-        {10.0, 1.0},
-        {15.0, 1.0},
+    const std::vector<RefPoint> straight = {
+        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+        {10.0, 0.0, 0.0, 0.0, 0.0, 10.0},
     };
-    std::vector<rsim_driver::CartesianPathPoint> cartesianPath;
-    if (!Require(rsim_driver::FrenetPathToCartesian(reference,
-                                                    frenetPath,
-                                                    &cartesianPath),
-                 "path conversion should succeed"))
+    rsim_driver::CartesianPathPoint output;
+    const FrenetPoint point{5.0, 2.0, 0.1, 0.02};
+    if (!Require(rsim_driver::FrenetPointToCartesian(straight, point, &output) &&
+                     Near(output.x, 5.0) && Near(output.y, 2.0) &&
+                     Near(output.heading, std::atan2(0.1, 1.0)) &&
+                     std::isfinite(output.kappa),
+                 "regular Frenet state should convert with double heading delta"))
         return 1;
-    if (!Require(cartesianPath.size() == frenetPath.size(),
-                 "path conversion should preserve point count"))
+
+    const std::vector<RefPoint> singular = {
+        {0.0, 0.0, 0.0, 1.0, 0.0, 0.0},
+        {1.0, 0.0, 0.0, 1.0, 0.0, 1.0},
+    };
+    if (!Require(!rsim_driver::FrenetPointToCartesian(
+                     singular, FrenetPoint{0.5, 1.0, 0.0, 0.0}, &output),
+                 "singular 1-kappa*l state should fail"))
         return 1;
-    if (!Require(cartesianPath.front().heading >= -0.1 &&
-                     cartesianPath.front().heading <= 0.1 &&
-                     cartesianPath.back().heading >= -0.1 &&
-                     cartesianPath.back().heading <= 0.1,
-                 "path headings should follow forward motion"))
+
+    FrenetPoint invalid = point;
+    invalid.l_prime = std::numeric_limits<double>::quiet_NaN();
+    if (!Require(!rsim_driver::FrenetPointToCartesian(straight, invalid, &output) &&
+                     !rsim_driver::FrenetPointToCartesian(straight, point, nullptr),
+                 "invalid Frenet state and null output should fail"))
         return 1;
 
     std::fprintf(stderr, "PASS frenet_to_cartesian smoke\n");

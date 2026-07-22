@@ -65,7 +65,7 @@ int main()
                  "global match point should be nearest global path point"))
         return 1;
 
-    const rsim_driver::ReferencePoint projection = generator.lastProjectionPoint();
+    const rsim_driver::ReferencePoint projection = generator.curProjectionPoint();
     if (!Require(std::fabs(projection.x - 20.2) < 1e-4 &&
                  std::fabs(projection.y) < 1e-4,
                  "projection point should lie on the straight reference line"))

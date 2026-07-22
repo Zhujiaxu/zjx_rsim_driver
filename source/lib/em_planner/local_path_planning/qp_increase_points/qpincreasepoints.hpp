@@ -1,7 +1,6 @@
 #pragma once
 
-#include "DpPlanner.hpp"
-
+#include "QpPathOptimizer.hpp"
 #include <vector>
 
 namespace rsim_driver
@@ -10,6 +9,10 @@ namespace rsim_driver
 struct QpIncreasePointsConfig
 {
     int count = 10;
+};
+struct QpIncreasePointsResult
+{
+    std::vector<DpPathPoint> localfrenetpath;
 };
 
 class QpIncreasePoints
@@ -20,8 +23,8 @@ public:
     void SetConfig(const QpIncreasePointsConfig& config);
     const QpIncreasePointsConfig& config() const;
 
-    bool increasepoints(const std::vector<DpPathPoint>& qppath,
-                        std::vector<DpPathPoint>* newqppath) const;
+    bool increasepoints(const QpPathResult & qppath,
+                        QpIncreasePointsResult* newqppathresult) const;
 
 private:
     QpIncreasePointsConfig config_;

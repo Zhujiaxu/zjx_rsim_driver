@@ -52,7 +52,7 @@ namespace rsim_driver
         VirtualObstacleType type = VirtualObstacleType::SlowLead;
         double longitudinal_buffer = 0.0;
         double lateral_buffer = 0.0;
-        int ttl = 31;
+        int ttl = 41;
     };
     using VirtualFrenetObstacle = StaticFrenetObstacle;
     struct VirtualFrenetObstaclePerceptionResult
@@ -83,7 +83,9 @@ namespace rsim_driver
                 std::sqrt(actor.vel_x * actor.vel_x + actor.vel_y * actor.vel_y);
             return std::max(std::fabs(actor.speed), velocitySpeed);
         }
+        
 
+    
         inline double PositiveOr(double value, double fallback)
         {
             return value > 0.0 ? value : fallback;
@@ -291,12 +293,12 @@ namespace rsim_driver
             int32_t egoActorId,
             const std::vector<RefPointT> &referencePoints,
             std::vector<VirtualObstacleSeed> &seeds,
-            std::vector<VirtualFrenetObstacle> *result) const
+            VirtualFrenetObstaclePerceptionResult *result) const
         {
             if (result == nullptr || referencePoints.empty())
                 return false;
 
-            result->clear();
+            result->virtual_static_obstacles.clear();
             if (seeds.empty())
                 return true;
             std::vector<VirtualObstacleSeed> aliveSeeds;
@@ -315,6 +317,7 @@ namespace rsim_driver
                 }
                 if (sourceActor == nullptr)
                     continue;
+
                 auto virtualObstacle =
                     frenet_obstacle_perception_detail::ToVirtualFrenetObstacle(
                         *sourceActor, referencePoints, seed);
@@ -332,7 +335,7 @@ namespace rsim_driver
                              seed.source_actor_id, seed.ttl,
                              virtualObstacle.s, virtualObstacle.l,
                              virtualObstacle.length, virtualObstacle.width);*/
-                result->push_back(virtualObstacle);
+                result->virtual_static_obstacles.push_back(virtualObstacle);
             }
             seeds = std::move(aliveSeeds);
 

@@ -63,41 +63,41 @@ const QpIncreasePointsConfig& QpIncreasePoints::config() const
 }
 
 bool QpIncreasePoints::increasepoints(
-    const std::vector<DpPathPoint>& qppath,
-    std::vector<DpPathPoint>* newqppath) const
+    const QpPathResult & qppath,
+    QpIncreasePointsResult* newqppathresult) const
 {
-    if (newqppath == nullptr)
+    if (newqppathresult == nullptr)
         return false;
 
-    newqppath->clear();
-    if (config_.count < 1 || qppath.size() < 2)
+    newqppathresult->localfrenetpath.clear();
+    if (config_.count < 1 || qppath.localfrenetpath.size() < 2)
         return false;
 
-    for (std::size_t i = 0; i < qppath.size(); ++i)
+    for (std::size_t i = 0; i < qppath.localfrenetpath.size(); ++i)
     {
-        if (!IsFinite(qppath[i]))
+        if (!IsFinite(qppath.localfrenetpath[i]))
             return false;
-        if (i > 0 && qppath[i].s - qppath[i - 1].s <= kEpsilon)
+        if (i > 0 && qppath.localfrenetpath[i].s - qppath.localfrenetpath[i - 1].s <= kEpsilon)
             return false;
     }
 
     const std::size_t subdivisions =
         static_cast<std::size_t>(config_.count);
-    const std::size_t intervalCount = qppath.size() - 1;
+    const std::size_t intervalCount = qppath.localfrenetpath.size() - 1;
     if (intervalCount >
         (std::numeric_limits<std::size_t>::max() - 1U) / subdivisions)
     {
         return false;
     }
 
-    std::vector<DpPathPoint> output;
-    output.reserve(1U + intervalCount * subdivisions);
-    output.push_back(qppath.front());
+    QpIncreasePointsResult output;
+    output.localfrenetpath.reserve(1U + intervalCount * subdivisions);
+    output.localfrenetpath.push_back(qppath.localfrenetpath.front());
 
     for (std::size_t i = 0; i < intervalCount; ++i)
     {
-        const DpPathPoint& start = qppath[i];
-        const DpPathPoint& end = qppath[i + 1];
+        const DpPathPoint& start = qppath.localfrenetpath[i];
+        const DpPathPoint& end = qppath.localfrenetpath[i + 1];
         const double deltaS = end.s - start.s;
         if (!IsTaylorContinuous(start, end, deltaS))
             return false;
@@ -110,7 +110,7 @@ bool QpIncreasePoints::increasepoints(
         {
             if (subdivision == subdivisions)
             {
-                output.push_back(end);
+                output.localfrenetpath.push_back(end);
                 continue;
             }
 
@@ -129,11 +129,11 @@ bool QpIncreasePoints::increasepoints(
             point.l_double_prime = start.l_double_prime + jerk * offset;
             if (!IsFinite(point))
                 return false;
-            output.push_back(point);
+            output.localfrenetpath.push_back(point);
         }
     }
 
-    *newqppath = std::move(output);
+    newqppathresult->localfrenetpath = std::move(output.localfrenetpath);
     return true;
 }
 

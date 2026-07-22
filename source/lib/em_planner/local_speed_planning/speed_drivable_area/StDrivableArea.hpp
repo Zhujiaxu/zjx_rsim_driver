@@ -8,34 +8,39 @@
 
 namespace rsim_driver
 {
+    enum class StDrivableAreaFallback
+    {
+        Success,
+        PointIsInside,
+        Stop,
+    };
 
-struct StDrivableAreaConfig
-{
-    double longitudinal_safety_buffer = 6.0;
-};
+    struct StDrivableAreaConfig
+    {
+        double longitudinal_safety_buffer = 5.0; // meters
+    };
 
-struct StDrivableArea
-{
-    std::vector<StPoint> lower_boundary;
-    std::vector<StPoint> upper_boundary;
-};
+    struct StDrivableAreaResult
+    {
+        StDrivableAreaFallback Flag = StDrivableAreaFallback::Success;
+        std::vector<StPoint> lower_boundary;
+        std::vector<StPoint> upper_boundary;
+    };
 
-class StDrivableAreaBuilder
-{
-public:
-    explicit StDrivableAreaBuilder(const StDrivableAreaConfig &config = {});
+    class StDrivableAreaBuilder
+    {
+    public:
+        explicit StDrivableAreaBuilder(const StDrivableAreaConfig &config = {});
 
-    const StDrivableAreaConfig &config() const;
-    void SetConfig(const StDrivableAreaConfig &config);
+        const StDrivableAreaConfig &config() const;
+        void SetConfig(const StDrivableAreaConfig &config);
 
-    bool Build(const std::vector<CutInAndOutInfo> &st_boundary_infos,
-               const DynamicPlanSpeedPoint& start,
-               const DynamicPlanSpeedConfig &plan_config,
-               double reference_line_total_length,
-               StDrivableArea *result) const;
+        bool Build(const std::vector<CutInAndOutInfo> &st_boundary_infos,
+                   const DynamicPlanSpeedResult *dpplan_result,
+                   StDrivableAreaResult *result) const;
 
-private:
-    StDrivableAreaConfig config_;
-};
+    private:
+        StDrivableAreaConfig config_;
+    };
 
-}  // namespace rsim_driver
+} // namespace rsim_driver

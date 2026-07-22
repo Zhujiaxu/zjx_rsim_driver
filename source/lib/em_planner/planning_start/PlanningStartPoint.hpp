@@ -58,10 +58,11 @@ public:
     const PlanningStartConfig& config() const;
     void SetConfig(const PlanningStartConfig& config);
 
-    PlanningStartResult Compute(
+    bool Compute(
         const rsim_plugin::ActorState& ego,
         double currentTime,
-        const std::vector<PlanningTrajectoryPoint>& previousTrajectory) const;
+        const std::vector<PlanningTrajectoryPoint>& previousTrajectory,
+        PlanningStartResult *result) const;
 
     template <typename RefPointT>
     bool ToFrenet(

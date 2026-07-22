@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <limits>
 #include <vector>
 
 namespace
@@ -117,11 +118,11 @@ int main()
                  "dynamic conversion should not require virtual obstacle seed output"))
         return 1;
 
-    const std::vector<rsim_driver::VirtualObstacleSeed> seeds = {
+    std::vector<rsim_driver::VirtualObstacleSeed> seeds = {
         {201, rsim_driver::VirtualObstacleType::SlowLead, 0.5, 0.5},
         {202, rsim_driver::VirtualObstacleType::OncomingConflict, 8.0, 0.5},
     };
-    rsim_driver::VirtualFrenetObstaclePerceptionResult virtualResult;
+    std::vector<rsim_driver::VirtualFrenetObstacle> virtualResult;
     if (!Require(perception.ConvertVirtualObstacles(seedActors,
                                                     1,
                                                     StraightReferenceLine(),
@@ -129,14 +130,23 @@ int main()
                                                     &virtualResult),
                  "virtual obstacle seeds should resolve on current reference line"))
         return 1;
-    if (!Require(virtualResult.virtual_static_obstacles.size() == 2 &&
-                     virtualResult.virtual_static_obstacles[0].id == 201 &&
-                     virtualResult.virtual_static_obstacles[1].id == 202 &&
-                     Near(virtualResult.virtual_static_obstacles[0].length, 5.0) &&
-                     Near(virtualResult.virtual_static_obstacles[0].width, 2.5) &&
-                     Near(virtualResult.virtual_static_obstacles[1].length, 12.5) &&
-                     Near(virtualResult.virtual_static_obstacles[1].width, 2.5),
+    if (!Require(virtualResult.size() == 2 &&
+                     virtualResult[0].id == 201 &&
+                     virtualResult[1].id == 202 &&
+                     Near(virtualResult[0].length, 5.0) &&
+                     Near(virtualResult[0].width, 2.5) &&
+                     Near(virtualResult[1].length, 12.5) &&
+                     Near(virtualResult[1].width, 2.5),
                  "resolved virtual obstacles should keep source ids and enlarged sizes"))
+        return 1;
+
+    std::vector<rsim_plugin::ActorState> invalidActors = seedActors;
+    invalidActors[1].length = std::numeric_limits<double>::quiet_NaN();
+    if (!Require(!perception.ConvertDynamicObstacles(invalidActors,
+                                                     1,
+                                                     StraightReferenceLine(),
+                                                     &dynamicResult),
+                 "invalid actor geometry should fail"))
         return 1;
 
     if (!Require(!perception.ConvertStaticObstacles(actors,

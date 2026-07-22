@@ -15,10 +15,10 @@ namespace rsim_driver
         return config_;
     }
 
-    bool rsim_driver::DPIncreasePoints::increasepoints(DpPlannerResult *result, DpPlannerResult *newresult) const
+    bool rsim_driver::DPIncreasePoints::increasepoints(const DpPlannerResult &result, DpIncreasePointsResult *newresult) const
     {
         // --- input guards ---
-        if (result == nullptr || newresult == nullptr)
+        if (newresult == nullptr)
             return false;
 
         newresult->path.clear();
@@ -26,19 +26,19 @@ namespace rsim_driver
         if (config_.count < 1)
             return false;
 
-        if (result->path.size() < 2)
+        if (result.path.size() < 2)
             return false;
 
         // Validate all points: finite and s strictly increasing
-        for (size_t i = 0; i < result->path.size(); ++i)
+        for (size_t i = 0; i < result.path.size(); ++i)
         {
-            const auto &p = result->path[i];
+            const auto &p = result.path[i];
             if (!std::isfinite(p.s) || !std::isfinite(p.l) ||
                 !std::isfinite(p.l_prime) || !std::isfinite(p.l_double_prime))
             {
                 return false;
             }
-            if (i > 0 && p.s <= result->path[i - 1].s)
+            if (i > 0 && p.s <= result.path[i - 1].s)
             {
                 return false;
             }
@@ -47,15 +47,15 @@ namespace rsim_driver
         newresult->path.clear();
 
 
-        for (size_t i = 0; i < result->path.size() - 1; ++i)
+
+        for (size_t i = 0; i < result.path.size() - 1; ++i)
         {
-            const auto &startpoint = result->path[i];
-            const auto &endpoint = result->path[i + 1];
+            const auto &startpoint = result.path[i];
+            const auto &endpoint = result.path[i + 1];
             double delta_s = endpoint.s - startpoint.s;
             if (delta_s <= 1e-9)
             {
                 newresult->path.clear();
-                newresult->dpsuccess = false;
                 return false;
             }
             double s_step = delta_s / config_.count;
@@ -67,7 +67,6 @@ namespace rsim_driver
             if (!QuinticPolynomial1d::Create(delta_s, start, end, &polynomial))
             {
                 newresult->path.clear();
-                newresult->dpsuccess = false;
                 return false;
             }
 
@@ -82,9 +81,8 @@ namespace rsim_driver
                 newresult->path.push_back(new_point);
             }
         }
-        newresult->path.push_back(result->path.back()); // Add the last point from the original path
-        newresult->dpsuccess = result->dpsuccess;
-        newresult->total_cost = result->total_cost;
+        newresult->path.push_back(result.path.back()); // Add the last point from the original path
+
         return true;
     }
 

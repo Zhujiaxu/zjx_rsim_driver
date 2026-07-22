@@ -22,7 +22,9 @@ std::filesystem::path FindRepoRoot()
     std::filesystem::path current = std::filesystem::current_path();
     while (true)
     {
-        if (std::filesystem::exists(current / "examples" / "DEMO1_rsim_driver_emplanner" / "resource"))
+        if (std::filesystem::exists(current / "examples" /
+                                    "DEMO1_rsim_driver_emplanner" /
+                                    "staticobstacles"))
             return current;
         const std::filesystem::path parent = current.parent_path();
         if (parent == current)
@@ -46,9 +48,9 @@ int main()
     const std::filesystem::path demoRoot =
         repoRoot / "examples" / "DEMO1_rsim_driver_emplanner";
     const std::filesystem::path xodrPath =
-        demoRoot / "resource" / "xodr" / "map.xodr";
+        demoRoot / "staticobstacles" / "xodr" / "map.xodr";
     const std::filesystem::path xoscPath =
-        demoRoot / "resource" / "xosc" / "scene.xosc";
+        demoRoot / "staticobstacles" / "xosc" / "scene.xosc";
 
     rsim_driver::MapHelper map;
     if (!map.Load(xodrPath.string()))

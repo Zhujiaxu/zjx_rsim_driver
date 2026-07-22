@@ -1,4 +1,4 @@
-#include "local_path_planning/dynamic_programming/DpPlanner.hpp"
+#include "DpPlanner.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -43,6 +43,8 @@ rsim_driver::DpPlannerConfig MakeConfig()
     config.weight_collision = 10.0;
     config.collision.collision_distance = 0.2;
     config.collision.risk_distance = 0.3;
+    config.collision.ego_length = 0.0;
+    config.collision.ego_width = 0.0;
     return config;
 }
 
@@ -133,10 +135,10 @@ int main()
     config.right_l_step_count = 0;
     config.s_step_count = 1;
     planner.SetConfig(config);
-    if (!Require(!planner.Plan(MakeStart(), centerObstacle, &result) &&
-                     !result.dpsuccess &&
-                     result.path.empty(),
-                 "planner should fail when every target node collides"))
+    if (!Require(planner.Plan(MakeStart(), centerObstacle, &result) &&
+                     result.dpsuccess && result.path.empty() &&
+                     result.fallback == rsim_driver::DpFallback::Stop,
+                 "fully blocked lattice should return the explicit stop fallback"))
         return 1;
 
     std::fprintf(stderr, "PASS dynamic_programming_planner smoke\n");

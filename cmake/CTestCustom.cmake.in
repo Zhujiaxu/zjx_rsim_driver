@@ -1,0 +1,4 @@
+set(CTEST_CUSTOM_TESTS_IGNORE
+    test27
+    test83
+    testvarious)

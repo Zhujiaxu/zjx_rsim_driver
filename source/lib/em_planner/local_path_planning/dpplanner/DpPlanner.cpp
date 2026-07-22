@@ -129,13 +129,15 @@ namespace rsim_driver
                          DpPlannerResult *result) const
     {
         if (result == nullptr)
+
             return false;
 
         DpPlannerResult output;
         const DpPlannerConfig &config = config_;
         if (!ValidConfig(config))
         {
-            *result = output;
+            output.Flag = DpPlannerFallback::Other;
+            *result = std::move(output);
             return false;
         }
 
@@ -143,12 +145,21 @@ namespace rsim_driver
         const std::vector<double> lSamples = BuildLSamples(start.l, config);
         if (sValues.size() < 2 || lSamples.empty())
         {
-            *result = output;
+
+            output.Flag = DpPlannerFallback::Other;
+            *result = std::move(output);
             return false;
         }
 
         std::vector<std::vector<DpNode>> layers(sValues.size());
-        const double startCost = ReferenceNodeCost(start.l, config);
+        const double startCost = StaticObstacleCollisionCost(
+            {start.s, start.l}, obstacles, config.collision);
+        if (IsFatalCollisionCost(startCost, config.collision))
+        {
+            output.Flag = DpPlannerFallback::Stop;
+            *result = std::move(output);
+            return false;
+        }
         layers.front().push_back({{start.s,
                                    start.l,
                                    start.l_prime,
@@ -224,10 +235,10 @@ namespace rsim_driver
 
         if (bestIndex < 0 || !std::isfinite(bestCost))
         {
-            output.fallback = DpFallback::Stop;
-            output.dpsuccess = true;
+            output.Flag = DpPlannerFallback::Stop;
+            output.total_cost = std::numeric_limits<double>::infinity();
             *result = output;
-            return true;
+            return false;
         }
 
         std::vector<DpPathPoint> reversedPath;
@@ -237,17 +248,12 @@ namespace rsim_driver
             const DpNode &node = layers[layerIndex][static_cast<std::size_t>(index)];
             reversedPath.push_back(node.point);
             index = node.previous_index;
-            if (index < 0 && layerIndex > 1)
-            {
-                *result = output;
-                return false;
-            }
         }
         reversedPath.push_back({start.s, start.l, start.l_prime, start.l_double_prime});
         std::reverse(reversedPath.begin(), reversedPath.end());
 
-        output.dpsuccess = true;
         output.total_cost = bestCost;
+        output.Flag = DpPlannerFallback::Success;
         output.path = std::move(reversedPath);
         *result = std::move(output);
         return true;
