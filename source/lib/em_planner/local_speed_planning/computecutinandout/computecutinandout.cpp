@@ -166,7 +166,7 @@ namespace rsim_driver
             CutInAndOutInfo info;
             info.id = obstacle.id;
 
-            /*if (std::fabs(state.l_dot) <= l_dotEpsilon &&
+            if (std::fabs(state.l_dot) <= l_dotEpsilon &&
                 std::fabs(state.l) > halfWidthL)
             {
                 return std::nullopt;
@@ -182,8 +182,7 @@ namespace rsim_driver
                 info.soutmin = info.sout - obstacle.length / 2.0;
                 info.soutmax = info.sout + obstacle.length / 2.0;
                 return info;
-            }*/
-
+            }
             const double leftBoundaryTime = (halfWidthL - state.l) / state.l_dot;
             const double rightBoundaryTime = (-halfWidthL - state.l) / state.l_dot;
 

@@ -90,7 +90,8 @@ namespace rsim_driver
         if (!ValidDrivableAreaConfig(config_) ||
             dpplan_result == nullptr)
         {
-            *result = output;
+            output.Flag=StDrivableAreaFallback::Other;
+            *result = std::move(output);
             return false;
         }
 
@@ -143,7 +144,8 @@ namespace rsim_driver
                 }
                 else
                 {
-                    output.Flag = StDrivableAreaFallback::PointIsInside;
+                    output.Flag = StDrivableAreaFallback::Other;
+                    *result=std::move(output);
                     return false;
                 }
             }
@@ -154,6 +156,7 @@ namespace rsim_driver
             if (output.upper_boundary[i].s - output.lower_boundary[i].s < config_.longitudinal_safety_buffer)
             {
                 output.Flag = StDrivableAreaFallback::Stop;
+                *result=std::move(output);
                 return false;
             }
         }

@@ -155,7 +155,8 @@ namespace rsim_driver
         const DynamicPlanSpeedConfig &config = config_;
         if (!ValidConfig(config) || !ValidStart(start))
         {
-            *result = output;
+            output.Flag = DynamicPlanSpeedFallback::other;
+            *result = std::move(output);
             return false;
         }
 
@@ -165,7 +166,8 @@ namespace rsim_driver
             s_values.size() < 2 ||
             std::fabs(s_values.front() - start.s) > kEpsilon)
         {
-            *result = output;
+            output.Flag = DynamicPlanSpeedFallback::other;
+            *result = std::move(output);
             return false;
         }
 
@@ -300,7 +302,7 @@ namespace rsim_driver
             !std::isfinite(best_cost))
         {
             output.Flag = DynamicPlanSpeedFallback::Stop;
-            *result = output;
+            *result = std::move(output);
             return false;
         }
 

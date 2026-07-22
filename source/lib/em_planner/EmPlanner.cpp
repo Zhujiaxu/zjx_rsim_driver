@@ -126,24 +126,6 @@ namespace rsim_driver
     }
 
 
-
-
-    bool EmPlanner::RunDynamicSpeedPlanning(
-        const PlanningStartResult &start,
-        const localreferencelinepath &referenceLine,
-        const std::vector<CutInAndOutInfo> &STBoundaryInfos,
-        DynamicPlanSpeedResult *result) const
-    {
-        if (referenceLine.empty())
-            return false;
-
-        DynamicPlanSpeedPoint speedStart =
-            GetDynamicSpeedPlanStartPoint(start);
-        return speed_planner_.Plan(speedStart,
-                                   STBoundaryInfos,
-                                   result);
-    }
-
     bool EmPlanner::BuildTrajectory(
         const localreferencelinepath &referenceLine,
         const std::vector<DynamicPlanSpeedPoint> &speedPoints,
@@ -159,167 +141,152 @@ namespace rsim_driver
             const localreferencelinepoint pathPoint =
                 InterpolateReferenceLinePoint(referenceLine, speedPoint.s);
 
-        PlanningTrajectoryPoint point;
-        point.x = pathPoint.x;
-        point.y = pathPoint.y;
-        point.heading = pathPoint.hdg;
-        point.curvature = pathPoint.k;
-        point.speed = speedPoint.v;
-        point.accel = speedPoint.a;
-        point.time = planningStartResult.start_point.time + speedPoint.t;
-        if (!IsValidTrajectoryPoint(point))
+            PlanningTrajectoryPoint point;
+            point.x = pathPoint.x;
+            point.y = pathPoint.y;
+            point.heading = pathPoint.hdg;
+            point.curvature = pathPoint.k;
+            point.speed = speedPoint.v;
+            point.accel = speedPoint.a;
+            point.time = planningStartResult.start_point.time + speedPoint.t;
+            if (!IsValidTrajectoryPoint(point))
+            {
+                result->clear();
+                return false;
+            }
+            result->push_back(point);
+        }
+
+        return true;
+    }
+
+    bool EmPlanner::EMPlanSpeedDetailed(
+        const std::vector<rsim_plugin::ActorState> &actors,
+        int32_t egoActorId,
+        const PlanningStartResult &planningStartResult,
+        EmPlannerResult *result) const
+    {
+        if (result == nullptr)
+            return false;
+
+        EmPlannerResult output = *result;
+        output.speed_reference_line.clear();
+
+        if (!LocalCartesianPathToReferenceLinePath(localcartesianpath_,
+                                                   &output.speed_reference_line))
         {
-            result->clear();
+            *result = output;
             return false;
         }
-        result->push_back(point);
-    }
+        speed_reference_line_.clear();
+        speed_reference_line_ = output.speed_reference_line;
 
-    return true;
-}
-
-bool EmPlanner::EMPlanSpeedDetailed(
-    const std::vector<rsim_plugin::ActorState> &actors,
-    int32_t egoActorId,
-    const PlanningStartResult &planningStartResult,
-    EmPlannerResult *result) const
-{
-    if (result == nullptr)
-        return false;
-
-    EmPlannerResult output = *result;
-    output.speed_reference_line.clear();
-
-
-    if (!LocalCartesianPathToReferenceLinePath(localcartesianpath_,
-                                               &output.speed_reference_line))
-    {
-        *result = output;
-        return false;
-    }
-    speed_reference_line_.clear();
-    speed_reference_line_ = output.speed_reference_line;
-
-    output.dynamic_perception_success = false;
-    output.perception_success = output.static_perception_success;
-    if (!perception_.ConvertDynamicObstacles(
-            actors,
-            egoActorId,
-            output.speed_reference_line,
-            &output.dynamic_perception_result))
-    {
-        *result = output;
-        return false;
-    }
-    output.dynamic_perception_success = true;
-    output.perception_success = true;
-
-    // Compute cut-in-and-out boundaries and virtual obstacle seeds.
-    // Seeds are written directly into virtual_obstacle_seeds_ (additive).
-    std::vector<CutInAndOutInfo> STBoundaryInfos;
-    if (!cutinandout_builder_.Compute(
-            output.speed_reference_line,
-            output.dynamic_perception_result,
-            planningStartResult.start_point.speed,
-            EMconfig_.speed_config.planning_period,
-            EMconfig_.speed_config.time_step *
-                static_cast<double>(EMconfig_.speed_config.time_step_count),
-            &STBoundaryInfos,
-            &virtual_obstacle_seeds_))
-    {
-        *result = output;
-        return false;
-    }
-    output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
-
-    if (!RunDynamicSpeedPlanning(planningStartResult,
-                                 output.speed_reference_line,
-                                 STBoundaryInfos,
-                                 &output.speed_coarse_result))
-    {
-        *result = output;
-        return false;
-    }
-    output.speed_dp_success = output.speed_coarse_result.dpsuccess;
-
-    std::vector<double> qp_time_grid;
-    if (!BuildSpeedQpTimeGrid(output.speed_coarse_result,
-                              speed_qp_optimizer_.config().nominal_time_step,
-                              &qp_time_grid))
-    {
-        *result = output;
-        return false;
-    }
-
-    if (!st_drivable_area_builder_.Build(STBoundaryInfos,
-                                         output.speed_coarse_result,
-                                         qp_time_grid,
-                                         output.speed_reference_line.back().s,
-                                         &output.drivable_area_st))
-    {
-        *result = output;
-        return false;
-    }
-    output.st_drivable_area_success = true;
-
-    if (!speed_qp_optimizer_.Optimize(output.speed_coarse_result,
-                                      output.drivable_area_st,
-                                      output.speed_reference_line.back().s,
-                                      &output.speed_qp_result))
-    {
-        *result = output;
-        return false;
-    }
-    output.speed_qp_success = output.speed_qp_result.qpsuccess;
-
-    if (!speed_qp_increase_points_.increasepoints(
-            output.speed_qp_result,
-            EMconfig_.speed_config.time_step,
-            &output.dense_speed_points))
-    {
-        *result = output;
-        return false;
-    }
-    output.speed_qp_increase_points_success = true;
-    output.speed_success = true;
-
-    *result = std::move(output);
-    return true;
-}
-
-bool EmPlanner::EMPlanPostProcessDetailed(
-    const PlanningStartResult &planningStartResult,
-    const std::vector<DynamicPlanSpeedPoint> &speedPoints,
-    std::vector<PlanningTrajectoryPoint> *result) const
-{
-    if (result == nullptr)
-        return false;
-
-    const bool forwardTrajectory = BuildTrajectory(speed_reference_line_,
-                                                   speedPoints,
-                                                   planningStartResult,
-                                                   result);
-    if (!forwardTrajectory)
-        return false;
-
-    if (planningStartResult.start_point.source ==
-        PlanningStartSource::PreviousTrajectory)
-    {
-        result->insert(result->begin(),
-                       planningStartResult.stitching_trajectory.begin(),
-                       planningStartResult.stitching_trajectory.end());
-    }
-    for (std::size_t i = 0; i < result->size(); ++i)
-    {
-        if (!IsValidTrajectoryPoint((*result)[i]) ||
-            (i > 0 &&
-             (*result)[i].time - (*result)[i - 1].time <= kEpsilon))
+        if (!perception_.ConvertDynamicObstacles(
+                actors,
+                egoActorId,
+                output.speed_reference_line,
+                &output.dynamic_perception_result))
         {
-            result->clear();
+            *result = output;
             return false;
         }
+        output.dynamic_perception_success = true;
+        output.perception_success = true;
+
+        // Compute cut-in-and-out boundaries and virtual obstacle seeds.
+        // Seeds are written directly into virtual_obstacle_seeds_ (additive).
+        std::vector<CutInAndOutInfo> STBoundaryInfos;
+        if (!cutinandout_builder_.Compute(
+                output.speed_reference_line,
+                output.dynamic_perception_result,
+                planningStartResult.start_point.speed,
+                EMconfig_.planning_start_config.planning_period,
+                EMconfig_.speed_dp_config.time_step *
+                    static_cast<double>(EMconfig_.speed_dp_config.time_step_count),
+                &STBoundaryInfos,
+                &virtual_obstacle_seeds_))
+        {
+            *result = output;
+            return false;
+        }
+        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
+
+        DynamicPlanSpeedPoint speedStart =
+            GetDynamicSpeedPlanStartPoint(planningStartResult);
+        if (!speed_planner_.Plan(speedStart, STBoundaryInfos, &output.speed_dp_result))
+        {
+            output.speed_dp_result.Flag == DpPlannerFallback::Stop ? cout << "ST-DP规划：密集障碍物" << endl : cout << "Other" << endl;
+            *result = output;
+            return false;
+        }
+        output.speed_dp_success = output.speed_dp_result.Flag == DpPlannerFallback::Success;
+
+        if (!st_drivable_area_builder_.Build(STBoundaryInfos,
+                                             output.speed_dp_result,
+                                             &output.drivable_area_st))
+        {
+            output.drivable_area_st.Flag == DpPlannerFallback::Stop ? cout << "ST可行驶区域过窄" << endl : cout << "Other" << endl;
+            *result = output;
+            return false;
+        }
+        output.st_drivable_area_success = output.drivable_area_st.Flag == StDrivableAreaFallback::Success;
+
+        if (!speed_qp_optimizer_.Optimize(speedStart,
+                                          output.drivable_area_st,
+                                          &output.speed_qp_result))
+        {
+            output.speed_qp_result.Flag == QpSpeedOptimizerFallback::Stop ? cout << "ST-QP优化：求解失败" << endl : cout << "Other" << endl;
+            *result = output;
+            return false;
+        }
+        output.speed_qp_success = output.speed_qp_result.Flag == QpSpeedOptimizerFallback::Success;
+
+        if (!speed_qp_increase_points_.increasepoints(
+                output.speed_qp_result,
+                &output.increasepoints_speed_points))
+        {
+            *result = output;
+            return false;
+        }
+        output.speed_qp_increase_points_success = true;
+
+        *result = std::move(output);
+        return true;
     }
-    return true;
-}
+
+    bool EmPlanner::EMPlanPostProcessDetailed(
+        const PlanningStartResult &planningStartResult,
+        const std::vector<DynamicPlanSpeedPoint> &speedPoints,
+        std::vector<PlanningTrajectoryPoint> *result) const
+    {
+        if (result == nullptr)
+            return false;
+
+        const bool forwardTrajectory = BuildTrajectory(speed_reference_line_,
+                                                       speedPoints,
+                                                       planningStartResult,
+                                                       result);
+        if (!forwardTrajectory)
+            return false;
+
+        if (planningStartResult.start_point.source ==
+            PlanningStartSource::PreviousTrajectory)
+        {
+            result->insert(result->begin(),
+                           planningStartResult.stitching_trajectory.begin(),
+                           planningStartResult.stitching_trajectory.end());
+        }
+        for (std::size_t i = 0; i < result->size(); ++i)
+        {
+            if (!IsValidTrajectoryPoint((*result)[i]) ||
+                (i > 0 &&
+                 (*result)[i].time - (*result)[i - 1].time <= kEpsilon))
+            {
+                result->clear();
+                return false;
+            }
+        }
+        return true;
+    }
 
 } // namespace rsim_driver

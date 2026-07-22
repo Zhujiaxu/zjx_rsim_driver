@@ -5,7 +5,7 @@
 #include "local_path_planning/drivable_area/DrivableArea.hpp"
 #include "local_path_planning/dpplanner/DpPlanner.hpp"
 #include "local_path_planning/qpplanner/QpPathOptimizer.hpp"
-#include "local_speed_planning/dynamic_speed_planning/DynamicSpeedPlanner.hpp"
+#include "local_speed_planning/dpspeedplanner/DynamicSpeedPlanner.hpp"
 #include "local_speed_planning/computecutinandout/computecutinandout.hpp"
 #include "local_path_planning/dp_increase_points/dpincreasepoints.hpp"
 #include "local_path_planning/qp_increase_points/qpincreasepoints.hpp"
@@ -49,7 +49,6 @@ namespace rsim_driver
         bool drivable_area_success = false;
         bool qp_success = false;
         bool qp_increase_points_success = false;
-        bool speed_success = false;
         bool speed_dp_success = false;
         bool st_drivable_area_success = false;
         bool speed_qp_success = false;
@@ -142,13 +141,13 @@ namespace rsim_driver
         DrivableAreaBuilder drivable_area_builder_;
         QpPathOptimizer qp_path_optimizer_;
         QpIncreasePoints qp_increase_points_;
+        ComputeCutInAndOut cutinandout_builder_;
         DynamicPlanSpeedPlanner speed_planner_;
         StDrivableAreaBuilder st_drivable_area_builder_;
         SpeedQpOptimizer speed_qp_optimizer_;
         QpSpeedIncreasePoints speed_qp_increase_points_;
         mutable std::vector<CartesianPathPoint> localcartesianpath_;
         mutable localreferencelinepath speed_reference_line_;
-        mutable ComputeCutInAndOut cutinandout_builder_;
         mutable std::vector<VirtualObstacleSeed> virtual_obstacle_seeds_;
     };
 

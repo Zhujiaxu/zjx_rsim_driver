@@ -38,6 +38,7 @@ namespace rsim_driver
     enum class DynamicPlanSpeedFallback
     {
         Success,
+        Other,
         Stop,
     };
     struct DynamicPlanSpeedResult

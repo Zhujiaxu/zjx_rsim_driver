@@ -245,8 +245,10 @@ namespace rsim_driver
 
         for (int i = 1; i < n; ++i)
         {
-            const double lb = drivable_area.lower_boundary[static_cast<std::size_t>(i)].s + totalMargin;
-            const double ub = drivable_area.upper_boundary[static_cast<std::size_t>(i)].s - totalMargin;
+            double j=i*config_.dt/congif_.dqpt;
+
+            const double lb = drivable_area.lower_boundary[static_cast<std::size_t>(j)].s + totalMargin;
+            const double ub = drivable_area.upper_boundary[static_cast<std::size_t>(j)].s - totalMargin;
 
             AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
                              {{SIndex(i), 1.0}},

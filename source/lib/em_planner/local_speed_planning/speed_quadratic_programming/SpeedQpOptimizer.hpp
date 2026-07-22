@@ -11,6 +11,7 @@ namespace rsim_driver
     struct QpSpeedOptimizerConfig
     {
         double dt = 0.8;
+        double dqpt=0.2;
         double reference_speed = 13.0;
         double ego_length = 4.0;
         double longitudinal_safety_buffer = 0.5;
@@ -25,8 +26,8 @@ namespace rsim_driver
     enum class QpSpeedOptimizerFallback
     {
         Success,
-        QpInitFail,
-        Stop
+        Other,
+        Stop,
     };
     struct QpSpeedOptimizerResult
     {

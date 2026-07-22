@@ -11,7 +11,7 @@ namespace rsim_driver
     enum class StDrivableAreaFallback
     {
         Success,
-        PointIsInside,
+        Other,
         Stop,
     };
 

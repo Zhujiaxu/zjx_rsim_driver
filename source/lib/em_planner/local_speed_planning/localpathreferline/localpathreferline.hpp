@@ -16,7 +16,6 @@ struct localreferencelinepoint
     double k = 0.0;
     double hdg = 0.0;
     double s = 0.0;
-    double dk = 0.0;
 };
 
 using localreferencelinepath = std::vector<localreferencelinepoint>;
@@ -26,14 +25,6 @@ namespace local_reference_line_detail
 
 constexpr double kDkSIntervalEpsilon = 1e-6;
 
-inline double CalculateDkBetween(const localreferencelinepoint& previous,
-                                 const localreferencelinepoint& next)
-{
-    const double ds = next.s - previous.s;
-    return std::fabs(ds) > kDkSIntervalEpsilon
-               ? (next.k - previous.k) / ds
-               : 0.0;
-}
 
 }  // namespace local_reference_line_detail
 
