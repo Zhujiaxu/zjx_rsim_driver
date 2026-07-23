@@ -1,5 +1,8 @@
 add_library(rsim_driver SHARED
-    RSimDriverPlugin.cpp)
+    RSimDriverPlugin.cpp
+    RSimDriverPluginDiagnostics.cpp
+    RSimDriverPluginPlanning.cpp
+    TrajectorySampling.cpp)
 
 target_include_directories(rsim_driver PRIVATE
     ${RSIM_PLUGIN_SDK_INCLUDE})

@@ -23,16 +23,13 @@ namespace rsim_driver
             return angle;
         }
         // 后处理准备函数，插值参考线点
-        localreferencelinepoint InterpolateReferenceLinePoint(
+        bool InterpolateReferenceLinePoint(
             const localreferencelinepath &referenceLine,
-            double s)
+            double s,
+            localreferencelinepoint *interpoint)
         {
-            if (referenceLine.empty())
-                return {};
-            if (referenceLine.size() == 1 || s <= referenceLine.front().s)
-                return referenceLine.front();
-            if (s >= referenceLine.back().s)
-                return referenceLine.back();
+            if (interpoint == nullptr)
+                return false;
 
             for (std::size_t i = 1; i < referenceLine.size(); ++i)
             {
@@ -55,10 +52,11 @@ namespace rsim_driver
                     previous.hdg + NormalizeAngle(next.hdg - previous.hdg) * ratio);
                 point.s = s;
                 point.dk = previous.dk;
-                return point;
+                *interpoint = std::move(point);
+                return true;
             }
 
-            return referenceLine.back();
+            return false;
         }
 
         bool IsValidTrajectoryPoint(const PlanningTrajectoryPoint &point)
@@ -120,40 +118,6 @@ namespace rsim_driver
         return perception_;
     }
 
-    bool EmPlanner::BuildTrajectory(
-        const localreferencelinepath &referenceLine,
-        const std::vector<DynamicPlanSpeedPoint> &speedPoints,
-        const PlanningStartResult &planningStartResult,
-        std::vector<PlanningTrajectoryPoint> *result) const
-    {
-        if (result == nullptr)
-            return false;
-
-        result->clear();
-        for (const auto &speedPoint : speedPoints)
-        {
-            const localreferencelinepoint pathPoint =
-                InterpolateReferenceLinePoint(referenceLine, speedPoint.s);
-
-            PlanningTrajectoryPoint point;
-            point.x = pathPoint.x;
-            point.y = pathPoint.y;
-            point.heading = pathPoint.hdg;
-            point.curvature = pathPoint.k;
-            point.speed = speedPoint.v;
-            point.accel = speedPoint.a;
-            point.time = planningStartResult.start_point.time + speedPoint.t;
-            if (!IsValidTrajectoryPoint(point))
-            {
-                result->clear();
-                return false;
-            }
-            result->push_back(point);
-        }
-
-        return true;
-    }
-
     bool EmPlanner::EMPlanSpeedDetailed(
         const std::vector<rsim_plugin::ActorState> &actors,
         int32_t egoActorId,
@@ -164,10 +128,11 @@ namespace rsim_driver
 
         EmPlannerResult output = *result;
 
-        if (!LocalCartesianPathToReferenceLinePath(output.localcartesianpath,
-                                                   &output.speed_reference_line))
+        if (!SpeedReferencePathGenerator(output.localcartesianpath,
+                                         &output.speed_reference_line))
         {
             *result = output;
+            std::cout << "速度规划失败:SL笛卡尔参考线转speed_reference_line失败\n";
             return false;
         }
 
@@ -246,7 +211,7 @@ namespace rsim_driver
 
         if (!speed_qp_increase_points_.increasepoints(
                 output.speed_qp_result,
-                &output.increasepoints_speed_points))
+                &output.speed_increasepoints_line))
         {
             *result = output;
             return false;
@@ -257,13 +222,63 @@ namespace rsim_driver
         return true;
     }
 
+    bool EmPlanner::BuildTrajectory(
+        const SpeedReferenceLinePath &speedreferenceline,
+        const std::vector<DynamicPlanSpeedPoint> &speedincreaseline,
+        const PlanningStartResult &planningStartResult,
+        std::vector<PlanningTrajectoryPoint> *result) const
+    {
+        if (result == nullptr)
+            return false;
+        result->clear();
+        //输入参数检查
+        if (speedreferenceline.empty() || speedincreaseline.empty())
+        {
+            std::cout << "后处理失败:SL参考线或者增密ST线为空\n"
+                      << std::endl;
+            return false;
+        }
+        SpeedReferenceLinePoint pathPoint;
+        PlanningTrajectoryPoint point;
+        for (const auto &speedPoint : speedincreaseline)
+        {
+            pathPoint = {};
+            point = {};
+            if (!InterpolateReferenceLinePoint(speedreferenceline, speedPoint.s, &pathPoint))
+            {
+                result->clear();
+                std::cout << "后处理失败:插值SL参考线点失败\n"
+                          << std::endl;
+                return false;
+            }
+
+            point.x = pathPoint.x;
+            point.y = pathPoint.y;
+            point.heading = pathPoint.hdg;
+            point.curvature = pathPoint.k;
+            point.speed = speedPoint.v;
+            point.accel = speedPoint.a;
+            point.time = planningStartResult.start_point.time + speedPoint.t;
+            if (!IsValidTrajectoryPoint(point))
+            {
+                result->clear();
+                std::cout << "后处理失败:轨迹点参数不合理\n"
+                          << std::endl;
+                return false;
+            }
+            result->push_back(point);
+        }
+
+        return true;
+    }
+
     bool EmPlanner::EMPlanPostProcessDetailed(
-         EmPlannerResult &sltoutput) const
+        EmPlannerResult &sltoutput) const
     {
         EmPlannerResult output = sltoutput;
 
         const bool forwardTrajectory = BuildTrajectory(output.speed_reference_line,
-                                                       output.increasepoints_speed_points,
+                                                       output.speed_increasepoints_line,
                                                        output.planning_start_result,
                                                        &output.trajectory);
         if (!forwardTrajectory)
@@ -281,12 +296,11 @@ namespace rsim_driver
         }
         for (std::size_t i = 0; i < output.trajectory.size(); ++i)
         {
-            if (!IsValidTrajectoryPoint(output.trajectory[i]) ||
-                (i > 0 &&
+            if ((i > 0 &&
                  output.trajectory[i].time - output.trajectory[i - 1].time <= kEpsilon))
             {
                 output.trajectory.clear();
-                std::cout << "拼接轨迹错误\n"
+                std::cout << "后处理失败:轨迹点时间间隔过小或时序混乱\n"
                           << std::endl;
                 sltoutput = std::move(output);
                 return false;

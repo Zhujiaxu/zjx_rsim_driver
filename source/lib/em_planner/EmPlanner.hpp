@@ -68,11 +68,11 @@ namespace rsim_driver
         QpPathResult qp_result;
         QpIncreasePointsResult qp_increase_points_result;
         std::vector<CartesianPathPoint> localcartesianpath;
-        localreferencelinepath speed_reference_line;
+        SpeedReferenceLinePath speed_reference_line;
         DynamicPlanSpeedResult speed_dp_result;
         StDrivableAreaResult drivable_area_st;
         QpSpeedOptimizerResult speed_qp_result;
-        std::vector<DynamicPlanSpeedPoint> increasepoints_speed_points;
+        std::vector<DynamicPlanSpeedPoint> speed_increasepoints_line;
         std::vector<PlanningTrajectoryPoint> trajectory;
     };
 
@@ -106,7 +106,7 @@ namespace rsim_driver
         const FrenetObstaclePerception &get_perception() const;
     private:
         bool BuildTrajectory(
-            const localreferencelinepath &referenceLine,
+            const SpeedReferenceLinePath &referenceLine,
             const std::vector<DynamicPlanSpeedPoint> &newqppointspath,
             const PlanningStartResult &planningStartResult,
             std::vector<PlanningTrajectoryPoint> *result) const;

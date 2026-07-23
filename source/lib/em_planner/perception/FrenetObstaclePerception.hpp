@@ -21,7 +21,25 @@ namespace rsim_driver
         double length = 0.0;
         double width = 0.0;
     };
+
+    enum class VirtualObstacleType
+    {
+        SlowLead,
+        OncomingConflict,
+    };
+
+    struct VirtualObstacleSeed
+    {
+        int32_t source_actor_id = 0;
+        VirtualObstacleType type = VirtualObstacleType::SlowLead;
+        double longitudinal_buffer = 0.0;
+        double lateral_buffer = 0.0;
+        int ttl = 41;
+    };
+
     using DynamicFrenetState = CartesianFrenetState;
+    using VirtualFrenetObstacle = StaticFrenetObstacle;
+
     struct DynamicFrenetObstacle
     {
         int32_t id = 0;
@@ -40,21 +58,6 @@ namespace rsim_driver
         std::vector<DynamicFrenetObstacle> dynamicobstacles;
     };
 
-    enum class VirtualObstacleType
-    {
-        SlowLead,
-        OncomingConflict,
-    };
-
-    struct VirtualObstacleSeed
-    {
-        int32_t source_actor_id = 0;
-        VirtualObstacleType type = VirtualObstacleType::SlowLead;
-        double longitudinal_buffer = 0.0;
-        double lateral_buffer = 0.0;
-        int ttl = 41;
-    };
-    using VirtualFrenetObstacle = StaticFrenetObstacle;
     struct VirtualFrenetObstaclePerceptionResult
     {
         std::vector<VirtualFrenetObstacle> virtual_static_obstacles;
@@ -83,18 +86,11 @@ namespace rsim_driver
                 std::sqrt(actor.vel_x * actor.vel_x + actor.vel_y * actor.vel_y);
             return std::max(std::fabs(actor.speed), velocitySpeed);
         }
-        
 
-    
         inline double PositiveOr(double value, double fallback)
         {
             return value > 0.0 ? value : fallback;
         }
-
-        /*inline double ActorActualAccel(const rsim_plugin::ActorState &actor)
-        {
-            return std::sqrt(actor.acc_x * actor.acc_x + actor.acc_y * actor.acc_y);
-        }*/
 
         template <typename RefPointT>
         StaticFrenetObstacle ToStaticFrenetObstacle(
