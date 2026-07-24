@@ -53,8 +53,8 @@ namespace rsim_driver
         DynamicPlanSpeedPoint result;
         result.t = 0;
         result.s = 0;
-        result.v = startpoint.start_point.speed;
-        result.a = startpoint.start_point.accel;
+        result.v = startpoint.start_point.startpointbasis.speed;
+        result.a = startpoint.start_point.startpointbasis.accel;
         return result;
     }
 

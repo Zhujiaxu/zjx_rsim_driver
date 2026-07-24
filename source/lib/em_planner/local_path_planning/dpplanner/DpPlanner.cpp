@@ -124,8 +124,8 @@ namespace rsim_driver
         config_ = config;
     }
 
-    bool DpPlanner::Plan(const CartesianFrenetState &start,
-                         const std::vector<StaticFrenetObstacle> &obstacles,
+    bool DpPlanner::Plan(const StartPointFrenetState &start,
+                         const std::vector<StaticAndVirtualObsFrenetState> &obstacles,
                          DpPlannerResult *result) const
     {
         if (result == nullptr)

@@ -27,12 +27,7 @@ struct PlanningTrajectoryPoint
 
 struct PlanningStartPoint
 {
-    double x = 0.0;
-    double y = 0.0;
-    double heading = 0.0;
-    double speed = 0.0;
-    double accel = 0.0;
-    double time = 0.0;
+    PlanningTrajectoryPoint startpointbasis;
     PlanningStartSource source = PlanningStartSource::KinematicExtrapolation;
     double matchDistance = 0.0;
 };
@@ -68,7 +63,7 @@ public:
     bool ToFrenet(
         const PlanningStartResult& result,
         const std::vector<RefPointT>& referencePoints,
-        CartesianFrenetState* frenetState) const
+        StartPointFrenetState* frenetState) const
     {
         return CartesianToFrenet(referencePoints, result, frenetState);
     }

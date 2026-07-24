@@ -43,7 +43,7 @@ namespace rsim_driver
         const QpPathOptimizerConfig &config() const;
         void SetConfig(const QpPathOptimizerConfig &config);
         bool Optimize(
-            const CartesianFrenetState &start,
+            const StartPointFrenetState &start,
             const DrivableAreaResult &drivableArea,
             QpPathResult *result) const;
 

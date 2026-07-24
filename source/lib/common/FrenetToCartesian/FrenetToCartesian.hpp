@@ -14,8 +14,6 @@ namespace rsim_driver
         double y = 0.0;
         double heading = 0.0;
         double kappa = 0.0;
-        double v = 0.0;
-        double a = 0.0;
     };
 
     namespace frenet_to_cartesian_detail

@@ -37,7 +37,7 @@ namespace rsim_driver
         void SetConfig(const DrivableAreaConfig &config);
 
         bool Build(const std::vector<DpPathPoint> &coarsePath,
-                   const std::vector<StaticFrenetObstacle> &staticObstacles,
+                   const std::vector<StaticAndVirtualObsFrenetState> &staticObstacles,
                    DrivableAreaResult *result) const;
 
     private:

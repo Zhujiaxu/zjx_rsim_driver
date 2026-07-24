@@ -55,8 +55,8 @@ public:
     const DpPlannerConfig& config() const;
     void SetConfig(const DpPlannerConfig& config);
 
-    bool Plan(const CartesianFrenetState& start,
-              const std::vector<StaticFrenetObstacle>& obstacles,
+    bool Plan(const StartPointFrenetState& start,
+              const std::vector<StaticAndVirtualObsFrenetState>& obstacles,
               DpPlannerResult* result) const;
 
 private:

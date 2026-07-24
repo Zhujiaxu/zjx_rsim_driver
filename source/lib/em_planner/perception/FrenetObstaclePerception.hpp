@@ -13,17 +13,9 @@
 namespace rsim_driver
 {
 
-    struct StaticFrenetObstacle
-    {
-        int32_t id = 0;
-        double s = 0.0;
-        double l = 0.0;
-        double length = 0.0;
-        double width = 0.0;
-    };
-
     enum class VirtualObstacleType
     {
+        Normal,
         SlowLead,
         OncomingConflict,
     };
@@ -31,54 +23,55 @@ namespace rsim_driver
     struct VirtualObstacleSeed
     {
         int32_t source_actor_id = 0;
-        VirtualObstacleType type = VirtualObstacleType::SlowLead;
+        VirtualObstacleType type = VirtualObstacleType::Normal;
         double longitudinal_buffer = 0.0;
         double lateral_buffer = 0.0;
         int ttl = 41;
     };
 
-    using DynamicFrenetState = CartesianFrenetState;
-    using VirtualFrenetObstacle = StaticFrenetObstacle;
-
-    struct DynamicFrenetObstacle
+    struct StaticAndVirtualObsCartesianPoint
     {
         int32_t id = 0;
-        DynamicFrenetState dynamicfrenetstate;
+        double x = 0.0;
+        double y = 0.0;
+        double heading = 0.0;
+        double length = 0.0;
+        double width = 0.0;
+    };
+
+    struct DynamicObsCartesianPoint
+    {
+        int32_t id = 0;
+        double x = 0.0;
+        double y = 0.0;
+        double heading = 0.0;
+        double speed = 0.0;
         double length = 0.0;
         double width = 0.0;
     };
 
     struct StaticFrenetObstaclePerceptionResult
     {
-        std::vector<StaticFrenetObstacle> staticobstacles;
+        std::vector<StaticAndVirtualObsFrenetState> staticobstacles;
     };
 
     struct DynamicFrenetObstaclePerceptionResult
     {
-        std::vector<DynamicFrenetObstacle> dynamicobstacles;
+        std::vector<DynamicObsFrenetState> dynamicobstacles;
     };
 
     struct VirtualFrenetObstaclePerceptionResult
     {
-        std::vector<VirtualFrenetObstacle> virtual_static_obstacles;
+        std::vector<StaticAndVirtualObsFrenetState> virtualstaticobstacles;
     };
 
     struct FrenetObstaclePerceptionConfig
     {
-        double static_speed_threshold = 0.1;
+        double static_speed_threshold = 1;
     };
 
     namespace frenet_obstacle_perception_detail
     {
-
-        struct ObstacleCartesianPoint
-        {
-            double x = 0.0;
-            double y = 0.0;
-            double heading = 0.0;
-            double speed = 0.0;
-            double accel = 0.0;
-        };
 
         inline double ActorActualSpeed(const rsim_plugin::ActorState &actor)
         {
@@ -87,116 +80,30 @@ namespace rsim_driver
             return std::max(std::fabs(actor.speed), velocitySpeed);
         }
 
-        inline double PositiveOr(double value, double fallback)
-        {
-            return value > 0.0 ? value : fallback;
-        }
-
-        template <typename RefPointT>
-        StaticFrenetObstacle ToStaticFrenetObstacle(
-            const rsim_plugin::ActorState &actor,
-            const std::vector<RefPointT> &referencePoints)
-        {
-            const std::size_t matchIndex =
-                FindMatchPointIndex(referencePoints, actor.x, actor.y);
-            const RefPointT &matchedPoint = referencePoints[matchIndex];
-            const RefPointT projectionPoint =
-                FindProjectionPoint(referencePoints, actor.x, actor.y);
-
-            const double tangentX = std::cos(matchedPoint.hdg);
-            const double tangentY = std::sin(matchedPoint.hdg);
-            const double normalX = -std::sin(matchedPoint.hdg);
-            const double normalY = std::cos(matchedPoint.hdg);
-            const double projectionDx = projectionPoint.x - matchedPoint.x;
-            const double projectionDy = projectionPoint.y - matchedPoint.y;
-            const double lateralDx = actor.x - projectionPoint.x;
-            const double lateralDy = actor.y - projectionPoint.y;
-
-            StaticFrenetObstacle obstacle;
-            obstacle.id = actor.id;
-            obstacle.s = matchedPoint.s +
-                         projectionDx * tangentX +
-                         projectionDy * tangentY;
-            obstacle.l = lateralDx * normalX + lateralDy * normalY;
-            obstacle.length = actor.length;
-            obstacle.width = actor.width;
-            return obstacle;
-        }
-        template <typename RefPointT>
-        StaticFrenetObstacle ToVirtualFrenetObstacle(
-            const rsim_plugin::ActorState &actor,
-            const std::vector<RefPointT> &referencePoints,
-            VirtualObstacleSeed &seed)
-        {
-            seed.ttl--;
-            const std::size_t matchIndex =
-                FindMatchPointIndex(referencePoints, actor.x, actor.y);
-            const RefPointT &matchedPoint = referencePoints[matchIndex];
-            const RefPointT projectionPoint =
-                FindProjectionPoint(referencePoints, actor.x, actor.y);
-
-            const double tangentX = std::cos(matchedPoint.hdg);
-            const double tangentY = std::sin(matchedPoint.hdg);
-            const double normalX = -std::sin(matchedPoint.hdg);
-            const double normalY = std::cos(matchedPoint.hdg);
-            const double projectionDx = projectionPoint.x - matchedPoint.x;
-            const double projectionDy = projectionPoint.y - matchedPoint.y;
-            const double lateralDx = actor.x - projectionPoint.x;
-            const double lateralDy = actor.y - projectionPoint.y;
-
-            StaticFrenetObstacle obstacle;
-            obstacle.id = actor.id;
-            obstacle.s = matchedPoint.s +
-                         projectionDx * tangentX +
-                         projectionDy * tangentY;
-            obstacle.l = lateralDx * normalX + lateralDy * normalY;
-            obstacle.length = actor.length + seed.longitudinal_buffer;
-            obstacle.width = actor.width + seed.lateral_buffer;
-            return obstacle;
-        }
-
-        inline ObstacleCartesianPoint ToObstacleCartesianPoint(
+        inline StaticAndVirtualObsCartesianPoint StaticAndVirtualObsToCartesianPoint(
             const rsim_plugin::ActorState &actor)
         {
-            ObstacleCartesianPoint point;
+            StaticAndVirtualObsCartesianPoint point;
+            point.id = actor.id;
             point.x = actor.x;
             point.y = actor.y;
             point.heading = actor.h;
-            point.speed = ActorActualSpeed(actor);
-            point.accel = actor.acc_x;
+            point.length = actor.length;
+            point.width = actor.width;
             return point;
         }
-
-        template <typename RefPointT>
-        bool ActorToDynamicFrenetObstacle(
-            const rsim_plugin::ActorState &actor,
-            const std::vector<RefPointT> &referencePoints,
-            DynamicFrenetObstacle *obstacle)
+        inline DynamicObsCartesianPoint DynamicObsToCartesianPoint(
+            const rsim_plugin::ActorState &actor)
         {
-            if (obstacle == nullptr || referencePoints.empty())
-                return false;
-
-            const ObstacleCartesianPoint point = ToObstacleCartesianPoint(actor);
-            CartesianFrenetState frenet;
-            if (!cartesian_to_frenet_detail::CartesianPointToFrenet(
-                    referencePoints, point, 0.0, &frenet))
-            {
-                return false;
-            }
-
-            obstacle->id = actor.id;
-            obstacle->dynamicfrenetstate = frenet;
-            obstacle->length = actor.length;
-            obstacle->width = actor.width;
-            return true;
-        }
-
-        inline int32_t VirtualObstacleId(VirtualObstacleType type,
-                                         int32_t sourceActorId)
-        {
-            const int32_t base =
-                type == VirtualObstacleType::SlowLead ? -100000 : -200000;
-            return base - sourceActorId;
+            DynamicObsCartesianPoint point;
+            point.id = actor.id;
+            point.x = actor.x;
+            point.y = actor.y;
+            point.heading = actor.h;
+            point.speed = frenet_obstacle_perception_detail::ActorActualSpeed(actor);
+            point.length = actor.length;
+            point.width = actor.width;
+            return point;
         }
 
     } // namespace frenet_obstacle_perception_detail
@@ -218,8 +125,11 @@ namespace rsim_driver
             StaticFrenetObstaclePerceptionResult *result) const
         {
             if (result == nullptr || referencePoints.empty())
+            {
+                std::cout << "【perception】ConvertStaticObstacles: referencePoints is empty" << std::endl;
                 return false;
-
+            }
+            result->staticobstacles.clear();
             StaticFrenetObstaclePerceptionResult converted;
             converted.staticobstacles.reserve(actors.size());
 
@@ -234,9 +144,14 @@ namespace rsim_driver
                     frenet_obstacle_perception_detail::ActorActualSpeed(actor);
                 if (speed <= staticSpeedThreshold)
                 {
-                    converted.staticobstacles.push_back(
-                        frenet_obstacle_perception_detail::ToStaticFrenetObstacle(
-                            actor, referencePoints));
+                    StaticAndVirtualObsFrenetState obstacle;
+                    if (!cartesian_to_frenet_detail ::StaticObsFrenetTransformer(referencePoints,
+                                                                                 frenet_obstacle_perception_detail::StaticAndVirtualObsToCartesianPoint(actor),
+                                                                                 &obstacle))
+                    {
+                        continue;
+                    }
+                    converted.staticobstacles.push_back(obstacle);
                 }
             }
 
@@ -252,8 +167,11 @@ namespace rsim_driver
             DynamicFrenetObstaclePerceptionResult *result) const
         {
             if (result == nullptr || referencePoints.empty())
+            {
+                std::cout << "【perception】ConvertDynamicObstacles: referencePoints is empty" << std::endl;
                 return false;
-
+            }
+            result->dynamicobstacles.clear();
             DynamicFrenetObstaclePerceptionResult converted;
             converted.dynamicobstacles.reserve(actors.size());
 
@@ -266,17 +184,17 @@ namespace rsim_driver
 
                 const double speed =
                     frenet_obstacle_perception_detail::ActorActualSpeed(actor);
-                if (speed <= staticSpeedThreshold)
-                    continue;
-
-                DynamicFrenetObstacle obstacle;
-                if (!frenet_obstacle_perception_detail::ActorToDynamicFrenetObstacle(
-                        actor, referencePoints, &obstacle))
+                if (speed >= staticSpeedThreshold)
                 {
-                    return false;
+                    DynamicObsFrenetState obstacle;
+                    if (!cartesian_to_frenet_detail::DynamicObsFrenetTransformer(referencePoints,
+                                                                                 frenet_obstacle_perception_detail::DynamicObsToCartesianPoint(actor),
+                                                                                 &obstacle))
+                    {
+                        continue;
+                    }
+                    converted.dynamicobstacles.push_back(obstacle);
                 }
-
-                converted.dynamicobstacles.push_back(obstacle);
             }
 
             *result = std::move(converted);
@@ -291,12 +209,14 @@ namespace rsim_driver
             std::vector<VirtualObstacleSeed> &seeds,
             VirtualFrenetObstaclePerceptionResult *result) const
         {
-            if (result == nullptr || referencePoints.empty())
+            if (result == nullptr)
                 return false;
 
-            result->virtual_static_obstacles.clear();
+            result->virtualstaticobstacles.clear();
             if (seeds.empty())
                 return true;
+            VirtualFrenetObstaclePerceptionResult converted;
+            converted.virtualstaticobstacles.reserve(seeds.size());   
             std::vector<VirtualObstacleSeed> aliveSeeds;
             aliveSeeds.reserve(seeds.size());
             for (VirtualObstacleSeed &seed : seeds)
@@ -313,10 +233,15 @@ namespace rsim_driver
                 }
                 if (sourceActor == nullptr)
                     continue;
-
-                auto virtualObstacle =
-                    frenet_obstacle_perception_detail::ToVirtualFrenetObstacle(
-                        *sourceActor, referencePoints, seed);
+                StaticAndVirtualObsFrenetState virtualObstacle;
+                if (!cartesian_to_frenet_detail::VirtualObsFrenetTransformer(
+                        referencePoints,
+                        frenet_obstacle_perception_detail::StaticAndVirtualObsToCartesianPoint(*sourceActor),
+                        seed,
+                        &virtualObstacle))
+                {
+                    continue;
+                }
                 if (seed.ttl <= 0)
                 {
                     /*std::fprintf(stderr,
@@ -331,8 +256,9 @@ namespace rsim_driver
                              seed.source_actor_id, seed.ttl,
                              virtualObstacle.s, virtualObstacle.l,
                              virtualObstacle.length, virtualObstacle.width);*/
-                result->virtual_static_obstacles.push_back(virtualObstacle);
+                converted.virtualstaticobstacles.push_back(virtualObstacle);
             }
+            *result = std::move(converted);
             seeds = std::move(aliveSeeds);
 
             return true;

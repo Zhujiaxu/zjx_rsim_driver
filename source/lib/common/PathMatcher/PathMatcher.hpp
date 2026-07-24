@@ -25,6 +25,7 @@ namespace rsim_driver
         };
 
         inline std::size_t kMatchConfirmLookahead = 15;
+        inline std::size_t kMatchConfirmLookahead_ref = 6;
         inline double DistanceSquared(double x0, double y0, double x1, double y1)
         {
             const double dx = x0 - x1;
@@ -85,7 +86,7 @@ namespace rsim_driver
             }
 
             ++nonImprovingCount;
-            if (nonImprovingCount >= path_matcher_detail::kMatchConfirmLookahead)
+            if (nonImprovingCount >= path_matcher_detail::kMatchConfirmLookahead_ref)
             {
                 break;
             }

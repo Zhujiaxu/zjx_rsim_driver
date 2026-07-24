@@ -43,11 +43,11 @@ namespace rsim_driver
             return std::sqrt(dx * dx + dy * dy);
         }
 
-        double EgoPlanarAccel(const rsim_plugin::ActorState &actor)
+        /*double EgoPlanarAccel(const rsim_plugin::ActorState &actor)
         {
             return std::sqrt(actor.acc_x * actor.acc_x +
                              actor.acc_y * actor.acc_y);
-        }
+        }*/
 
         bool IsValidTrajectoryPoint(const PlanningTrajectoryPoint &point)
         {
@@ -92,12 +92,7 @@ namespace rsim_driver
                                         double matchDistance)
         {
             PlanningStartPoint start;
-            start.x = point.x;
-            start.y = point.y;
-            start.heading = point.heading;
-            start.speed = point.speed;
-            start.accel = point.accel;
-            start.time = point.time;
+            start.startpointbasis = point;
             start.source = source;
             start.matchDistance = matchDistance;
             return start;
@@ -222,22 +217,42 @@ namespace rsim_driver
             return stitching;
         }
 
+        double EgoXAccel(const rsim_plugin::ActorState &actor)
+        {
+            return actor.acc_x*std::cos(actor.h) - actor.acc_y*std::sin(actor.h);
+        }
+        double EgoYAccel(const rsim_plugin::ActorState &actor)
+        {
+            return actor.acc_x*std::sin(actor.h) + actor.acc_y*std::cos(actor.h);
+        }
+
+        double EgoXspeed(const rsim_plugin::ActorState &actor)
+        {
+            return actor.vel_x*std::cos(actor.h) - actor.vel_y*std::sin(actor.h);
+        }
+        double EgoYspeed(const rsim_plugin::ActorState &actor)
+        {
+            return actor.vel_x*std::sin(actor.h) + actor.vel_y*std::cos(actor.h);
+        }   
+        double EgoSpeed(const rsim_plugin::ActorState &actor)
+        {
+            return std::sqrt(actor.vel_x*actor.vel_x + actor.vel_y*actor.vel_y);
+        }
         PlanningStartPoint ExtrapolateByKinematics(const rsim_plugin::ActorState &ego,
                                                    double currentTime,
                                                    double planningPeriod)
         {
             const double dt = std::max(0.0, planningPeriod);
-            const double accel = EgoPlanarAccel(ego);
-            const double ds =
-                std::max(0.0, ego.speed * dt + 0.5 * accel * dt * dt);
             const double targetTime = currentTime + dt;
 
             PlanningTrajectoryPoint point;
-            point.x = ego.x + ds * std::cos(ego.h);
-            point.y = ego.y + ds * std::sin(ego.h);
+            point.x = ego.x + EgoXspeed(ego) * dt + 0.5 * EgoXAccel(ego) * dt * dt;
+            point.y = ego.y + EgoYspeed(ego) * dt + 0.5 * EgoYAccel(ego) * dt * dt;
             point.heading = ego.h;
-            point.speed = std::max(0.0, ego.speed + accel * dt);
-            point.accel = accel;
+            point.curvature = 0.0;
+            point.speed =std::sqrt((EgoXspeed(ego)+EgoXAccel(ego)*dt )*(EgoXspeed(ego)+EgoXAccel(ego)*dt) 
+                        + (EgoYspeed(ego)+EgoYAccel(ego)*dt )*(EgoYspeed(ego)+EgoYAccel(ego)*dt)); // ego.speed + EgoPlanarAccel(ego) * dt;
+            point.accel = ego.acc_x;
             point.time = targetTime;
 
             return ToStartPoint(point,

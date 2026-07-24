@@ -57,7 +57,7 @@ namespace rsim_driver
         bool speed_qp_increase_points_success = false;
         bool trajectory_success = false;
         PlanningStartResult planning_start_result;
-        CartesianFrenetState frenet_start_result;
+        StartPointFrenetState frenet_start_result;
         StaticFrenetObstaclePerceptionResult static_perception_result;
         DynamicFrenetObstaclePerceptionResult dynamic_perception_result;
         VirtualFrenetObstaclePerceptionResult virtual_perception_result;
@@ -68,7 +68,7 @@ namespace rsim_driver
         QpPathResult qp_result;
         QpIncreasePointsResult qp_increase_points_result;
         std::vector<CartesianPathPoint> localcartesianpath;
-        SpeedReferenceLinePath speed_reference_line;
+        std::vector<SpeedReferenceLinePoint> speed_reference_line;
         DynamicPlanSpeedResult speed_dp_result;
         StDrivableAreaResult drivable_area_st;
         QpSpeedOptimizerResult speed_qp_result;
@@ -106,7 +106,7 @@ namespace rsim_driver
         const FrenetObstaclePerception &get_perception() const;
     private:
         bool BuildTrajectory(
-            const SpeedReferenceLinePath &referenceLine,
+            const std::vector<SpeedReferenceLinePoint> &referenceLine,
             const std::vector<DynamicPlanSpeedPoint> &newqppointspath,
             const PlanningStartResult &planningStartResult,
             std::vector<PlanningTrajectoryPoint> *result) const;
@@ -175,8 +175,8 @@ namespace rsim_driver
         std::vector<StaticFrenetObstacle> pathObstacles =
             output.static_perception_result.staticobstacles;
         pathObstacles.insert(pathObstacles.end(),
-                             output.virtual_perception_result.virtual_static_obstacles.begin(),
-                             output.virtual_perception_result.virtual_static_obstacles.end());
+                             output.virtual_perception_result.virtualstaticobstacles.begin(),
+                             output.virtual_perception_result.virtualstaticobstacles.end());
 
         // Step 2: PlanningStart — compute start point in Cartesian
         if (!planning_start_.Compute(ego,
@@ -205,8 +205,8 @@ namespace rsim_driver
                               &output.dp_result))
         {
             output.dp_result.Flag == DpPlannerFallback::Stop 
-            ? std::cout << "SL-DP:密集障碍物||规划起点已碰撞，紧急停车/n" << std::endl
-            : std::cout << "SL-DP:其他错误" << std::endl;
+            ? std::cout << "【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车/n" << std::endl
+            : std::cout << "【SL-DP】:其他错误" << std::endl;
 
             *result = output;
             return false;
@@ -224,7 +224,7 @@ namespace rsim_driver
                                           pathObstacles,
                                           &output.drivable_area_result))
         {
-            output.drivable_area_result.Flag == DrivableAreaFallback::Stop ? std::cout << "可行使区域过窄" << std::endl  : std::cout << "可行驶区域其他错误" << std::endl ;
+            output.drivable_area_result.Flag == DrivableAreaFallback::Stop ? std::cout << "【SL-DriArea】:可行使区域过窄" << std::endl  : std::cout << "【SL-DriArea】:可行驶区域其他错误" << std::endl ;
             *result = output;
             return false;
         }
@@ -237,7 +237,7 @@ namespace rsim_driver
                 output.drivable_area_result,
                 &output.qp_result))
         {
-            output.qp_result.Flag == QpPathOptimizerFallback::SolveFailStop ? std::cout << "QP求解失败" << std::endl : std::cout << "QP Path其他错误" << std::endl ;
+            output.qp_result.Flag == QpPathOptimizerFallback::SolveFailStop ? std::cout << "【SL-QP】:QP求解失败" << std::endl : std::cout << "【SL-QP】:QP Path其他错误" << std::endl ;
             *result = output;
             return false;
         }

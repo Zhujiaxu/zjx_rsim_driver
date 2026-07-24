@@ -24,17 +24,17 @@ namespace rsim_driver
         }
         // 后处理准备函数，插值参考线点
         bool InterpolateReferenceLinePoint(
-            const localreferencelinepath &referenceLine,
+            const std::vector<SpeedReferenceLinePoint> &referenceLine,
             double s,
-            localreferencelinepoint *interpoint)
+            SpeedReferenceLinePoint *interpoint)
         {
             if (interpoint == nullptr)
                 return false;
 
             for (std::size_t i = 1; i < referenceLine.size(); ++i)
             {
-                const localreferencelinepoint &previous = referenceLine[i - 1];
-                const localreferencelinepoint &next = referenceLine[i];
+                const SpeedReferenceLinePoint &previous = referenceLine[i - 1];
+                const SpeedReferenceLinePoint &next = referenceLine[i];
                 if (s > next.s)
                     continue;
 
@@ -44,14 +44,13 @@ namespace rsim_driver
                         ? std::clamp((s - previous.s) / ds, 0.0, 1.0)
                         : 0.0;
 
-                localreferencelinepoint point = previous;
+                SpeedReferenceLinePoint point = previous;
                 point.x = previous.x + (next.x - previous.x) * ratio;
                 point.y = previous.y + (next.y - previous.y) * ratio;
                 point.k = previous.k + (next.k - previous.k) * ratio;
                 point.hdg = NormalizeAngle(
                     previous.hdg + NormalizeAngle(next.hdg - previous.hdg) * ratio);
                 point.s = s;
-                point.dk = previous.dk;
                 *interpoint = std::move(point);
                 return true;
             }
@@ -143,6 +142,7 @@ namespace rsim_driver
                 &output.dynamic_perception_result))
         {
             *result = output;
+            std::cout << "速度规划失败:动态障碍物转换失败\n";
             return false;
         }
         output.dynamic_perception_success = true;
@@ -154,13 +154,11 @@ namespace rsim_driver
         if (!cutinandout_builder_.Compute(
                 output.speed_reference_line,
                 output.dynamic_perception_result,
-                output.planning_start_result.start_point.speed,
-                EMconfig_.planning_start_config.planningPeriod,
-                EMconfig_.speed_dp_config.time_step *
-                    static_cast<double>(EMconfig_.speed_dp_config.time_step_count),
+                output.planning_start_result.start_point.startpointbasis.speed,
                 &STBoundaryInfos,
                 &virtual_obstacle_seeds_))
         {
+            std::cout<< "速度规划失败:计算cut-in-and-out边界失败\n";
             *result = output;
             return false;
         }
@@ -223,7 +221,7 @@ namespace rsim_driver
     }
 
     bool EmPlanner::BuildTrajectory(
-        const SpeedReferenceLinePath &speedreferenceline,
+        const std::vector<SpeedReferenceLinePoint> &speedreferenceline,
         const std::vector<DynamicPlanSpeedPoint> &speedincreaseline,
         const PlanningStartResult &planningStartResult,
         std::vector<PlanningTrajectoryPoint> *result) const
@@ -231,7 +229,7 @@ namespace rsim_driver
         if (result == nullptr)
             return false;
         result->clear();
-        //输入参数检查
+        // 输入参数检查
         if (speedreferenceline.empty() || speedincreaseline.empty())
         {
             std::cout << "后处理失败:SL参考线或者增密ST线为空\n"
@@ -258,7 +256,7 @@ namespace rsim_driver
             point.curvature = pathPoint.k;
             point.speed = speedPoint.v;
             point.accel = speedPoint.a;
-            point.time = planningStartResult.start_point.time + speedPoint.t;
+            point.time = planningStartResult.start_point.startpointbasis.time + speedPoint.t;
             if (!IsValidTrajectoryPoint(point))
             {
                 result->clear();

@@ -12,7 +12,7 @@ namespace rsim_driver
 
 struct ComputeCutInAndOutConfig
 {
-    double half_vehicle_width_l = 1.0;
+    double half_buffers = 1.5;
     double ldot_epsilon = 1e-6;
     double stationary_overlap_horizon = 8.0;
 };
@@ -38,11 +38,9 @@ public:
     const ComputeCutInAndOutConfig& config() const;
     void SetConfig(const ComputeCutInAndOutConfig& config);
 
-    bool Compute(const localreferencelinepath& referenceLine,
+    bool Compute(const std::vector<SpeedReferenceLinePoint>& referenceLine,
                  const DynamicFrenetObstaclePerceptionResult& obstacles,
-                 double ego_s_dot,
-                 double planningPeriod,
-                 double t_plan,
+                 const double & ego_speed,
                  std::vector<CutInAndOutInfo>* result,
                  std::vector<VirtualObstacleSeed>* seeds) const;
 

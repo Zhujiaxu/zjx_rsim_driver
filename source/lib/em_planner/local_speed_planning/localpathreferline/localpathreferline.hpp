@@ -18,11 +18,11 @@ namespace rsim_driver
         double s = 0.0;
     };
 
-    using SpeedReferenceLinePath = std::vector<SpeedReferenceLinePoint>;
+
 
     inline bool SpeedReferencePathGenerator(
         const std::vector<CartesianPathPoint> &slcartesianpath,
-        SpeedReferenceLinePath *result)
+        std::vector<SpeedReferenceLinePoint> *result)
     {
         if (result == nullptr)
             return false;

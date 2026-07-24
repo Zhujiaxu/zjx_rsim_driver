@@ -136,7 +136,7 @@ namespace rsim_driver
             return {s, boundary.back().l};
         }
 
-        bool ValidInput(const CartesianFrenetState &start,
+        bool ValidInput(const StartPointFrenetState &start,
                         const DrivableAreaResult &drivableArea)
         {
             if (!cartesian_to_frenet_detail::IsFinite(start))
@@ -215,7 +215,7 @@ namespace rsim_driver
     }
 
     bool QpPathOptimizer::Optimize(
-        const CartesianFrenetState &start,
+        const StartPointFrenetState &start,
         const DrivableAreaResult &drivableArea,
         QpPathResult *result) const
     {
