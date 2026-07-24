@@ -30,6 +30,7 @@ namespace rsim_driver
         DrivableAreaConfig drivable_area_config;
         QpPathOptimizerConfig qp_config;
         QpIncreasePointsConfig qp_increase_points_config;
+        ComputeCutInAndOutConfig cutinandout_config;
         DynamicPlanSpeedConfig speed_dp_config;
         StDrivableAreaConfig speed_drivable_area_config;
         QpSpeedOptimizerConfig speed_qp_config;

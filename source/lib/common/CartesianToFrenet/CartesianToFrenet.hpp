@@ -115,10 +115,10 @@ namespace rsim_driver
             *frenetState = std::move(obstacle);
             return true;
         }
-        template <typename RefPointT, typename CartesianPointT>
+        template <typename RefPointT, typename CartesianPointT,typename VirtualSeed>
         bool VirtualObsFrenetTransformer(const std::vector<RefPointT> &referencePoints,
                                          const CartesianPointT &cartesianPoint,
-                                         const VirtualObstacleSeed &seed,
+                                         const VirtualSeed &seed,
                                          StaticAndVirtualObsFrenetState *frenetState)
         {
             seed.ttl--;

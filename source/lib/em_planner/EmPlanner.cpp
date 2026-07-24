@@ -78,6 +78,7 @@ namespace rsim_driver
           drivable_area_builder_(config.drivable_area_config),
           qp_path_optimizer_(config.qp_config),
           qp_increase_points_(config.qp_increase_points_config),
+          cutinandout_builder_(config.cutinandout_config),
           speed_planner_(config.speed_dp_config),
           st_drivable_area_builder_(config.speed_drivable_area_config),
           speed_qp_optimizer_(config.speed_qp_config),
@@ -100,6 +101,7 @@ namespace rsim_driver
         drivable_area_builder_.SetConfig(config.drivable_area_config);
         qp_path_optimizer_.SetConfig(config.qp_config);
         qp_increase_points_.SetConfig(config.qp_increase_points_config);
+        cutinandout_builder_.SetConfig(config.cutinandout_config);
         speed_planner_.SetConfig(config.speed_dp_config);
         st_drivable_area_builder_.SetConfig(config.speed_drivable_area_config);
         speed_qp_optimizer_.SetConfig(config.speed_qp_config);

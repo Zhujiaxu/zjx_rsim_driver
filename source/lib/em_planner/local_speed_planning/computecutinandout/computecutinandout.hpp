@@ -19,7 +19,7 @@ struct ComputeCutInAndOutConfig
 
 struct CutInAndOutInfo
 {
-    int32_t id = -1.0;
+    int32_t id = -1;
     double tin = -1.0;
     double tout = -1.0;
     double sin = -1.0;
