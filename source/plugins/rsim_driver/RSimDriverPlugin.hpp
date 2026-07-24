@@ -4,6 +4,7 @@
 
 #include "EmPlanner.hpp"
 #include "GlobalPathGenerator.hpp"
+#include "LogWriter.hpp"
 #include "MapHelper.hpp"
 #include "ObstacleToCsv.hpp"
 #include "ReferenceLineGenerator.hpp"
@@ -66,7 +67,7 @@ private:
         const rsim_plugin::TickContext &ctx,
         const rsim_plugin::ActorState &ego,
         const PlanningStartResult &startResult,
-        const CartesianFrenetState &frenet,
+        const StartPointFrenetState &frenet,
         bool slSuccess);
     void OpenEgoTrajectoryCsv();
     void WriteEgoTrajectoryCsv(
@@ -93,9 +94,11 @@ private:
     std::string obstacle_csv_path_;
     std::string planning_start_sl_csv_path_;
     std::string ego_trajectory_csv_path_;
+    std::string log_file_path_;
     std::FILE *reference_line_csv_fp_ = nullptr;
     std::FILE *planning_start_sl_csv_fp_ = nullptr;
     std::FILE *ego_trajectory_csv_fp_ = nullptr;
+    std::FILE *log_fp_ = nullptr;
     GlobalPathGenerator global_path_generator_;
     ObstacleCsvWriter obstacle_csv_writer_;
 

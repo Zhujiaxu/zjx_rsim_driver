@@ -75,12 +75,11 @@ bool RSimDriverPlugin::InstallGlobalPathFromXosc(
         global_path_generator_.WriteCsv(route_csv_path_, result.world_points);
     if (csvWritten && !route_csv_path_.empty())
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] global path CSV written: %s "
-                     "(rows=%zu, chord=%.2f m)\n",
-                     route_csv_path_.c_str(),
-                     global_path_world_points_.size(),
-                     result.chord_length);
+        PluginLog("[RSimDriver] global path CSV written: %s "
+                 "(rows=%zu, chord=%.2f m)\n",
+                 route_csv_path_.c_str(),
+                 global_path_world_points_.size(),
+                 result.chord_length);
     }
     return true;
 }
@@ -184,28 +183,26 @@ void RSimDriverPlugin::LatchInitialState(const rsim_plugin::ActorState &ego)
         const double startError = std::sqrt(dx * dx + dy * dy);
         if (startError > 2.0)
         {
-            std::fprintf(stderr,
-                         "[RSimDriver] WARNING: initial ego (%.2f, %.2f) is "
-                         "%.2f m from the global path start\n",
-                         ego.x,
-                         ego.y,
-                         startError);
+            PluginLog("[RSimDriver] WARNING: initial ego (%.2f, %.2f) is "
+                     "%.2f m from the global path start\n",
+                     ego.x,
+                     ego.y,
+                     startError);
         }
 
-        std::fprintf(stderr,
-                     "[RSimDriver] route start road=%lld lane=%d s=%.2f "
-                     "world=(%.2f, %.2f) ego=(%.2f, %.2f)\n",
-                     static_cast<long long>(first.road_id),
-                     routeLane,
-                     first.s_start,
-                     global_path_world_points_.empty()
-                         ? 0.0
-                         : global_path_world_points_.front().x,
-                     global_path_world_points_.empty()
-                         ? 0.0
-                         : global_path_world_points_.front().y,
-                     ego.x,
-                     ego.y);
+        PluginLog("[RSimDriver] route start road=%lld lane=%d s=%.2f "
+                 "world=(%.2f, %.2f) ego=(%.2f, %.2f)\n",
+                 static_cast<long long>(first.road_id),
+                 routeLane,
+                 first.s_start,
+                 global_path_world_points_.empty()
+                     ? 0.0
+                     : global_path_world_points_.front().x,
+                 global_path_world_points_.empty()
+                     ? 0.0
+                     : global_path_world_points_.front().y,
+                 ego.x,
+                 ego.y);
     }
 
     latched_ = true;
@@ -225,10 +222,9 @@ void RSimDriverPlugin::UpdateReferenceLine(
         reference_line_.reset();
         if (!reference_line_failure_reported_)
         {
-            std::fprintf(stderr,
-                         "[RSimDriver] WARNING: reference line generation "
-                         "failed (worldPoints=%zu)\n",
-                         global_path_world_points_.size());
+            PluginLog("[RSimDriver] WARNING: reference line generation "
+                     "failed (worldPoints=%zu)\n",
+                     global_path_world_points_.size());
             reference_line_failure_reported_ = true;
         }
         return;
@@ -238,9 +234,8 @@ void RSimDriverPlugin::UpdateReferenceLine(
     reference_line_failure_reported_ = false;
     if (!reference_line_ready_reported_)
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] reference line ready: points=%zu\n",
-                     reference_line_->points.size());
+        PluginLog("[RSimDriver] reference line ready: points=%zu\n",
+                 reference_line_->points.size());
         reference_line_ready_reported_ = true;
     }
 }

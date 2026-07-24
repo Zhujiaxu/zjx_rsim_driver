@@ -1,4 +1,5 @@
 #include "ObstacleToCsv.hpp"
+#include "LogWriter.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -22,9 +23,8 @@ bool ObstacleCsvWriter::Open(const std::string& path)
     fp_ = std::fopen(path_.c_str(), "w");
     if (fp_ == nullptr)
     {
-        std::fprintf(stderr,
-                     "[ObstacleCsvWriter] WARNING: cannot open obstacle CSV: %s\n",
-                     path_.c_str());
+        PluginLog("[ObstacleCsvWriter] WARNING: cannot open obstacle CSV: %s\n",
+                 path_.c_str());
         path_.clear();
         return false;
     }

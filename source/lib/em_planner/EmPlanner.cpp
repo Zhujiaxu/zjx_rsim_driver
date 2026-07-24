@@ -134,6 +134,7 @@ namespace rsim_driver
         {
             *result = output;
             std::cout << "速度规划失败:SL笛卡尔参考线转speed_reference_line失败\n";
+            PluginLogEcho("速度规划失败:SL笛卡尔参考线转speed_reference_line失败\n");
             return false;
         }
 
@@ -145,6 +146,7 @@ namespace rsim_driver
         {
             *result = output;
             std::cout << "速度规划失败:动态障碍物转换失败\n";
+            PluginLogEcho("速度规划失败:动态障碍物转换失败\n");
             return false;
         }
         output.dynamic_perception_success = true;
@@ -160,7 +162,8 @@ namespace rsim_driver
                 &STBoundaryInfos,
                 &virtual_obstacle_seeds_))
         {
-            std::cout<< "速度规划失败:计算cut-in-and-out边界失败\n";
+            std::cout << "速度规划失败:计算cut-in-and-out边界失败\n";
+            PluginLogEcho("速度规划失败:计算cut-in-and-out边界失败\n");
             *result = output;
             return false;
         }
@@ -170,11 +173,12 @@ namespace rsim_driver
             GetDynamicSpeedPlanStartPoint(output.planning_start_result);
         if (!speed_planner_.Plan(speedStart, STBoundaryInfos, &output.speed_dp_result))
         {
-            std::fprintf(stderr,
-                         output.speed_dp_result.Flag ==
-                                 DynamicPlanSpeedFallback::Stop
-                             ? "ST-DP规划：密集障碍物\n"
-                             : "ST-DP规划：Other\n");
+            const char *dpMsg =
+                output.speed_dp_result.Flag == DynamicPlanSpeedFallback::Stop
+                    ? "ST-DP规划：密集障碍物\n"
+                    : "ST-DP规划：Other\n";
+            std::fprintf(stderr, "%s", dpMsg);
+            PluginLogEcho("%s", dpMsg);
             *result = output;
             return false;
         }
@@ -185,11 +189,12 @@ namespace rsim_driver
                                              &output.speed_dp_result,
                                              &output.drivable_area_st))
         {
-            std::fprintf(stderr,
-                         output.drivable_area_st.Flag ==
-                                 StDrivableAreaFallback::Stop
-                             ? "ST可行驶区域过窄\n"
-                             : "ST可行驶区域：Other\n");
+            const char *stMsg =
+                output.drivable_area_st.Flag == StDrivableAreaFallback::Stop
+                    ? "ST可行驶区域过窄\n"
+                    : "ST可行驶区域：Other\n";
+            std::fprintf(stderr, "%s", stMsg);
+            PluginLogEcho("%s", stMsg);
             *result = output;
             return false;
         }
@@ -199,11 +204,12 @@ namespace rsim_driver
                                           output.drivable_area_st,
                                           &output.speed_qp_result))
         {
-            std::fprintf(stderr,
-                         output.speed_qp_result.Flag ==
-                                 QpSpeedOptimizerFallback::Stop
-                             ? "ST-QP优化：求解失败\n"
-                             : "ST-QP优化：Other\n");
+            const char *qpMsg =
+                output.speed_qp_result.Flag == QpSpeedOptimizerFallback::Stop
+                    ? "ST-QP优化：求解失败\n"
+                    : "ST-QP优化：Other\n";
+            std::fprintf(stderr, "%s", qpMsg);
+            PluginLogEcho("%s", qpMsg);
             *result = output;
             return false;
         }
@@ -236,6 +242,7 @@ namespace rsim_driver
         {
             std::cout << "后处理失败:SL参考线或者增密ST线为空\n"
                       << std::endl;
+            PluginLogEcho("后处理失败:SL参考线或者增密ST线为空\n");
             return false;
         }
         SpeedReferenceLinePoint pathPoint;
@@ -249,6 +256,7 @@ namespace rsim_driver
                 result->clear();
                 std::cout << "后处理失败:插值SL参考线点失败\n"
                           << std::endl;
+                PluginLogEcho("后处理失败:插值SL参考线点失败\n");
                 return false;
             }
 
@@ -264,6 +272,7 @@ namespace rsim_driver
                 result->clear();
                 std::cout << "后处理失败:轨迹点参数不合理\n"
                           << std::endl;
+                PluginLogEcho("后处理失败:轨迹点参数不合理\n");
                 return false;
             }
             result->push_back(point);
@@ -302,6 +311,7 @@ namespace rsim_driver
                 output.trajectory.clear();
                 std::cout << "后处理失败:轨迹点时间间隔过小或时序混乱\n"
                           << std::endl;
+                PluginLogEcho("后处理失败:轨迹点时间间隔过小或时序混乱\n");
                 sltoutput = std::move(output);
                 return false;
             }

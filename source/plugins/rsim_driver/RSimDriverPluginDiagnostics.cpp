@@ -95,7 +95,7 @@ void RSimDriverPlugin::ReportPlannerStageStatus(
         result.speed_qp_increase_points_success ? 1 : 0,
         result.trajectory_success ? 1 : 0,
         result.static_perception_result.staticobstacles.size(),
-        result.virtual_perception_result.virtual_static_obstacles.size(),
+        result.virtual_perception_result.virtualstaticobstacles.size(),
         result.dynamic_perception_result.dynamicobstacles.size(),
         result.virtual_obstacle_seeds.size(),
         result.dp_result.path.size(),
@@ -103,7 +103,7 @@ void RSimDriverPlugin::ReportPlannerStageStatus(
         result.localcartesianpath.size(),
         result.speed_dp_result.stpoints.size(),
         result.speed_qp_result.stpoints.size(),
-        result.increasepoints_speed_points.size(),
+        result.speed_increasepoints_line.size(),
         result.trajectory.size(),
         previous_trajectory_.size());
 }
@@ -113,16 +113,15 @@ void RSimDriverPlugin::ReportPlanningFailure(
     const rsim_plugin::ActorState &ego,
     const char *reason) const
 {
-    std::fprintf(stderr,
-                 "[RSimDriver] ERROR: %s, stop ego id=%d frame=%llu "
-                 "time=%.6f ego=(%.3f, %.3f, h=%.3f)\n",
-                 reason,
-                 ego.id,
-                 static_cast<unsigned long long>(ctx.frame_id),
-                 ctx.sim_time,
-                 ego.x,
-                 ego.y,
-                 ego.h);
+    PluginLog("[RSimDriver] ERROR: %s, stop ego id=%d frame=%llu "
+             "time=%.6f ego=(%.3f, %.3f, h=%.3f)\n",
+             reason,
+             ego.id,
+             static_cast<unsigned long long>(ctx.frame_id),
+             ctx.sim_time,
+             ego.x,
+             ego.y,
+             ego.h);
 }
 
 void RSimDriverPlugin::OpenReferenceLineDebugCsv()
@@ -139,9 +138,8 @@ void RSimDriverPlugin::OpenReferenceLineDebugCsv()
         std::fopen(reference_line_csv_path_.c_str(), "w");
     if (reference_line_csv_fp_ == nullptr)
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] WARNING: cannot write reference line CSV: %s\n",
-                     reference_line_csv_path_.c_str());
+        PluginLog("[RSimDriver] WARNING: cannot write reference line CSV: %s\n",
+                 reference_line_csv_path_.c_str());
         reference_line_csv_path_.clear();
         return;
     }
@@ -206,9 +204,8 @@ void RSimDriverPlugin::OpenPlanningStartSlDebugCsv()
         std::fopen(planning_start_sl_csv_path_.c_str(), "w");
     if (planning_start_sl_csv_fp_ == nullptr)
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] WARNING: cannot write planning-start CSV: %s\n",
-                     planning_start_sl_csv_path_.c_str());
+        PluginLog("[RSimDriver] WARNING: cannot write planning-start CSV: %s\n",
+                 planning_start_sl_csv_path_.c_str());
         planning_start_sl_csv_path_.clear();
         return;
     }
@@ -227,13 +224,14 @@ void RSimDriverPlugin::WritePlanningStartSlDebugCsv(
     const rsim_plugin::TickContext &ctx,
     const rsim_plugin::ActorState &ego,
     const PlanningStartResult &startResult,
-    const CartesianFrenetState &frenet,
+    const StartPointFrenetState &frenet,
     bool slSuccess)
 {
     if (planning_start_sl_csv_fp_ == nullptr)
         return;
 
     const PlanningStartPoint &start = startResult.start_point;
+    const auto &startPt = start.startpointbasis;
     const double egoAccel = ego.acc_x;
     std::fprintf(planning_start_sl_csv_fp_,
                  "%llu,%.9f,%.9f,"
@@ -252,12 +250,12 @@ void RSimDriverPlugin::WritePlanningStartSlDebugCsv(
                  ego.acc_x,
                  ego.acc_y,
                  egoAccel,
-                 start.x,
-                 start.y,
-                 start.heading,
-                 start.speed,
-                 start.accel,
-                 start.time,
+                 startPt.x,
+                 startPt.y,
+                 startPt.heading,
+                 startPt.speed,
+                 startPt.accel,
+                 startPt.time,
                  PlanningStartSourceName(start.source),
                  start.matchDistance,
                  startResult.start_curvature,
@@ -284,9 +282,8 @@ void RSimDriverPlugin::OpenEgoTrajectoryCsv()
     ego_trajectory_csv_fp_ = std::fopen(ego_trajectory_csv_path_.c_str(), "w");
     if (ego_trajectory_csv_fp_ == nullptr)
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] WARNING: cannot write ego trajectory CSV: %s\n",
-                     ego_trajectory_csv_path_.c_str());
+        PluginLog("[RSimDriver] WARNING: cannot write ego trajectory CSV: %s\n",
+                 ego_trajectory_csv_path_.c_str());
         ego_trajectory_csv_path_.clear();
         return;
     }

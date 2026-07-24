@@ -262,10 +262,9 @@ namespace rsim_driver
 
         void LogTrajectoryTooShort(const char *reason, double queryTime)
         {
-            std::fprintf(stderr,
-                         "[PlanningStart] 规划轨迹过短: %s time=%.6f\n",
-                         reason,
-                         queryTime);
+            PluginLog("[PlanningStart] 规划轨迹过短: %s time=%.6f\n",
+                     reason,
+                     queryTime);
         }
 
 

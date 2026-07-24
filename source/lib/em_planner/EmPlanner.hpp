@@ -12,6 +12,7 @@
 #include "local_speed_planning/speed_drivable_area/StDrivableArea.hpp"
 #include "local_speed_planning/speed_quadratic_programming/SpeedQpOptimizer.hpp"
 #include "local_speed_planning/speed_qp_increase_points/SpeedQpIncreasePoints.hpp"
+#include "LogWriter.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -173,7 +174,7 @@ namespace rsim_driver
         output.virtual_perception_success = true;
         output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
-        std::vector<StaticFrenetObstacle> pathObstacles =
+        std::vector<StaticAndVirtualObsFrenetState> pathObstacles =
             output.static_perception_result.staticobstacles;
         pathObstacles.insert(pathObstacles.end(),
                              output.virtual_perception_result.virtualstaticobstacles.begin(),
@@ -205,9 +206,13 @@ namespace rsim_driver
                               pathObstacles,
                               &output.dp_result))
         {
-            output.dp_result.Flag == DpPlannerFallback::Stop 
-            ? std::cout << "【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车/n" << std::endl
-            : std::cout << "【SL-DP】:其他错误" << std::endl;
+            if (output.dp_result.Flag == DpPlannerFallback::Stop) {
+                std::cout << "【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车" << std::endl;
+                PluginLogEcho("【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车\n");
+            } else {
+                std::cout << "【SL-DP】:其他错误" << std::endl;
+                PluginLogEcho("【SL-DP】:其他错误\n");
+            }
 
             *result = output;
             return false;
@@ -225,7 +230,13 @@ namespace rsim_driver
                                           pathObstacles,
                                           &output.drivable_area_result))
         {
-            output.drivable_area_result.Flag == DrivableAreaFallback::Stop ? std::cout << "【SL-DriArea】:可行使区域过窄" << std::endl  : std::cout << "【SL-DriArea】:可行驶区域其他错误" << std::endl ;
+            if (output.drivable_area_result.Flag == DrivableAreaFallback::Stop) {
+                std::cout << "【SL-DriArea】:可行使区域过窄" << std::endl;
+                PluginLogEcho("【SL-DriArea】:可行使区域过窄\n");
+            } else {
+                std::cout << "【SL-DriArea】:可行驶区域其他错误" << std::endl;
+                PluginLogEcho("【SL-DriArea】:可行驶区域其他错误\n");
+            }
             *result = output;
             return false;
         }
@@ -238,7 +249,13 @@ namespace rsim_driver
                 output.drivable_area_result,
                 &output.qp_result))
         {
-            output.qp_result.Flag == QpPathOptimizerFallback::SolveFailStop ? std::cout << "【SL-QP】:QP求解失败" << std::endl : std::cout << "【SL-QP】:QP Path其他错误" << std::endl ;
+            if (output.qp_result.Flag == QpPathOptimizerFallback::SolveFailStop) {
+                std::cout << "【SL-QP】:QP求解失败" << std::endl;
+                PluginLogEcho("【SL-QP】:QP求解失败\n");
+            } else {
+                std::cout << "【SL-QP】:QP Path其他错误" << std::endl;
+                PluginLogEcho("【SL-QP】:QP Path其他错误\n");
+            }
             *result = output;
             return false;
         }

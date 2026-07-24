@@ -13,6 +13,7 @@ target_compile_features(global_path PUBLIC cxx_std_17)
 
 target_link_libraries(global_path PUBLIC
     map_helper
+    logwriter
     pugixml::pugixml)
 
 add_executable(test_global_path_smoke EXCLUDE_FROM_ALL

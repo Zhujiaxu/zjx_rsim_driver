@@ -12,6 +12,9 @@ target_include_directories(obstacle_to_csv PUBLIC
 
 target_compile_features(obstacle_to_csv PUBLIC cxx_std_17)
 
+target_link_libraries(obstacle_to_csv PUBLIC
+    logwriter)
+
 add_executable(test_obstacle_to_csv_smoke EXCLUDE_FROM_ALL
     test_obstacle_to_csv_smoke.cpp)
 target_link_libraries(test_obstacle_to_csv_smoke PRIVATE

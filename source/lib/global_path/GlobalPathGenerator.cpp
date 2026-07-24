@@ -1,4 +1,5 @@
 #include "GlobalPathGenerator.hpp"
+#include "LogWriter.hpp"
 
 #include "pugixml.hpp"
 
@@ -277,18 +278,16 @@ bool GlobalPathGenerator::GenerateFromXosc(const std::string& xoscPath,
     const pugi::xml_parse_result load = doc.load_file(xoscPath.c_str());
     if (!load)
     {
-        std::fprintf(stderr,
-                     "[GlobalPathGenerator] WARNING: routeXoscPath parse failed '%s': %s\n",
-                     xoscPath.c_str(), load.description());
+        PluginLog("[GlobalPathGenerator] WARNING: routeXoscPath parse failed '%s': %s\n",
+                 xoscPath.c_str(), load.description());
         return false;
     }
 
     std::vector<XoscRoutePoint> points;
     if (!TryExtractXoscTrajectory(doc, entityName, map, &points))
     {
-        std::fprintf(stderr,
-                     "[GlobalPathGenerator] WARNING: no valid FollowTrajectoryAction for entityRef=\"%s\"\n",
-                     entityName.c_str());
+        PluginLog("[GlobalPathGenerator] WARNING: no valid FollowTrajectoryAction for entityRef=\"%s\"\n",
+                 entityName.c_str());
         return false;
     }
 
@@ -301,8 +300,7 @@ bool GlobalPathGenerator::GenerateFromXosc(const std::string& xoscPath,
     {
         result->route_segments.clear();
         result->world_points.clear();
-        std::fprintf(stderr,
-                     "[GlobalPathGenerator] WARNING: XOSC trajectory route has insufficient points/segments\n");
+        PluginLog("[GlobalPathGenerator] WARNING: XOSC trajectory route has insufficient points/segments\n");
         return false;
     }
 
@@ -340,9 +338,8 @@ bool WriteGlobalPathCsv(const std::string& path,
     std::FILE* fp = std::fopen(path.c_str(), "w");
     if (fp == nullptr)
     {
-        std::fprintf(stderr,
-                     "[GlobalPathGenerator] WARNING: cannot write global path CSV: %s\n",
-                     path.c_str());
+        PluginLog("[GlobalPathGenerator] WARNING: cannot write global path CSV: %s\n",
+                 path.c_str());
         return false;
     }
 

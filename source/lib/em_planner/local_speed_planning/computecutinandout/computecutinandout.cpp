@@ -76,11 +76,10 @@ namespace rsim_driver
                 int &slowCnt = slowCounters[obstacle.id];
                 slowCnt++;
 
-                /*std::fprintf(stderr,
-                             "[VOB-Slow] id=%d s=%.2f s_dot=%.2f l=%.2f ldot=%.2f "
-                             "slowCnt=%d/%d\n",
-                             obstacle.id, obstacle.s, obstacle.s_dot,
-                             obstacle.l, obstacle.ldot, slowCnt, 20);*/
+                /*PluginLog("[VOB-Slow] id=%d s=%.2f s_dot=%.2f l=%.2f ldot=%.2f "
+                         "slowCnt=%d/%d\n",
+                         obstacle.id, obstacle.s, obstacle.s_dot,
+                         obstacle.l, obstacle.ldot, slowCnt, 20);*/
 
                 VirtualObstacleSeed seedslow;
                 seedslow.source_actor_id = obstacle.id;
@@ -103,12 +102,11 @@ namespace rsim_driver
             // Debug: log when an obstacle with low speed fails conditions
             /* if (state.s_dot > 0.0 && state.s_dot <= 3)
              {
-                 std::fprintf(stderr,
-                              "[VOB-Fail] id=%d s=%.2f s_dot=%.2f l=%.2f ldot=%.2f "
-                              "overlap=%d\n",
-                              obstacle.id, state.s, state.s_dot,
-                              state.l, state.ldot,
-                              HasPersistentLaneOverlap(obstacle, config) ? 1 : 0);
+                 PluginLog("[VOB-Fail] id=%d s=%.2f s_dot=%.2f l=%.2f ldot=%.2f "
+                          "overlap=%d\n",
+                          obstacle.id, state.s, state.s_dot,
+                          state.l, state.ldot,
+                          HasPersistentLaneOverlap(obstacle, config) ? 1 : 0);
              }*/
 
             /* --- Oncoming conflict virtual obstacle ---*/

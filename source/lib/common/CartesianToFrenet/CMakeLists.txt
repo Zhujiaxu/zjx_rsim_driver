@@ -8,7 +8,8 @@ target_include_directories(cartesian_to_frenet INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_features(cartesian_to_frenet INTERFACE cxx_std_17)
 target_link_libraries(cartesian_to_frenet INTERFACE
-    pathmatcher)
+    pathmatcher
+    logwriter)
 
 add_executable(test_cartesian_to_frenet_smoke EXCLUDE_FROM_ALL
     test_cartesian_to_frenet_smoke.cpp)

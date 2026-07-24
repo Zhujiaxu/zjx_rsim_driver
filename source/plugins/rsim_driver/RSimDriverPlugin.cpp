@@ -24,6 +24,12 @@ RSimDriverPlugin::~RSimDriverPlugin()
         std::fclose(planning_start_sl_csv_fp_);
     if (ego_trajectory_csv_fp_ != nullptr)
         std::fclose(ego_trajectory_csv_fp_);
+    if (log_fp_ != nullptr)
+    {
+        SetPluginLogFile(nullptr);
+        std::fclose(log_fp_);
+        log_fp_ = nullptr;
+    }
 }
 
 void RSimDriverPlugin::Init(
@@ -73,11 +79,21 @@ void RSimDriverPlugin::Init(
     planning_start_sl_csv_path_ = getString("planningStartSlCsvPath", "");
     ego_trajectory_csv_path_ = getString("egoTrajectoryCsvPath", "");
     entity_name_ = getString("entityName", "ego");
+    log_file_path_ = getString("logFilePath", "");
+
+    if (!log_file_path_.empty())
+    {
+        log_fp_ = std::fopen(log_file_path_.c_str(), "w");
+        if (log_fp_ != nullptr)
+        {
+            SetPluginLogFile(log_fp_);
+            PluginLog("[RSimDriver] log file opened: %s\n", log_file_path_.c_str());
+        }
+    }
 
     if (!getDouble("setSpeed", 13.0, &set_speed_) || set_speed_ < 0.0)
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] FATAL: invalid setSpeed property\n");
+        PluginLog("[RSimDriver] FATAL: invalid setSpeed property\n");
         initialization_ok_ = false;
         return;
     }
@@ -94,10 +110,9 @@ void RSimDriverPlugin::Init(
 
     if (xodrPath.empty() || !map_.Load(xodrPath))
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] FATAL: xodrPath property is missing or map "
-                     "loading failed ('%s')\n",
-                     xodrPath.c_str());
+        PluginLog("[RSimDriver] FATAL: xodrPath property is missing or map "
+                 "loading failed ('%s')\n",
+                 xodrPath.c_str());
         map_loaded_ = false;
     }
     else
@@ -107,8 +122,7 @@ void RSimDriverPlugin::Init(
 
     if (map_loaded_ && !InstallGlobalPathFromXosc(route_xosc_path_))
     {
-        std::fprintf(stderr,
-                     "[RSimDriver] FATAL: failed to install route from XOSC\n");
+        PluginLog("[RSimDriver] FATAL: failed to install route from XOSC\n");
         initialization_ok_ = false;
     }
 }

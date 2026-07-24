@@ -126,7 +126,7 @@ namespace rsim_driver
         {
             if (result == nullptr || referencePoints.empty())
             {
-                std::cout << "【perception】ConvertStaticObstacles: referencePoints is empty" << std::endl;
+                PluginLog("【perception】ConvertStaticObstacles: referencePoints is empty\n");
                 return false;
             }
             result->staticobstacles.clear();
@@ -168,7 +168,7 @@ namespace rsim_driver
         {
             if (result == nullptr || referencePoints.empty())
             {
-                std::cout << "【perception】ConvertDynamicObstacles: referencePoints is empty" << std::endl;
+                PluginLog("【perception】ConvertDynamicObstacles: referencePoints is empty\n");
                 return false;
             }
             result->dynamicobstacles.clear();
@@ -244,18 +244,16 @@ namespace rsim_driver
                 }
                 if (seed.ttl <= 0)
                 {
-                    /*std::fprintf(stderr,
-                                 "[VOB-Resolve] id=%d DROPPED ttl=%d\n",
-                                 seed.source_actor_id, seed.ttl);*/
+                    /*PluginLog("[VOB-Resolve] id=%d DROPPED ttl=%d\n",
+                             seed.source_actor_id, seed.ttl);*/
                     continue;
                 }
                 aliveSeeds.push_back(seed);
-                /*std::fprintf(stderr,
-                             "[VOB-Resolve] id=%d ttl=%d s=%.2f l=%.2f len=%.2f "
-                             "width=%.2f\n",
-                             seed.source_actor_id, seed.ttl,
-                             virtualObstacle.s, virtualObstacle.l,
-                             virtualObstacle.length, virtualObstacle.width);*/
+                /*PluginLog("[VOB-Resolve] id=%d ttl=%d s=%.2f l=%.2f len=%.2f "
+                         "width=%.2f\n",
+                         seed.source_actor_id, seed.ttl,
+                         virtualObstacle.s, virtualObstacle.l,
+                         virtualObstacle.length, virtualObstacle.width);*/
                 converted.virtualstaticobstacles.push_back(virtualObstacle);
             }
             *result = std::move(converted);
