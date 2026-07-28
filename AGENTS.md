@@ -1,6 +1,7 @@
 # rsim-driver 任务规则
 
-- 当使用规划模式时，必须输出 markdown 格式的计划书到/home/ubzjx/proj/qc_intern/work/rsim_driver/Dission_md，包含 Summary、Implementation Changes、Test Plan 三个部分，审批通过，才能执行。
+- 当使用plan模式时，必须输出 markdown 格式的计划书到/home/ubzjx/proj/qc_intern/work/rsim_driver/Dission_md，包含 Summary、Implementation Changes、Test Plan 三个部分，审批通过，才能执行。
+- 当使用plan模式输出计划，如果一次修改的计划过大，分成子计划，然后顺序请求审批，顺序执行每个子计划
 - 当使用规划模式编写代码之前，查看有无代码更改却未提交，如有，提醒我，并告知commit的message，即简短的标题；如无，编写代码
 - Fail Fast / Errors Never Pass Silently：不要在代码里藏兜底逻辑来吞掉错误、隐藏问题。出了问题就应该让它爆出来，否则你永远找不到真实问题。
 - Fix the Cause, Not the Symptom / Don't Paper Over Bugs：当一个问题出现时，不要用各种 small fix、针对性补丁来掩盖它。必须定位真实根因，彻底修复。在 bug 上糊纸只会让系统积累你不知道的危险暗病。
