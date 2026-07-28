@@ -87,7 +87,6 @@ namespace rsim_driver
 
                 if (slowCnt > 20)
                 {
-                    slowCnt = 0;
                     seedslow.source_actor_id = obstacle.id;
                     seedslow.type = VirtualObstacleType::SlowLead;
                     seedslow.longitudinal_buffer =
@@ -136,7 +135,6 @@ namespace rsim_driver
 
                 if (oncomingCnt > 10)
                 {
-                    oncomingCnt = 0;
                     *seed = seedoncoming;
                     return true;
                 }

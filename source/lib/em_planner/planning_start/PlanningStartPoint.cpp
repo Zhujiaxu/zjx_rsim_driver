@@ -66,7 +66,8 @@ namespace rsim_driver
             if (!std::isfinite(ego.x) || !std::isfinite(ego.y) ||
                 !std::isfinite(ego.h) || !std::isfinite(ego.speed) ||
                 ego.speed < 0.0 || !std::isfinite(ego.acc_x) ||
-                !std::isfinite(ego.acc_y) || !std::isfinite(currentTime) ||
+                !std::isfinite(ego.acc_y) || !std::isfinite(ego.vel_x) ||
+                !std::isfinite(ego.vel_y) || !std::isfinite(currentTime) ||
                 !std::isfinite(config.planningPeriod) ||
                 config.planningPeriod < 0.0 ||
                 !std::isfinite(config.mismatchDistanceThreshold) ||
@@ -217,42 +218,30 @@ namespace rsim_driver
             return stitching;
         }
 
-        double EgoXAccel(const rsim_plugin::ActorState &actor)
+        double EgoLongitudinalAccel(const rsim_plugin::ActorState &actor)
         {
-            return actor.acc_x*std::cos(actor.h) - actor.acc_y*std::sin(actor.h);
-        }
-        double EgoYAccel(const rsim_plugin::ActorState &actor)
-        {
-            return actor.acc_x*std::sin(actor.h) + actor.acc_y*std::cos(actor.h);
+            return actor.acc_x * std::cos(actor.h) +
+                   actor.acc_y * std::sin(actor.h);
         }
 
-        double EgoXspeed(const rsim_plugin::ActorState &actor)
-        {
-            return actor.vel_x*std::cos(actor.h) - actor.vel_y*std::sin(actor.h);
-        }
-        double EgoYspeed(const rsim_plugin::ActorState &actor)
-        {
-            return actor.vel_x*std::sin(actor.h) + actor.vel_y*std::cos(actor.h);
-        }   
-        double EgoSpeed(const rsim_plugin::ActorState &actor)
-        {
-            return std::sqrt(actor.vel_x*actor.vel_x + actor.vel_y*actor.vel_y);
-        }
         PlanningStartPoint ExtrapolateByKinematics(const rsim_plugin::ActorState &ego,
                                                    double currentTime,
                                                    double planningPeriod)
         {
             const double dt = std::max(0.0, planningPeriod);
             const double targetTime = currentTime + dt;
+            const double longitudinalAccel = EgoLongitudinalAccel(ego);
+            
 
             PlanningTrajectoryPoint point;
-            point.x = ego.x + EgoXspeed(ego) * dt + 0.5 * EgoXAccel(ego) * dt * dt;
-            point.y = ego.y + EgoYspeed(ego) * dt + 0.5 * EgoYAccel(ego) * dt * dt;
+            point.x = ego.x + ego.vel_x * dt +
+                      0.5 * ego.acc_x * dt * dt;
+            point.y = ego.y + ego.vel_y * dt +
+                      0.5 * ego.acc_y * dt * dt;
             point.heading = ego.h;
             point.curvature = 0.0;
-            point.speed =std::sqrt((EgoXspeed(ego)+EgoXAccel(ego)*dt )*(EgoXspeed(ego)+EgoXAccel(ego)*dt) 
-                        + (EgoYspeed(ego)+EgoYAccel(ego)*dt )*(EgoYspeed(ego)+EgoYAccel(ego)*dt)); // ego.speed + EgoPlanarAccel(ego) * dt;
-            point.accel = ego.acc_x;
+            point.speed =ego.speed + longitudinalAccel * dt;
+            point.accel = longitudinalAccel;
             point.time = targetTime;
 
             return ToStartPoint(point,
@@ -262,7 +251,7 @@ namespace rsim_driver
 
         void LogTrajectoryTooShort(const char *reason, double queryTime)
         {
-            PluginLog("[PlanningStart] 规划轨迹过短: %s time=%.6f\n",
+            PluginLog("[PlanningStart] : %s time=%.6f\n",
                      reason,
                      queryTime);
         }
@@ -317,14 +306,14 @@ namespace rsim_driver
             ego, currentTime, previousTrajectory, planningStartPointConfig_);
         if (!check.has_current_point)
         {
-            LogTrajectoryTooShort("无法找到当前时间点的轨迹点", currentTime);
+            LogTrajectoryTooShort("插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点", currentTime);
             *result = std::move(output);
             return true;
         }
         output.start_point.matchDistance = check.match_distance;
         if (!check.reusable)
         {
-            LogTrajectoryTooShort("跟踪延迟——距离过大", currentTime);
+            LogTrajectoryTooShort("插值上一帧轨迹：跟踪延迟——距离过大", currentTime);
             *result = std::move(output);
             return true;
         }
@@ -333,7 +322,7 @@ namespace rsim_driver
             PlanningTrajectoryPoint startPoint;
             if (!FindTrajectoryPointAtTime(previousTrajectory, targetTime, &startPoint))
             {
-                LogTrajectoryTooShort("无法找到目标时间点的轨迹点", targetTime);
+                LogTrajectoryTooShort("插值上一帧轨迹：无法找到目标时间点的轨迹点", targetTime);
                 *result = std::move(output);
                 return true;
             }

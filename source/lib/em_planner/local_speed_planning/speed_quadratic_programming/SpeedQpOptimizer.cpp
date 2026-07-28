@@ -139,7 +139,7 @@ namespace rsim_driver
 
         const double dt = config_.dt;
         const int numVariables = 3 * n;
-        const int numConstraints = 6 * n - 1;
+        const int numConstraints = 6 * n - 2;
 
         // ===== assemble cost =====
         std::vector<Eigen::Triplet<double>> hessianTriplets;
@@ -256,7 +256,7 @@ namespace rsim_driver
         }
 
         // --- acceleration bounds (n box constraints) ---
-        for (int i = 0; i < n; ++i)
+        for (int i = 1; i < n; ++i)
         {
             AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
                              {{AIndex(i), 1.0}},
