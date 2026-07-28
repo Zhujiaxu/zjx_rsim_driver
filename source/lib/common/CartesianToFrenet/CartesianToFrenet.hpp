@@ -151,9 +151,9 @@ namespace rsim_driver
             obstacle.l = lateralDx * normalX + lateralDy * normalY;
             double relativeangle = NormalizeAngle(cartesianPoint.heading - matchedPoint.hdg);
             obstacle.length = (cartesianPoint.length * std::fabs(std::cos(relativeangle))) < cartesianPoint.width ? cartesianPoint.width
-                             : cartesianPoint.length * std::fabs(std::cos(relativeangle));
+                             : cartesianPoint.length * std::fabs(std::cos(relativeangle))+seed.longitudinal_buffer;
             obstacle.width = (cartesianPoint.length * std::fabs(std::sin(relativeangle))) < cartesianPoint.width ? cartesianPoint.width 
-                             : cartesianPoint.length * std::fabs(std::sin(relativeangle));
+                             : cartesianPoint.length * std::fabs(std::sin(relativeangle))+seed.lateral_buffer;
             if (!IsFinite(obstacle))
             {
                 PluginLog("【common】StaticObsFrenetTransformer: 感知虚拟障碍物结果参数无效\n");
