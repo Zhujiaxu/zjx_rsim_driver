@@ -20,7 +20,7 @@ namespace rsim_driver
         double weight_jerk = 1.0;
         double weight_progress = 1.0;
         double a_min = -5.0;
-        double a_max = 3.0;
+        double a_max = 8.0;
         int max_iterations = 1000;
     };
     enum class QpSpeedOptimizerFallback

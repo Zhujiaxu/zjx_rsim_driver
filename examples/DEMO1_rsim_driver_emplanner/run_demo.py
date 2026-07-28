@@ -189,6 +189,7 @@ def configure_scenario(scenario):
         "obstacleCsvPath":   str(OBSTACLE_CSV),
         "planningStartSlCsvPath": str(PLANNING_START_SL_CSV),
         "egoTrajectoryCsvPath": str(EGO_TRAJECTORY_CSV),
+        "logFilePath":       str(LOG_DIR / "rsim_driver.log"),
         "setSpeed":          "13.0",  # EMPlanner 参考速度 (m/s)
         "entityName":        "ego",
     }

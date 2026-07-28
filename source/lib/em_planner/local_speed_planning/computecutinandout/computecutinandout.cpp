@@ -21,7 +21,9 @@ namespace rsim_driver
             const double halfWidthL = std::max(0.0, config.half_buffers);
             const double obsHalfWidth = 0.5 * std::max(0.0, obstacle.width);
             return std::fabs(obstacle.l_dot) <= 0.5 &&
-                   std::fabs(obstacle.l) - obsHalfWidth <= halfWidthL &&
+                   (std::fabs(obstacle.l) >= halfWidthL
+                        ? std::fabs(obstacle.l) - obsHalfWidth <= halfWidthL
+                        : true) &&
                    obstacle.s > 0.0;
         }
 
@@ -76,28 +78,28 @@ namespace rsim_driver
                 int &slowCnt = slowCounters[obstacle.id];
                 slowCnt++;
 
-                /*PluginLog("[VOB-Slow] id=%d s=%.2f s_dot=%.2f l=%.2f ldot=%.2f "
-                         "slowCnt=%d/%d\n",
-                         obstacle.id, obstacle.s, obstacle.s_dot,
-                         obstacle.l, obstacle.ldot, slowCnt, 20);*/
+                PluginLog("[VOB-Slow] id=%d s=%.2f s_dot=%.2f l=%.2f ldot=%.2f "
+                          "slowCnt=%d/%d\n",
+                          obstacle.id, obstacle.s, obstacle.s_dot,
+                          obstacle.l, obstacle.l_dot, slowCnt, 20);
 
                 VirtualObstacleSeed seedslow;
-                seedslow.source_actor_id = obstacle.id;
-                seedslow.type = VirtualObstacleType::SlowLead;
-                seedslow.longitudinal_buffer =
-                    obstacle.s_dot / ratio * obstacle.length;
-                seedslow.lateral_buffer = kVirtualObstacleLateralBuffer;
 
                 if (slowCnt > 20)
                 {
                     slowCnt = 0;
+                    seedslow.source_actor_id = obstacle.id;
+                    seedslow.type = VirtualObstacleType::SlowLead;
+                    seedslow.longitudinal_buffer =
+                        obstacle.s_dot / ratio * obstacle.length;
+                    seedslow.lateral_buffer = kVirtualObstacleLateralBuffer;
                     *seed = seedslow;
                     return true;
                 }
             }
-            if(slowCounters.find(obstacle.id) != slowCounters.end())
+            else if (slowCounters.find(obstacle.id) != slowCounters.end())
             {
-                slowCounters[obstacle.id] -= 2;
+                slowCounters[obstacle.id]--;
             }
             // Debug: log when an obstacle with low speed fails conditions
             /* if (state.s_dot > 0.0 && state.s_dot <= 3)
@@ -120,6 +122,11 @@ namespace rsim_driver
                 int &oncomingCnt = oncomingCounters[obstacle.id];
                 oncomingCnt++;
 
+                PluginLog("[VOB-Oncoming] id=%d s=%.2f s_dot=%.2f l=%.2f ldot=%.2f "
+                          "oncomingCnt=%d/%d\n",
+                          obstacle.id, obstacle.s, obstacle.s_dot,
+                          obstacle.l, obstacle.l_dot, oncomingCnt, 10);
+
                 VirtualObstacleSeed seedoncoming;
                 seedoncoming.source_actor_id = obstacle.id;
                 seedoncoming.type = VirtualObstacleType::OncomingConflict;
@@ -134,12 +141,11 @@ namespace rsim_driver
                     return true;
                 }
             }
-            if(oncomingCounters.find(obstacle.id) != oncomingCounters.end())
+            else if (oncomingCounters.find(obstacle.id) != oncomingCounters.end())
             {
-                oncomingCounters[obstacle.id] -= 2;
+                oncomingCounters[obstacle.id]--;
             }
             return false;
-            
         }
 
         std::optional<CutInAndOutInfo> ComputeObstacleCutInAndOut(
@@ -196,11 +202,10 @@ namespace rsim_driver
             {
                 info.tin = (info.tin - obstacle.width / (2 * std::fabs(obstacle.l_dot))) <= 0.0
                                ? 0.0
-                               : (std::fabs(obstacle.l) - 0.5 * std::fabs(obstacle.width) 
-                               - halfWidthL) / std::fabs(obstacle.l_dot);
-                info.tout = (info.tout + obstacle.width / (2 * std::fabs(obstacle.l_dot)))>= stationaryHorizon
+                               : (std::fabs(obstacle.l) - 0.5 * std::fabs(obstacle.width) - halfWidthL) / std::fabs(obstacle.l_dot);
+                info.tout = (info.tout + obstacle.width / (2 * std::fabs(obstacle.l_dot))) >= stationaryHorizon
                                 ? stationaryHorizon
-                                : info.tout+ obstacle.width / (2 * std::fabs(obstacle.l_dot));
+                                : info.tout + obstacle.width / (2 * std::fabs(obstacle.l_dot));
                 if (info.tin > stationaryHorizon)
                 {
                     return std::nullopt;
@@ -209,11 +214,11 @@ namespace rsim_driver
                 info.sin = obstacle.s + info.tin * obstacle.s_dot;
                 info.sinmin = info.sin - obstacle.length / 2.0;
                 info.sinmax = info.sin + obstacle.length / 2.0;
-                info.sout = (obstacle.s + info.tout * obstacle.s_dot)>= speedlinetotals
+                info.sout = (obstacle.s + info.tout * obstacle.s_dot) >= speedlinetotals
                                 ? speedlinetotals
                                 : obstacle.s + info.tout * obstacle.s_dot;
                 info.soutmin = info.sout - obstacle.length / 2.0;
-                info.soutmax = (info.sout + obstacle.length / 2.0)>= speedlinetotals
+                info.soutmax = (info.sout + obstacle.length / 2.0) >= speedlinetotals
                                    ? speedlinetotals
                                    : info.sout + obstacle.length / 2.0;
             }
@@ -246,7 +251,7 @@ namespace rsim_driver
         std::vector<CutInAndOutInfo> *result,
         std::vector<VirtualObstacleSeed> *seeds) const
     {
-        if (result == nullptr || seeds == nullptr || referenceLine.empty() )
+        if (result == nullptr || seeds == nullptr || referenceLine.empty())
             return false;
 
         result->clear();
@@ -277,7 +282,7 @@ namespace rsim_driver
             }
 
             const std::optional<CutInAndOutInfo> boundary =
-                ComputeObstacleCutInAndOut(obstacle,referenceLine.back().s, config_);
+                ComputeObstacleCutInAndOut(obstacle, referenceLine.back().s, config_);
             if (boundary.has_value())
                 result->push_back(*boundary);
         }

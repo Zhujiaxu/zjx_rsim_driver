@@ -156,6 +156,7 @@ namespace rsim_driver
             {start.s, start.l}, obstacles, config.collision);
         if (IsFatalCollisionCost(startCost, config.collision))
         {
+            PluginLogEcho("【DpPlanner】:起点碰撞\n");
             output.Flag = DpPlannerFallback::Stop;
             *result = std::move(output);
             return false;

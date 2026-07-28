@@ -30,7 +30,7 @@ namespace rsim_driver
     struct DynamicObsFrenetState
     {
         int32_t id = 0;
-        //double relangle = 0.0;
+        // double relangle = 0.0;
         double s = 0.0;
         double l = 0.0;
         double s_dot = 0.0;
@@ -106,8 +106,10 @@ namespace rsim_driver
                          projectionDy * tangentY;
             obstacle.l = lateralDx * normalX + lateralDy * normalY;
             double relativeangle = NormalizeAngle(cartesianPoint.heading - matchedPoint.hdg);
-            obstacle.length = cartesianPoint.length * std::fabs(std::cos(relativeangle));
-            obstacle.width = cartesianPoint.width * std::fabs(std::sin(relativeangle));
+            obstacle.length = (cartesianPoint.length * std::fabs(std::cos(relativeangle))) < cartesianPoint.width ? cartesianPoint.width
+                             : cartesianPoint.length * std::fabs(std::cos(relativeangle));
+            obstacle.width = (cartesianPoint.length * std::fabs(std::sin(relativeangle))) < cartesianPoint.width ? cartesianPoint.width 
+                             : cartesianPoint.length * std::fabs(std::sin(relativeangle));
             if (!IsFinite(obstacle))
             {
                 PluginLog("【common】StaticObsFrenetTransformer: 感知静态障碍物结果参数无效\n");
@@ -123,6 +125,7 @@ namespace rsim_driver
                                          StaticAndVirtualObsFrenetState *frenetState)
         {
             seed.ttl--;
+            PluginLog("[VOB-Virtual] id=%d ttl=%d\n", seed.source_actor_id, seed.ttl);
             if (frenetState == nullptr)
                 return false;
             const std::size_t matchIndex =
@@ -147,8 +150,10 @@ namespace rsim_driver
                          projectionDy * tangentY;
             obstacle.l = lateralDx * normalX + lateralDy * normalY;
             double relativeangle = NormalizeAngle(cartesianPoint.heading - matchedPoint.hdg);
-            obstacle.length = cartesianPoint.length * std::fabs(std::cos(relativeangle)) + seed.longitudinal_buffer;
-            obstacle.width = cartesianPoint.width * std::fabs(std::sin(relativeangle)) + seed.lateral_buffer;
+            obstacle.length = (cartesianPoint.length * std::fabs(std::cos(relativeangle))) < cartesianPoint.width ? cartesianPoint.width
+                             : cartesianPoint.length * std::fabs(std::cos(relativeangle));
+            obstacle.width = (cartesianPoint.length * std::fabs(std::sin(relativeangle))) < cartesianPoint.width ? cartesianPoint.width 
+                             : cartesianPoint.length * std::fabs(std::sin(relativeangle));
             if (!IsFinite(obstacle))
             {
                 PluginLog("【common】StaticObsFrenetTransformer: 感知虚拟障碍物结果参数无效\n");
@@ -188,7 +193,7 @@ namespace rsim_driver
                          projectionDy * tangentY;
             obstacle.l = lateralDx * normalX + lateralDy * normalY;
             double relativeangle = NormalizeAngle(cartesianPoint.heading - matchedPoint.hdg);
-            //obstacle.relangle = relativeangle;
+            // obstacle.relangle = relativeangle;
             if (1 - matchedPoint.k * obstacle.l <= kEpsilon)
             {
                 PluginLog("【common】DynamicObsFrenetTransformer: 感知动态障碍物结果s_dot无穷\n");
@@ -196,8 +201,10 @@ namespace rsim_driver
             }
             obstacle.s_dot = cartesianPoint.speed * std::cos(relativeangle) / (1 - matchedPoint.k * obstacle.l);
             obstacle.l_dot = cartesianPoint.speed * std::sin(relativeangle);
-            obstacle.length = cartesianPoint.length * std::fabs(std::cos(relativeangle));
-            obstacle.width = cartesianPoint.width * std::fabs(std::sin(relativeangle));
+            obstacle.length = (cartesianPoint.length * std::fabs(std::cos(relativeangle))) < cartesianPoint.width ? cartesianPoint.width
+                             : cartesianPoint.length * std::fabs(std::cos(relativeangle));
+            obstacle.width = (cartesianPoint.length * std::fabs(std::sin(relativeangle))) < cartesianPoint.width ? cartesianPoint.width 
+                             : cartesianPoint.length * std::fabs(std::sin(relativeangle));
             if (!IsFinite(obstacle))
             {
                 PluginLog("【common】DynamicObsFrenetTransformer: 感知动态障碍物结果参数无效\n");
@@ -212,18 +219,8 @@ namespace rsim_driver
                                           double s,
                                           RefPointT *interpolated)
         {
-            if (interpolated == nullptr)
+            if (interpolated == nullptr || referencePoints.empty())
                 return false;
-            if (referencePoints.size() == 1 || s < referencePoints.front().s)
-            {
-                PluginLog("【common】InterpolateReferenceStateByS: s is out of range\n");
-                return false;
-            }
-            if (s > referencePoints.back().s)
-            {
-                PluginLog("【common】InterpolateReferenceStateByS: s is out of range\n");
-                return false;
-            }
 
             for (std::size_t i = 1; i < referencePoints.size(); ++i)
             {
@@ -233,9 +230,9 @@ namespace rsim_driver
                     continue;
 
                 const double ds = next.s - previous.s;
-                const double ratio = std::fabs(ds) > kEpsilon
-                                         ? (s - previous.s) / ds
-                                         : 0.0;
+                const double ratio = std::fabs(std::fabs(ds) > kEpsilon
+                                                   ? (s - previous.s) / ds
+                                                   : 0.0);
 
                 RefPointT point = previous;
                 point.x = previous.x + (next.x - previous.x) * ratio;
@@ -267,9 +264,9 @@ namespace rsim_driver
 
         template <typename RefPointT, typename CartesianPointT>
         bool StartPointFrenetStateTranformer(const std::vector<RefPointT> &referencePoints,
-                                    const CartesianPointT &cartesianPoint,
-                                    double curvature,
-                                    StartPointFrenetState *frenetState)
+                                             const CartesianPointT &cartesianPoint,
+                                             double curvature,
+                                             StartPointFrenetState *frenetState)
         {
             if (frenetState == nullptr || referencePoints.empty())
                 return false;
@@ -294,7 +291,7 @@ namespace rsim_driver
                                               refinedS,
                                               &projectionReference))
             {
-                PluginLog("【common】CartesianPointToFrenet: 规划起始点转Frenet失败\n");
+                PluginLog("【common】StartPointFrenetStateTranformer: 规划起始点转Frenet失败\n");
                 return false;
             }
 
@@ -307,14 +304,24 @@ namespace rsim_driver
                 cartesianPoint.heading - projectionReference.hdg);
             const double cosDeltaTheta = std::cos(deltaTheta);
             if (std::fabs(cosDeltaTheta) <= kEpsilon)
+            {
+                PluginLog("【common】StartPointFrenetStateTranformer: cos(deltaTheta)≈0, "
+                          "deltaTheta=%.6f startHeading=%.6f refHeading=%.6f\n",
+                          deltaTheta, cartesianPoint.heading, projectionReference.hdg);
                 return false;
+            }
 
             const double tanDeltaTheta = std::tan(deltaTheta);
             const double referenceKappa = projectionReference.k;
             const double referenceDkappa = projectionReference.dk;
             const double oneMinusKappaRefL = 1.0 - referenceKappa * l;
             if (std::fabs(oneMinusKappaRefL) <= kEpsilon)
+            {
+                PluginLog("【common】StartPointFrenetStateTranformer: 1-k*l≈0 singularity, "
+                          "k=%.6f l=%.6f 1-k*l=%.9f\n",
+                          referenceKappa, l, oneMinusKappaRefL);
                 return false;
+            }
 
             const double sinDeltaTheta = std::sin(deltaTheta);
             const double lPrime = oneMinusKappaRefL * tanDeltaTheta;
@@ -351,7 +358,7 @@ namespace rsim_driver
 
             if (!IsFinite(state))
             {
-                PluginLog("【common】CartesianPointToFrenet: 规划起始点转Frenet参数不合理\n");
+                PluginLog("【common】StartPointFrenetStateTranformer: 规划起始点转Frenet参数不合理\n");
                 return false;
             }
 
