@@ -143,6 +143,7 @@ namespace rsim_driver
         cartesianPath->reserve(frenetPath.size());
         for (const FrenetPointT &frenetPoint : frenetPath)
         {
+
             CartesianPathPoint point;
             if (!FrenetPointToCartesian(referencePoints,
                                         frenetPoint,

@@ -24,10 +24,10 @@ struct DpPlannerConfig
     int left_l_step_count = 11;
     int right_l_step_count = 11;
 
-    double weight_l_prime = 1.0;
+    double weight_l_prime = 5.0;
     double weight_l_double_prime = 1.0;
-    double weight_ref_l = 1.0;
-    double weight_collision = 60.0;
+    double weight_ref_l = 3.0;
+    double weight_collision = 100.0;
 
     StaticCollisionCostConfig collision;
 };
@@ -56,7 +56,7 @@ public:
     void SetConfig(const DpPlannerConfig& config);
 
     bool Plan(const StartPointFrenetState& start,
-              const std::vector<StaticAndVirtualObsFrenetState>& obstacles,
+              const std::vector<StaticObsFrenetState>& obstacles,
               DpPlannerResult* result) const;
 
 private:

@@ -41,8 +41,7 @@ public:
     bool Compute(const std::vector<SpeedReferenceLinePoint>& referenceLine,
                  const DynamicFrenetObstaclePerceptionResult& obstacles,
                  const double & ego_speed,
-                 std::vector<CutInAndOutInfo>* result,
-                 std::vector<VirtualObstacleSeed>* seeds) const;
+                 std::vector<CutInAndOutInfo>* result) const;
 
 private:
     ComputeCutInAndOutConfig config_;

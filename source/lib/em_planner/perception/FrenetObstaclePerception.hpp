@@ -52,7 +52,7 @@ namespace rsim_driver
 
     struct StaticFrenetObstaclePerceptionResult
     {
-        std::vector<StaticAndVirtualObsFrenetState> staticobstacles;
+        std::vector<StaticObsFrenetState> staticobstacles;
     };
 
     struct DynamicFrenetObstaclePerceptionResult
@@ -62,7 +62,7 @@ namespace rsim_driver
 
     struct VirtualFrenetObstaclePerceptionResult
     {
-        std::vector<StaticAndVirtualObsFrenetState> virtualstaticobstacles;
+        std::vector<StaticObsFrenetState> virtualstaticobstacles;
     };
 
     struct FrenetObstaclePerceptionConfig
@@ -144,7 +144,7 @@ namespace rsim_driver
                     frenet_obstacle_perception_detail::ActorActualSpeed(actor);
                 if (speed <= staticSpeedThreshold)
                 {
-                    StaticAndVirtualObsFrenetState obstacle;
+                    StaticObsFrenetState obstacle;
                     if (!cartesian_to_frenet_detail ::StaticObsFrenetTransformer(referencePoints,
                                                                                  frenet_obstacle_perception_detail::StaticAndVirtualObsToCartesianPoint(actor),
                                                                                  &obstacle))
@@ -184,7 +184,7 @@ namespace rsim_driver
 
                 const double speed =
                     frenet_obstacle_perception_detail::ActorActualSpeed(actor);
-                if (speed >= staticSpeedThreshold)
+                if (speed > staticSpeedThreshold)
                 {
                     DynamicObsFrenetState obstacle;
                     if (!cartesian_to_frenet_detail::DynamicObsFrenetTransformer(referencePoints,
@@ -201,7 +201,7 @@ namespace rsim_driver
             return true;
         }
 
-        template <typename RefPointT>
+        /*template <typename RefPointT>
         bool ConvertVirtualObstacles(
             const std::vector<rsim_plugin::ActorState> &actors,
             int32_t egoActorId,
@@ -216,7 +216,7 @@ namespace rsim_driver
             if (seeds.empty())
                 return true;
             VirtualFrenetObstaclePerceptionResult converted;
-            converted.virtualstaticobstacles.reserve(seeds.size());   
+            converted.virtualstaticobstacles.reserve(seeds.size());
             std::vector<VirtualObstacleSeed> aliveSeeds;
             aliveSeeds.reserve(seeds.size());
             for (VirtualObstacleSeed &seed : seeds)
@@ -244,23 +244,23 @@ namespace rsim_driver
                 }
                 if (seed.ttl <= 0)
                 {
-                    /*PluginLog("[VOB-Resolve] id=%d DROPPED ttl=%d\n",
-                             seed.source_actor_id, seed.ttl);*/
+                    PluginLog("[VOB-Resolve] id=%d DROPPED ttl=%d\n",
+                              seed.source_actor_id, seed.ttl);
                     continue;
                 }
                 aliveSeeds.push_back(seed);
-                /*PluginLog("[VOB-Resolve] id=%d ttl=%d s=%.2f l=%.2f len=%.2f "
-                         "width=%.2f\n",
-                         seed.source_actor_id, seed.ttl,
-                         virtualObstacle.s, virtualObstacle.l,
-                         virtualObstacle.length, virtualObstacle.width);*/
+                PluginLog("[VOB-Resolve] id=%d ttl=%d s=%.2f l=%.2f len=%.2f "
+                          "width=%.2f\n",
+                          seed.source_actor_id, seed.ttl,
+                          virtualObstacle.s, virtualObstacle.l,
+                          virtualObstacle.length, virtualObstacle.width);
                 converted.virtualstaticobstacles.push_back(virtualObstacle);
             }
             *result = std::move(converted);
             seeds = std::move(aliveSeeds);
 
             return true;
-        }
+        }*/
 
     private:
         FrenetObstaclePerceptionConfig perceptionConfig_;

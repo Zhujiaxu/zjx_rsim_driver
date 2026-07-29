@@ -247,6 +247,7 @@ namespace rsim_driver
         {
             const double j = i * config_.dt / config_.dqpt;
 
+            // Calculate the lower and upper bounds for the drivable area
             const double lb = drivable_area.lower_boundary[static_cast<std::size_t>(j)].s + totalMargin;
             const double ub = drivable_area.upper_boundary[static_cast<std::size_t>(j)].s - totalMargin;
 

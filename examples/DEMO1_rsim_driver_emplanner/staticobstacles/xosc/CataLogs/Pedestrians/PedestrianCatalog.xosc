@@ -2,7 +2,7 @@
 <OpenSCENARIO>
     <FileHeader revMajor="1" revMinor="1" date="2024-03-30T10:00:00" description="pedestrian catalog" author="thsousands sim team"/>
     <Catalog name="PedestrianCatalog">
-        <Pedestrian mass="90" name="pedestrian_adult" pedestrianCategory="pedestrian" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/dvg4x8jrp5/gfc41u/Adult_male3.glb?Expires=1783924353&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=ESRNq31D6I2%2B8AdEE9Z%2F8NwLofQ%3D">
+        <Pedestrian mass="90" name="pedestrian_adult" pedestrianCategory="pedestrian" model3d="https://qiancen-one.oss-cn-shanghai.aliyuncs.com/material/scenes/dvg4x8jrp5/gfc41u/Adult_male3.glb?Expires=1785304748&OSSAccessKeyId=LTAI5tJTWvEVe17ThsHTxKt7&Signature=9saFeu5g7Q7KzQmWDlUQwsrxU54%3D">
             <BoundingBox>
                 <Center x="0" y="0" z="0.930000"/>
                 <Dimensions width="0.344" length="1.02" height="1.77"/>

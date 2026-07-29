@@ -68,7 +68,7 @@ namespace rsim_driver
             const double ds =
                 std::max(0.0, std::fabs(point.s - obstacle.s) - halfLength-0.5 * config.ego_length);
             const double dl =
-                std::max(0.0, std::fabs(point.l - obstacle.l) - halfWidth-0.5 * config.ego_width);
+                std::max(0.0, std::fabs(point.l - obstacle.l));
             const double distance = std::hypot(ds, dl);
             const double cost = DistanceCollisionCost(distance, config);
 

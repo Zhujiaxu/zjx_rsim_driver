@@ -25,19 +25,19 @@ namespace rsim_driver
                    config.obstacle_lateral_buffer >= 0.0;
         }
 
-        double ObstacleHalfLength(const StaticAndVirtualObsFrenetState &obstacle)
+        double ObstacleHalfLength(const StaticObsFrenetState &obstacle)
         {
             return 0.5 * std::max(0.0, obstacle.length);
         }
 
-        double ObstacleHalfExtent(const StaticAndVirtualObsFrenetState &obstacle,
+        double ObstacleHalfExtent(const StaticObsFrenetState &obstacle,
                                   const DrivableAreaConfig &config)
         {
             return 0.5 * std::max(0.0, obstacle.width) +
                    config.obstacle_lateral_buffer;
         }
 
-        bool ValidObstacle(const StaticAndVirtualObsFrenetState &obstacle)
+        bool ValidObstacle(const StaticObsFrenetState &obstacle)
         {
             return IsFinite(obstacle.s) &&
                    IsFinite(obstacle.l) &&
@@ -110,7 +110,7 @@ namespace rsim_driver
 
     bool DrivableAreaBuilder::Build(
         const std::vector<DpPathPoint> &coarsePath,
-        const std::vector<StaticAndVirtualObsFrenetState> &staticObstacles,
+        const std::vector<StaticObsFrenetState> &staticObstacles,
         DrivableAreaResult *result) const
     {
         if (result == nullptr)
@@ -144,7 +144,7 @@ namespace rsim_driver
             hasPreviousS = true;
         }
 
-        for (const StaticAndVirtualObsFrenetState &obstacle : staticObstacles)
+        for (const StaticObsFrenetState &obstacle : staticObstacles)
         {
             if (!ValidObstacle(obstacle))
                 continue;

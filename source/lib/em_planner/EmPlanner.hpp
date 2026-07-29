@@ -62,8 +62,8 @@ namespace rsim_driver
         StartPointFrenetState frenet_start_result;
         StaticFrenetObstaclePerceptionResult static_perception_result;
         DynamicFrenetObstaclePerceptionResult dynamic_perception_result;
-        VirtualFrenetObstaclePerceptionResult virtual_perception_result;
-        std::vector<VirtualObstacleSeed> virtual_obstacle_seeds;
+        //VirtualFrenetObstaclePerceptionResult virtual_perception_result;
+        //std::vector<VirtualObstacleSeed> virtual_obstacle_seeds;
         DpPlannerResult dp_result;
         DpIncreasePointsResult dp_increase_points_result;
         DrivableAreaResult drivable_area_result;
@@ -126,7 +126,7 @@ namespace rsim_driver
         StDrivableAreaBuilder st_drivable_area_builder_;
         SpeedQpOptimizer speed_qp_optimizer_;
         QpSpeedIncreasePoints speed_qp_increase_points_;
-        mutable std::vector<VirtualObstacleSeed> virtual_obstacle_seeds_;
+        //mutable std::vector<VirtualObstacleSeed> virtual_obstacle_seeds_;
     };
 
     template <typename RefPointT>
@@ -161,7 +161,8 @@ namespace rsim_driver
         }
         output.static_perception_success = true;
 
-        if (!perception_.ConvertVirtualObstacles(
+        // Step 2: Convert virtual obstacles
+        /*if (!perception_.ConvertVirtualObstacles(
                 actors,
                 egoActorId,
                 referencePoints,
@@ -170,15 +171,15 @@ namespace rsim_driver
         {
             *result = output;
             return false;
-        }
-        output.virtual_perception_success = true;
-        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
+        }*/
+        //output.virtual_perception_success = true;
+        //output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
-        std::vector<StaticAndVirtualObsFrenetState> pathObstacles =
+        /*std::vector<StaticObsFrenetState> pathObstacles =
             output.static_perception_result.staticobstacles;
         pathObstacles.insert(pathObstacles.end(),
                              output.virtual_perception_result.virtualstaticobstacles.begin(),
-                             output.virtual_perception_result.virtualstaticobstacles.end());
+                             output.virtual_perception_result.virtualstaticobstacles.end());*/
 
         // Step 2: PlanningStart — compute start point in Cartesian
         if (!planning_start_.Compute(ego,
@@ -203,7 +204,7 @@ namespace rsim_driver
 
         // Step 4: Dynamic Programming — plan path
         if (!dp_planner_.Plan(output.frenet_start_result,
-                              pathObstacles,
+                              output.static_perception_result.staticobstacles,
                               &output.dp_result))
         {
             if (output.dp_result.Flag == DpPlannerFallback::Stop) {
@@ -227,7 +228,7 @@ namespace rsim_driver
         output.dp_increase_points_success = true;
         // Step 5: DrivableArea — expand coarse DP s/l path into boundaries
         if (!drivable_area_builder_.Build(output.dp_increase_points_result.path,
-                                          pathObstacles,
+                                          output.static_perception_result.staticobstacles,
                                           &output.drivable_area_result))
         {
             if (output.drivable_area_result.Flag == DrivableAreaFallback::Stop) {
@@ -266,6 +267,7 @@ namespace rsim_driver
         if (!qp_increase_points_.increasepoints(output.qp_result,
                                                 &output.qp_increase_points_result))
         {
+            PluginLogEcho("【SL-QP-IncreasePoints】:QP增加点失败\n");
             *result = output;
             return false;
         }
@@ -277,6 +279,7 @@ namespace rsim_driver
                                    output.qp_increase_points_result.localfrenetpath,
                                    &CartesianPath))
         {
+            PluginLogEcho("【SL-QP-FrenetToCartesian】:FrenetPathToCartesian失败\n");
             *result = output;
             return false;
         }

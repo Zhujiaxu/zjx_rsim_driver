@@ -125,7 +125,7 @@ namespace rsim_driver
     }
 
     bool DpPlanner::Plan(const StartPointFrenetState &start,
-                         const std::vector<StaticAndVirtualObsFrenetState> &obstacles,
+                         const std::vector<StaticObsFrenetState> &obstacles,
                          DpPlannerResult *result) const
     {
         if (result == nullptr)

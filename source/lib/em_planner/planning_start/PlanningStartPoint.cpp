@@ -240,7 +240,7 @@ namespace rsim_driver
                       0.5 * ego.acc_y * dt * dt;
             point.heading = ego.h;
             point.curvature = 0.0;
-            point.speed =ego.speed + longitudinalAccel * dt;
+            point.speed =std::max(0.0, ego.speed + longitudinalAccel * dt);
             point.accel = longitudinalAccel;
             point.time = targetTime;
 

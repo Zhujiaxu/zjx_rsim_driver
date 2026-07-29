@@ -70,8 +70,8 @@ void RSimDriverPlugin::ReportPlannerStageStatus(
         "dp=%d dp_increase=%d drivable=%d qp=%d qp_increase=%d "
         "path_cartesian=%d dynamic=%d speed_ref=%zu speed_dp=%d "
         "st_area=%d speed_qp=%d speed_dense=%d trajectory=%d "
-        "static_obs=%zu virtual_obs=%zu dynamic_obs=%zu "
-        "virtual_seeds=%zu dp_points=%zu qp_points=%zu "
+        "static_obs=%zu dynamic_obs=%zu "
+        "dp_points=%zu qp_points=%zu "
         "cartesian_points=%zu speed_dp_points=%zu speed_qp_points=%zu "
         "dense_points=%zu trajectory_points=%zu previous_points=%zu\n",
         static_cast<unsigned long long>(ctx.frame_id),
@@ -95,9 +95,9 @@ void RSimDriverPlugin::ReportPlannerStageStatus(
         result.speed_qp_increase_points_success ? 1 : 0,
         result.trajectory_success ? 1 : 0,
         result.static_perception_result.staticobstacles.size(),
-        result.virtual_perception_result.virtualstaticobstacles.size(),
+        //result.virtual_perception_result.virtualstaticobstacles.size(),
         result.dynamic_perception_result.dynamicobstacles.size(),
-        result.virtual_obstacle_seeds.size(),
+        //result.virtual_obstacle_seeds.size(),
         result.dp_result.path.size(),
         result.qp_increase_points_result.localfrenetpath.size(),
         result.localcartesianpath.size(),

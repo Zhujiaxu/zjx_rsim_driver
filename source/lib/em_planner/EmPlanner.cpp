@@ -159,15 +159,14 @@ namespace rsim_driver
                 output.speed_reference_line,
                 output.dynamic_perception_result,
                 output.planning_start_result.start_point.startpointbasis.speed,
-                &STBoundaryInfos,
-                &virtual_obstacle_seeds_))
+                &STBoundaryInfos))
         {
             std::cout << "【ST-CutInAndOutBuilder】:计算cut-in-and-out边界失败\n";
             PluginLogEcho("【ST-CutInAndOutBuilder】:计算cut-in-and-out边界失败\n");
             *result = output;
             return false;
         }
-        output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
+        //output.virtual_obstacle_seeds = virtual_obstacle_seeds_;
 
         DynamicPlanSpeedPoint speedStart =
             GetDynamicSpeedPlanStartPoint(output.planning_start_result);

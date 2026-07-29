@@ -19,7 +19,7 @@ namespace rsim_driver
         double l_prime = 0.0;
         double l_double_prime = 0.0;
     };
-    struct StaticAndVirtualObsFrenetState
+    struct StaticObsFrenetState
     {
         int32_t id = 0;
         double s = 0.0;
@@ -64,7 +64,7 @@ namespace rsim_driver
                    std::isfinite(state.l_prime) &&
                    std::isfinite(state.l_double_prime);
         }
-        inline bool IsFinite(const StaticAndVirtualObsFrenetState &state)
+        inline bool IsFinite(const StaticObsFrenetState &state)
         {
             return std::isfinite(state.s) &&
                    std::isfinite(state.l);
@@ -81,7 +81,7 @@ namespace rsim_driver
         template <typename RefPointT, typename CartesianPointT>
         bool StaticObsFrenetTransformer(const std::vector<RefPointT> &referencePoints,
                                         const CartesianPointT &cartesianPoint,
-                                        StaticAndVirtualObsFrenetState *frenetState)
+                                        StaticObsFrenetState *frenetState)
         {
             if (frenetState == nullptr)
                 return false;
@@ -99,7 +99,7 @@ namespace rsim_driver
             const double lateralDx = cartesianPoint.x - projectionPoint.x;
             const double lateralDy = cartesianPoint.y - projectionPoint.y;
 
-            StaticAndVirtualObsFrenetState obstacle;
+            StaticObsFrenetState obstacle;
             obstacle.id = cartesianPoint.id;
             obstacle.s = matchedPoint.s +
                          projectionDx * tangentX +
@@ -112,13 +112,14 @@ namespace rsim_driver
                              : cartesianPoint.length * std::fabs(std::sin(relativeangle));
             if (!IsFinite(obstacle))
             {
-                PluginLog("【common】StaticObsFrenetTransformer: 感知静态障碍物结果参数无效\n");
+                PluginLog("【common】StaticObsFrenetTransformer: 感知静态障碍物ID:%d 结果参数无效\n", obstacle.id);
                 return false;
             }
             *frenetState = std::move(obstacle);
             return true;
         }
-        template <typename RefPointT, typename CartesianPointT, typename VirtualSeed>
+
+        /*template <typename RefPointT, typename CartesianPointT, typename VirtualSeed>
         bool VirtualObsFrenetTransformer(const std::vector<RefPointT> &referencePoints,
                                          const CartesianPointT &cartesianPoint,
                                          VirtualSeed &seed,
@@ -156,13 +157,13 @@ namespace rsim_driver
                              : cartesianPoint.length * std::fabs(std::sin(relativeangle))+seed.lateral_buffer;
             if (!IsFinite(obstacle))
             {
-                PluginLog("【common】StaticObsFrenetTransformer: 感知虚拟障碍物结果参数无效\n");
+                PluginLog("【common】StaticObsFrenetTransformer: 感知虚拟障碍物ID:%d 结果参数无效\n", obstacle.id);
                 return false;
             }
 
             *frenetState = std::move(obstacle);
             return true;
-        }
+        }*/
 
         template <typename RefPointT, typename CartesianPointT>
         bool DynamicObsFrenetTransformer(const std::vector<RefPointT> &referencePoints,
@@ -196,7 +197,7 @@ namespace rsim_driver
             // obstacle.relangle = relativeangle;
             if (1 - matchedPoint.k * obstacle.l <= kEpsilon)
             {
-                PluginLog("【common】DynamicObsFrenetTransformer: 感知动态障碍物结果s_dot无穷\n");
+                PluginLog("【common】DynamicObsFrenetTransformer: 感知动态障碍物ID:%d 结果s_dot无穷\n", obstacle.id);
                 return false;
             }
             obstacle.s_dot = cartesianPoint.speed * std::cos(relativeangle) / (1 - matchedPoint.k * obstacle.l);
@@ -207,7 +208,7 @@ namespace rsim_driver
                              : cartesianPoint.length * std::fabs(std::sin(relativeangle));
             if (!IsFinite(obstacle))
             {
-                PluginLog("【common】DynamicObsFrenetTransformer: 感知动态障碍物结果参数无效\n");
+                PluginLog("【common】DynamicObsFrenetTransformer: 感知动态障碍物ID:%d 结果参数无效\n", obstacle.id);
                 return false;
             }
             *frenetState = std::move(obstacle);
