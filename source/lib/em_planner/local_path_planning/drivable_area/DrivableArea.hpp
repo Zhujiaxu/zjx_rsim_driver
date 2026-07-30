@@ -11,7 +11,13 @@ namespace rsim_driver
     {
         double left_road_boundary_l =4.5;
         double right_road_boundary_l = -4.5;
-        double obstacle_lateral_buffer =0.0;
+        double obstacle_lateral_buffer = 0.05;
+        // Extra longitudinal guards around the physical obstacle envelope.
+        // Departure is held longer for receding-horizon stability.
+        double approach_longitudinal_buffer = 0.0;
+        double departure_longitudinal_buffer = 1.9;
+        double obstacle_transition_length = 5.0;
+        double collision_clearance = 0.6;
         double ego_width = 2.0;
     };
     enum class DrivableAreaFallback

@@ -19,9 +19,9 @@ bool Near(double actual, double expected, double tolerance = 1e-9)
     return std::fabs(actual - expected) <= tolerance;
 }
 
-rsim_driver::CartesianFrenetState MakeStart()
+rsim_driver::StartPointFrenetState MakeStart()
 {
-    rsim_driver::CartesianFrenetState start;
+    rsim_driver::StartPointFrenetState start;
     start.s = 0.0;
     start.l = 0.0;
     start.l_prime = 0.0;
@@ -41,10 +41,10 @@ rsim_driver::DpPlannerConfig MakeConfig()
     config.weight_l_double_prime = 1.0;
     config.weight_ref_l = 1.0;
     config.weight_collision = 10.0;
-    config.collision.collision_distance = 0.2;
-    config.collision.risk_distance = 0.3;
-    config.collision.ego_length = 0.0;
-    config.collision.ego_width = 0.0;
+    config.collision.collision_distance = 0.05;
+    config.collision.risk_distance = 0.1;
+    config.collision.ego_length = 0.2;
+    config.collision.ego_width = 0.2;
     return config;
 }
 
@@ -57,7 +57,7 @@ int main()
     rsim_driver::DpPlanner planner(config);
 
     if (!Require(planner.Plan(MakeStart(), {}, &result) &&
-                     result.dpsuccess,
+                     result.Flag == rsim_driver::DpPlannerFallback::Success,
                  "planner should succeed without obstacles"))
         return 1;
     if (!Require(result.path.size() == 3 &&
@@ -77,7 +77,7 @@ int main()
             return 1;
     }
 
-    rsim_driver::CartesianFrenetState derivativeStart = MakeStart();
+    rsim_driver::StartPointFrenetState derivativeStart = MakeStart();
     derivativeStart.l_prime = 0.2;
     derivativeStart.l_double_prime = -0.1;
     rsim_driver::DpPlannerConfig derivativeConfig = MakeConfig();
@@ -86,7 +86,7 @@ int main()
     derivativeConfig.s_step_count = 1;
     planner.SetConfig(derivativeConfig);
     if (!Require(planner.Plan(derivativeStart, {}, &result) &&
-                     result.dpsuccess,
+                     result.Flag == rsim_driver::DpPlannerFallback::Success,
                  "planner should preserve derivative start state"))
         return 1;
     if (!Require(result.path.size() == 2 &&
@@ -100,12 +100,12 @@ int main()
                  "lattice output point derivatives should follow end boundary"))
         return 1;
 
-    const std::vector<rsim_driver::StaticFrenetObstacle> centerObstacle = {
-        {1, 0.5, 0.0},
+    const std::vector<rsim_driver::StaticObsFrenetState> centerObstacle = {
+        {1, 0.5, 0.0, 0.2, 0.2},
     };
     planner.SetConfig(config);
     if (!Require(planner.Plan(MakeStart(), centerObstacle, &result) &&
-                     result.dpsuccess,
+                     result.Flag == rsim_driver::DpPlannerFallback::Success,
                  "planner should find side path around center obstacle"))
         return 1;
     if (!Require(result.path.size() == 3 &&
@@ -113,16 +113,16 @@ int main()
                  "blocked center node should force side lattice point"))
         return 1;
 
-    rsim_driver::CartesianFrenetState shiftedStart = MakeStart();
+    rsim_driver::StartPointFrenetState shiftedStart = MakeStart();
     shiftedStart.l = 1.2;
-    const std::vector<rsim_driver::StaticFrenetObstacle> shiftedCenterObstacle = {
-        {2, 0.5, 1.2},
+    const std::vector<rsim_driver::StaticObsFrenetState> shiftedCenterObstacle = {
+        {2, 0.5, 1.2, 0.2, 0.2},
     };
     planner.SetConfig(MakeConfig());
     if (!Require(planner.Plan(shiftedStart,
                               shiftedCenterObstacle,
                               &result) &&
-                     result.dpsuccess,
+                     result.Flag == rsim_driver::DpPlannerFallback::Success,
                  "planner should sample lateral lattice around shifted start"))
         return 1;
     if (!Require(result.path.size() == 3 &&
@@ -135,9 +135,9 @@ int main()
     config.right_l_step_count = 0;
     config.s_step_count = 1;
     planner.SetConfig(config);
-    if (!Require(planner.Plan(MakeStart(), centerObstacle, &result) &&
-                     result.dpsuccess && result.path.empty() &&
-                     result.fallback == rsim_driver::DpFallback::Stop,
+    if (!Require(!planner.Plan(MakeStart(), centerObstacle, &result) &&
+                     result.path.empty() &&
+                     result.Flag == rsim_driver::DpPlannerFallback::Stop,
                  "fully blocked lattice should return the explicit stop fallback"))
         return 1;
 

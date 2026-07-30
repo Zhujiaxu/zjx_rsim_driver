@@ -15,8 +15,18 @@ namespace rsim_driver
     {
 
         constexpr double kEpsilon = 1e-9;
-        constexpr double kSolverTolerance = 1e-6;
+        constexpr double kSolverTolerance = 1e-5;
         constexpr double kInfinity = 1e12;
+        constexpr int kEnvelopeSamplesPerInterval = 2;
+
+        struct EnvelopeConstraintSample
+        {
+            int interval_index = 0;
+            double ratio = 0.0;
+            double s = 0.0;
+            double lower_l = 0.0;
+            double upper_l = 0.0;
+        };
 
         int LIndex(int pointIndex)
         {
@@ -42,33 +52,6 @@ namespace rsim_driver
         {
             return std::max(0.0, value);
         }
-        SlPoint InterpolateBoundary(const std::vector<SlPoint> &boundary, double s)
-        {
-            if (boundary.empty())
-                return {s, 0.0};
-
-            if (s <= boundary.front().s)
-                return {s, boundary.front().l};
-
-            if (s >= boundary.back().s)
-                return {s, boundary.back().l};
-
-            for (std::size_t i = 1; i < boundary.size(); ++i)
-            {
-                const SlPoint &prev = boundary[i - 1];
-                const SlPoint &next = boundary[i];
-                if (s <= next.s)
-                {
-                    const double ds = next.s - prev.s;
-                    if (ds <= kEpsilon)
-                        return {s, prev.l};
-                    return {s, prev.l + (next.l - prev.l) * (s - prev.s) / ds};
-                }
-            }
-
-            return {s, boundary.back().l};
-        }
-
         bool ValidConfig(const QpPathOptimizerConfig &config)
         {
             return config.num_points >= 2 &&
@@ -134,6 +117,44 @@ namespace rsim_driver
             }
 
             return {s, boundary.back().l};
+        }
+
+        double MinimumLeftBoundaryInRange(
+            const std::vector<SlPoint> &boundary,
+            double beginS,
+            double endS)
+        {
+            double minimum = std::min(
+                InterpolateLeftBoundary(boundary, beginS).l,
+                InterpolateLeftBoundary(boundary, endS).l);
+            for (const SlPoint &point : boundary)
+            {
+                if (point.s >= beginS - kEpsilon &&
+                    point.s <= endS + kEpsilon)
+                {
+                    minimum = std::min(minimum, point.l);
+                }
+            }
+            return minimum;
+        }
+
+        double MaximumRightBoundaryInRange(
+            const std::vector<SlPoint> &boundary,
+            double beginS,
+            double endS)
+        {
+            double maximum = std::max(
+                InterpolateRightBoundary(boundary, beginS).l,
+                InterpolateRightBoundary(boundary, endS).l);
+            for (const SlPoint &point : boundary)
+            {
+                if (point.s >= beginS - kEpsilon &&
+                    point.s <= endS + kEpsilon)
+                {
+                    maximum = std::max(maximum, point.l);
+                }
+            }
+            return maximum;
         }
 
         bool ValidInput(const StartPointFrenetState &start,
@@ -269,48 +290,72 @@ namespace rsim_driver
         const std::vector<double> S = BuildSValues(start, config_, max_s, &ds);
         if (S.size() < 2U)
         {
-            PluginLogEcho("【QpPathOptimizer::Optimize】: SL 过短的s");
+            PluginLogEcho("【QpPathOptimizer::Optimize】: SL 过短的s\n");
+            output.Flag = QpPathOptimizerFallback::Other;
+            *result = std::move(output);
+            return false;
         }
         const int n = static_cast<int>(S.size());
         const double halfLen = 0.5 * config_.ego_length;
         const double halfWid = 0.5 * config_.ego_width;
+        const int intervalCount = n - 1;
         const int numVariables = 3 * n;
-        // 3 start eq + 2(n-1) Taylor eq + 2(n-1) two-sided corner rows.
-        const int numConstraints = 4 * n - 1;
+        const int envelopeConstraintCount =
+            intervalCount * kEnvelopeSamplesPerInterval;
+        // 3 start eq + 2(n-1) Taylor eq + two envelope samples per interval.
+        const int numConstraints =
+            3 + 2 * intervalCount + envelopeConstraintCount;
 
-        // --- interpolate drivable area at uniform s and at corner positions ---
-        // center_i = (left(s_i) + right(s_i)) / 2
+        // Use the full axis-aligned vehicle envelope for knot targets.
         std::vector<double> centers(n);
-        // corner boundaries
-        std::vector<double> leftFront(n), rightFront(n);
-        std::vector<double> leftRear(n), rightRear(n);
         for (int i = 0; i < n; ++i)
         {
             const double si = S[i];
-            const SlPoint lb = InterpolateBoundary(drivableArea.left_boundary, si);
-            const SlPoint rb = InterpolateBoundary(drivableArea.right_boundary, si);
-            centers[i] = 0.5 * (lb.l + rb.l);
-
-            const SlPoint lf = InterpolateLeftBoundary(drivableArea.left_boundary, si + halfLen);
-            const SlPoint rf = InterpolateRightBoundary(drivableArea.right_boundary, si + halfLen);
-            leftFront[i] = lf.l;
-            rightFront[i] = rf.l;
-
-            const SlPoint lr = InterpolateLeftBoundary(drivableArea.left_boundary, si - halfLen);
-            const SlPoint rr = InterpolateRightBoundary(drivableArea.right_boundary, si - halfLen);
-            leftRear[i] = lr.l;
-            rightRear[i] = rr.l;
+            const double left = MinimumLeftBoundaryInRange(
+                drivableArea.left_boundary, si - halfLen, si + halfLen);
+            const double right = MaximumRightBoundaryInRange(
+                drivableArea.right_boundary, si - halfLen, si + halfLen);
+            centers[i] = 0.5 * (left + right);
         }
 
-        // --- early feasibility check for corner constraints (skip i=0) ---
-        for (int i = 1; i < n; ++i)
+        // Sample each QP interval at its midpoint and endpoint. Each sample
+        // constrains the continuous constant-jerk interpolation used by the Taylor rows,
+        // instead of forcing a discontinuous obstacle boundary onto a knot.
+        std::vector<EnvelopeConstraintSample> envelopeSamples;
+        envelopeSamples.reserve(
+            static_cast<std::size_t>(envelopeConstraintCount));
+        for (int interval = 0; interval < intervalCount; ++interval)
         {
-            if (rightFront[i] + halfWid > leftFront[i] - halfWid ||
-                rightRear[i] + halfWid > leftRear[i] - halfWid)
+            for (int sample = 1;
+                 sample <= kEnvelopeSamplesPerInterval;
+                 ++sample)
             {
-                output.Flag = QpPathOptimizerFallback::SolveFailStop;
-                *result = std::move(output);
-                return false;
+                const double ratio =
+                    static_cast<double>(sample) /
+                    static_cast<double>(kEnvelopeSamplesPerInterval);
+                const double sampleS = S[interval] + ratio * ds;
+                const double left = MinimumLeftBoundaryInRange(
+                    drivableArea.left_boundary,
+                    sampleS - halfLen,
+                    sampleS + halfLen);
+                const double right = MaximumRightBoundaryInRange(
+                    drivableArea.right_boundary,
+                    sampleS - halfLen,
+                    sampleS + halfLen);
+                const double lower = right + halfWid;
+                const double upper = left - halfWid;
+                if (lower > upper)
+                {
+                    PluginLogEcho(
+                        "【QpPathOptimizer】:包络可行域为空 interval=%d "
+                        "ratio=%.2f s=%.6f lower=%.6f upper=%.6f\n",
+                        interval, ratio, sampleS, lower, upper);
+                    output.Flag = QpPathOptimizerFallback::SolveFailStop;
+                    *result = std::move(output);
+                    return false;
+                }
+                envelopeSamples.push_back(
+                    {interval, ratio, sampleS, lower, upper});
             }
         }
 
@@ -410,22 +455,32 @@ namespace rsim_driver
                              0.0, 0.0);
         }
 
-        // --- corner constraints (2(n-1) two-sided rows, i >= 1) ---
-        // Front: l_i + halfLen·l'_i ∈ [Right_f + halfWid, Left_f - halfWid]
-        // Rear:  l_i - halfLen·l'_i ∈ [Right_r + halfWid, Left_r - halfWid]
-        for (int i = 1; i < n; ++i)
+        // --- continuous axis-aligned SL envelope constraints ---
+        for (const EnvelopeConstraintSample &sample : envelopeSamples)
         {
-            // Front vehicle corner interval.
-            AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
-                             {{LIndex(i), 1.0},
-                              {LPrimeIndex(i), halfLen}},
-                             rightFront[i] + halfWid, leftFront[i] - halfWid);
+            const int i = sample.interval_index;
+            if (sample.ratio >= 1.0 - kEpsilon)
+            {
+                AddConstraintRow(
+                    &constraintTriplets, &lowerBound, &upperBound, row++,
+                    {{LIndex(i + 1), 1.0}},
+                    sample.lower_l, sample.upper_l);
+                continue;
+            }
 
-            // Rear vehicle corner interval.
-            AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
-                             {{LIndex(i), 1.0},
-                              {LPrimeIndex(i), -halfLen}},
-                             rightRear[i] + halfWid, leftRear[i] - halfWid);
+            const double u = sample.ratio;
+            const double u2 = u * u;
+            const double u3 = u2 * u;
+            const double accelCurrentCoeff =
+                ds * ds * (0.5 * u2 - u3 / 6.0);
+            const double accelNextCoeff = ds * ds * u3 / 6.0;
+            AddConstraintRow(
+                &constraintTriplets, &lowerBound, &upperBound, row++,
+                {{LIndex(i), 1.0},
+                 {LPrimeIndex(i), ds * u},
+                 {LDoublePrimeIndex(i), accelCurrentCoeff},
+                 {LDoublePrimeIndex(i + 1), accelNextCoeff}},
+                sample.lower_l, sample.upper_l);
         }
 
         if (row != numConstraints)
@@ -469,6 +524,10 @@ namespace rsim_driver
                          status == OsqpEigen::Status::SolvedInaccurate);
         if (!ok)
         {
+            PluginLogEcho(
+                "【QpPathOptimizer】:OSQP求解失败 status=%d points=%d "
+                "start_s=%.6f start_l=%.6f\n",
+                static_cast<int>(status), n, start.s, start.l);
             output.Flag = QpPathOptimizerFallback::SolveFailStop;
             *result = std::move(output);
             return false;

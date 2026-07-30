@@ -138,6 +138,13 @@ std::vector<rsim_plugin::ActorUpdate> RSimDriverPlugin::Step(
     if (ego == nullptr)
         return updates;
 
+    if (!em_planner_.SetEgoDimensions(ego->length, ego->width))
+    {
+        ReportPlanningFailure(ctx, *ego, "invalid ego dimensions");
+        updates.push_back(BuildStopActorUpdate(*ego));
+        return updates;
+    }
+
     if (!map_loaded_)
     {
         ReportPlanningFailure(ctx, *ego, "map is not loaded");

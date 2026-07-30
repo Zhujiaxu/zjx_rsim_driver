@@ -20,20 +20,74 @@ namespace rsim_driver
             return IsFinite(config.left_road_boundary_l) &&
                    IsFinite(config.right_road_boundary_l) &&
                    IsFinite(config.obstacle_lateral_buffer) &&
-                   IsFinite(config.left_road_boundary_l) &&
+                   IsFinite(config.approach_longitudinal_buffer) &&
+                   IsFinite(config.departure_longitudinal_buffer) &&
+                   IsFinite(config.obstacle_transition_length) &&
+                   IsFinite(config.collision_clearance) &&
+                   IsFinite(config.ego_width) &&
                    config.left_road_boundary_l >= config.right_road_boundary_l &&
-                   config.obstacle_lateral_buffer >= 0.0;
+                   config.obstacle_lateral_buffer >= 0.0 &&
+                   config.approach_longitudinal_buffer >= 0.0 &&
+                   config.departure_longitudinal_buffer >= 0.0 &&
+                   config.obstacle_transition_length >= 0.0 &&
+                   config.collision_clearance >= 0.0 &&
+                   config.ego_width > 0.0;
         }
 
-        double ObstacleHalfLength(const StaticObsFrenetState &obstacle)
+        double ObstacleBaseHalfLength(
+            double s,
+            const StaticObsFrenetState &obstacle,
+            const DrivableAreaConfig &config)
         {
-            return 0.5 * std::max(0.0, obstacle.length);
+            return 0.5 * obstacle.length +
+                   (s <= obstacle.s
+                        ? config.approach_longitudinal_buffer
+                        : config.departure_longitudinal_buffer);
+        }
+
+        double ObstacleConstraintRatio(
+            double s,
+            const StaticObsFrenetState &obstacle,
+            const DrivableAreaConfig &config)
+        {
+            const double committedHalfLength =
+                ObstacleBaseHalfLength(s, obstacle, config) +
+                config.collision_clearance;
+            const double distance = std::fabs(s - obstacle.s);
+            if (distance <= committedHalfLength)
+                return 1.0;
+            if (config.obstacle_transition_length <= 0.0)
+                return 0.0;
+            return std::clamp(
+                1.0 -
+                    (distance - committedHalfLength) /
+                        config.obstacle_transition_length,
+                0.0, 1.0);
+        }
+
+        double ObstacleHardLateralClearance(
+            double s,
+            const StaticObsFrenetState &obstacle,
+            const DrivableAreaConfig &config)
+        {
+            const double longitudinalGap = std::max(
+                0.0,
+                std::fabs(s - obstacle.s) -
+                    ObstacleBaseHalfLength(s, obstacle, config));
+            if (longitudinalGap >= config.collision_clearance ||
+                config.collision_clearance <= 0.0)
+            {
+                return 0.0;
+            }
+            return std::sqrt(
+                config.collision_clearance * config.collision_clearance -
+                longitudinalGap * longitudinalGap);
         }
 
         double ObstacleHalfExtent(const StaticObsFrenetState &obstacle,
                                   const DrivableAreaConfig &config)
         {
-            return 0.5 * std::max(0.0, obstacle.width) +
+            return 0.5 * obstacle.width +
                    config.obstacle_lateral_buffer;
         }
 
@@ -42,7 +96,9 @@ namespace rsim_driver
             return IsFinite(obstacle.s) &&
                    IsFinite(obstacle.l) &&
                    IsFinite(obstacle.length) &&
-                   IsFinite(obstacle.width);
+                   obstacle.length > 0.0 &&
+                   IsFinite(obstacle.width) &&
+                   obstacle.width > 0.0;
         }
 
         std::size_t IndexAtOrAfterS(const std::vector<DpPathPoint> &coarsePath,
@@ -135,6 +191,8 @@ namespace rsim_driver
                 (hasPreviousS && point.s < previousS))
             {
                 output.Flag = DrivableAreaFallback::Other;
+                output.left_boundary.clear();
+                output.right_boundary.clear();
                 *result = std::move(output);
                 return false;
             }
@@ -147,9 +205,20 @@ namespace rsim_driver
         for (const StaticObsFrenetState &obstacle : staticObstacles)
         {
             if (!ValidObstacle(obstacle))
-                continue;
+            {
+                output.Flag = DrivableAreaFallback::Other;
+                output.left_boundary.clear();
+                output.right_boundary.clear();
+                *result = std::move(output);
+                return false;
+            }
 
-            const double halfLength = ObstacleHalfLength(obstacle);
+            const double halfLength =
+                0.5 * obstacle.length +
+                std::max(config_.approach_longitudinal_buffer,
+                         config_.departure_longitudinal_buffer) +
+                config_.collision_clearance +
+                config_.obstacle_transition_length;
             const std::size_t firstCoveredIndex =
                 IndexAtOrAfterS(coarsePath, obstacle.s - halfLength);
             const std::size_t afterCoveredIndex =
@@ -165,8 +234,19 @@ namespace rsim_driver
             {
                 for (std::size_t i = firstCoveredIndex; i < afterCoveredIndex; ++i)
                 {
+                    const double ratio = ObstacleConstraintRatio(
+                        coarsePath[i].s, obstacle, config_);
+                    const double obstacleBoundary =
+                        obstacle.l + halfExtent +
+                        ObstacleHardLateralClearance(
+                            coarsePath[i].s, obstacle, config_);
+                    const double transitionedBoundary =
+                        config_.right_road_boundary_l +
+                        ratio * (obstacleBoundary -
+                                 config_.right_road_boundary_l);
                     output.right_boundary[i].l =
-                        std::max(output.right_boundary[i].l, obstacle.l + halfExtent);
+                        std::max(output.right_boundary[i].l,
+                                 transitionedBoundary);
                 }
             }
 
@@ -174,9 +254,19 @@ namespace rsim_driver
             {
                 for (std::size_t i = firstCoveredIndex; i < afterCoveredIndex; ++i)
                 {
+                    const double ratio = ObstacleConstraintRatio(
+                        coarsePath[i].s, obstacle, config_);
+                    const double obstacleBoundary =
+                        obstacle.l - halfExtent -
+                        ObstacleHardLateralClearance(
+                            coarsePath[i].s, obstacle, config_);
+                    const double transitionedBoundary =
+                        config_.left_road_boundary_l +
+                        ratio * (obstacleBoundary -
+                                 config_.left_road_boundary_l);
                     output.left_boundary[i].l =
                         std::min(output.left_boundary[i].l,
-                                 obstacle.l - halfExtent);
+                                 transitionedBoundary);
                 }
             }
         }
@@ -186,6 +276,8 @@ namespace rsim_driver
             if (output.right_boundary[i].l+config_.ego_width > output.left_boundary[i].l)
             {
                 output.Flag = DrivableAreaFallback::Stop;
+                output.left_boundary.clear();
+                output.right_boundary.clear();
                 *result = std::move(output);
                 return false;
             }

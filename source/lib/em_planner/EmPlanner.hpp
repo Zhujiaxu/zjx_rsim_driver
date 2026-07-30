@@ -86,6 +86,7 @@ namespace rsim_driver
 
         const EmPlannerConfig &config() const;
         void SetConfig(const EmPlannerConfig &config);
+        bool SetEgoDimensions(double length, double width);
 
         template <typename RefPointT>
         bool EMPlanPathDetailed(

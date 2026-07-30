@@ -121,7 +121,8 @@ namespace rsim_driver
                    config.s_step_count > 0 &&
                    config.l_step > kEpsilon &&
                    config.left_l_step_count >= 0 &&
-                   config.right_l_step_count >= 0;
+                   config.right_l_step_count >= 0 &&
+                   ValidStaticCollisionCostConfig(config.collision);
         }
 
     } // namespace

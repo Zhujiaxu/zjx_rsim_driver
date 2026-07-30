@@ -8,7 +8,7 @@ namespace rsim_driver
 
 struct QpIncreasePointsConfig
 {
-    int count = 10;
+    int count = 5;
 };
 struct QpIncreasePointsResult
 {

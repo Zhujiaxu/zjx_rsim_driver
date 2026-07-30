@@ -101,7 +101,20 @@ namespace rsim_driver
             if (drivable_area.lower_boundary.size() < n ||
                 drivable_area.upper_boundary.size() < n)
                 return false;
+            if ((!drivable_area.lower_is_obstacle.empty() &&
+                 drivable_area.lower_is_obstacle.size() < n) ||
+                (!drivable_area.upper_is_obstacle.empty() &&
+                 drivable_area.upper_is_obstacle.size() < n))
+            {
+                return false;
+            }
             return true;
+        }
+
+        bool IsObstacleBoundary(const std::vector<uint8_t> &flags,
+                                std::size_t index)
+        {
+            return !flags.empty() && flags[index] != 0U;
         }
 
     } // namespace
@@ -180,8 +193,16 @@ namespace rsim_driver
         const double wProgress = NonNegative(config_.weight_progress);
         if (wProgress > 0.0)
         {
+            const std::size_t lastIndex =
+                drivable_area.upper_boundary.size() - 1U;
+            const bool constrainedUpper =
+                stop_at_end ||
+                IsObstacleBoundary(drivable_area.upper_is_obstacle, lastIndex);
             AddTargetCost(&hessianTriplets, &gradient,
-                          SIndex(n - 1), drivable_area.upper_boundary.back().s - totalMargin, wProgress);
+                          SIndex(n - 1),
+                          drivable_area.upper_boundary.back().s -
+                              (constrainedUpper ? totalMargin : 0.0),
+                          wProgress);
         }
 
         // jerk cost: (w_jerk / dt^2) * Σ (a_{i+1} - a_i)^2
@@ -254,10 +275,27 @@ namespace rsim_driver
         for (int i = 1; i < n; ++i)
         {
             const double j = i * config_.dt / config_.dqpt;
+            const std::size_t boundaryIndex = static_cast<std::size_t>(j);
 
             // Calculate the lower and upper bounds for the drivable area
-            const double lb = drivable_area.lower_boundary[static_cast<std::size_t>(j)].s + totalMargin;
-            const double ub = drivable_area.upper_boundary[static_cast<std::size_t>(j)].s - totalMargin;
+            const bool constrainedLower =
+                IsObstacleBoundary(drivable_area.lower_is_obstacle,
+                                   boundaryIndex);
+            const bool constrainedUpper =
+                stop_at_end ||
+                IsObstacleBoundary(drivable_area.upper_is_obstacle,
+                                   boundaryIndex);
+            const double lb = drivable_area.lower_boundary[boundaryIndex].s +
+                              (constrainedLower ? totalMargin : 0.0);
+            const double ub = drivable_area.upper_boundary[boundaryIndex].s -
+                              (constrainedUpper ? totalMargin : 0.0);
+
+            if (lb > ub)
+            {
+                output.Flag = QpSpeedOptimizerFallback::Stop;
+                *result = std::move(output);
+                return false;
+            }
 
             AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
                              {{SIndex(i), 1.0}},

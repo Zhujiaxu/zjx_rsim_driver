@@ -98,19 +98,30 @@ namespace rsim_driver
 
         const std::size_t n_steps = dpplan_result->stpoints.size();
 
+        for (const CutInAndOutInfo &info : st_boundary_infos)
+        {
+            if (!IsValidStPolygon(info))
+            {
+                output.Flag = StDrivableAreaFallback::Other;
+                *result = std::move(output);
+                return false;
+            }
+        }
+
         output.lower_boundary.reserve(n_steps);
         output.upper_boundary.reserve(n_steps);
+        output.lower_is_obstacle.reserve(n_steps);
+        output.upper_is_obstacle.reserve(n_steps);
         for (const DynamicPlanSpeedPoint &point : dpplan_result->stpoints)
         {
             output.lower_boundary.push_back({0.0-config_.longitudinal_safety_buffer/2, point.t});
             output.upper_boundary.push_back({dpplan_result->total_s, point.t});
+            output.lower_is_obstacle.push_back(0U);
+            output.upper_is_obstacle.push_back(0U);
         }
 
         for (const CutInAndOutInfo &info : st_boundary_infos)
         {
-            if (!IsValidStPolygon(info))
-                continue;
-
             for (std::size_t i = 0; i < n_steps; ++i)
             {
                 const DynamicPlanSpeedPoint &point = dpplan_result->stpoints[i];
@@ -126,25 +137,42 @@ namespace rsim_driver
                                                info.sinmin, info.sinmax,
                                                info.soutmin, info.soutmax,
                                                &low_boundary, &up_boundary))
-                    continue;
+                {
+                    output = {};
+                    output.Flag = StDrivableAreaFallback::Other;
+                    *result = std::move(output);
+                    return false;
+                }
 
                 if (!IsFinite(low_boundary) || !IsFinite(up_boundary))
-                    continue;
+                {
+                    output = {};
+                    output.Flag = StDrivableAreaFallback::Other;
+                    *result = std::move(output);
+                    return false;
+                }
 
                 const double ego_approx_s = dpplan_result->stpoints[i].s;
 
                 if (low_boundary + kEpsilon > ego_approx_s)
                 {
-                    output.upper_boundary[i].s =
-                        std::min(output.upper_boundary[i].s, low_boundary);
+                    if (low_boundary < output.upper_boundary[i].s)
+                    {
+                        output.upper_boundary[i].s = low_boundary;
+                        output.upper_is_obstacle[i] = 1U;
+                    }
                 }
                 else if (up_boundary - kEpsilon < ego_approx_s)
                 {
-                    output.lower_boundary[i].s =
-                        std::max(output.lower_boundary[i].s, up_boundary);
+                    if (up_boundary > output.lower_boundary[i].s)
+                    {
+                        output.lower_boundary[i].s = up_boundary;
+                        output.lower_is_obstacle[i] = 1U;
+                    }
                 }
                 else
                 {
+                    output = {};
                     output.Flag = StDrivableAreaFallback::Other;
                     *result=std::move(output);
                     return false;
@@ -156,6 +184,7 @@ namespace rsim_driver
         {
             if (output.upper_boundary[i].s - output.lower_boundary[i].s < config_.longitudinal_safety_buffer)
             {
+                output = {};
                 output.Flag = StDrivableAreaFallback::Stop;
                 *result=std::move(output);
                 return false;

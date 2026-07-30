@@ -54,6 +54,47 @@ int main()
     constexpr double kStartS = 0.309086;
     constexpr double kReferenceEndS = 28.077513;
 
+    rsim_driver::EmPlanner geometryPlanner;
+    if (!Require(geometryPlanner.SetEgoDimensions(4.9, 2.13),
+                 "valid ego dimensions should synchronize") ||
+        !Require(Near(geometryPlanner.config().dp_config.collision.ego_length,
+                      4.9) &&
+                     Near(geometryPlanner.config().dp_config.collision.ego_width,
+                          2.13) &&
+                     Near(geometryPlanner.config().drivable_area_config.ego_width,
+                          2.13) &&
+                     Near(geometryPlanner.config().qp_config.ego_length, 4.9) &&
+                     Near(geometryPlanner.config().qp_config.ego_width, 2.13) &&
+                     Near(geometryPlanner.config().speed_qp_config.ego_length,
+                          4.9) &&
+                     Near(geometryPlanner.config()
+                              .drivable_area_config.collision_clearance,
+                          geometryPlanner.config()
+                              .dp_config.collision.collision_distance) &&
+                     Near(geometryPlanner.config()
+                              .drivable_area_config
+                              .approach_longitudinal_buffer,
+                          0.0) &&
+                     Near(geometryPlanner.config()
+                              .drivable_area_config
+                              .departure_longitudinal_buffer,
+                          geometryPlanner.config()
+                                  .dp_config.collision.risk_distance -
+                              geometryPlanner.config()
+                                  .dp_config.collision.collision_distance) &&
+                     Near(geometryPlanner.config()
+                              .drivable_area_config
+                              .obstacle_transition_length,
+                          geometryPlanner.config()
+                              .dp_config.collision.risk_distance * 2.0),
+                 "ego dimensions should reach every envelope consumer") ||
+        !Require(!geometryPlanner.SetEgoDimensions(0.0, 2.13) &&
+                     Near(geometryPlanner.config().qp_config.ego_length, 4.9),
+                 "invalid ego dimensions should fail without mutation"))
+    {
+        return 1;
+    }
+
     const rsim_plugin::ActorState stoppedEgo = MakeStoppedEgo();
     const std::vector<rsim_plugin::ActorState> actors = {stoppedEgo};
 

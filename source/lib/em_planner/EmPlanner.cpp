@@ -14,6 +14,21 @@ namespace rsim_driver
         constexpr double kPi = 3.14159265358979323846;
         constexpr double kEpsilon = 1e-9;
 
+        EmPlannerConfig SynchronizeStaticCollisionConfig(
+            EmPlannerConfig config)
+        {
+            config.drivable_area_config.approach_longitudinal_buffer =
+                0.0;
+            config.drivable_area_config.departure_longitudinal_buffer =
+                config.dp_config.collision.risk_distance -
+                config.dp_config.collision.collision_distance;
+            config.drivable_area_config.obstacle_transition_length =
+                2.0 * config.dp_config.collision.risk_distance;
+            config.drivable_area_config.collision_clearance =
+                config.dp_config.collision.collision_distance;
+            return config;
+        }
+
         double NormalizeAngle(double angle)
         {
             while (angle > kPi)
@@ -70,19 +85,19 @@ namespace rsim_driver
     } // namespace
 
     EmPlanner::EmPlanner(const EmPlannerConfig &config)
-        : EMconfig_(config),
-          perception_(config.perception_config),
-          planning_start_(config.planning_start_config),
-          dp_planner_(config.dp_config),
-          increase_points_(config.dp_increase_points_config),
-          drivable_area_builder_(config.drivable_area_config),
-          qp_path_optimizer_(config.qp_config),
-          qp_increase_points_(config.qp_increase_points_config),
-          cutinandout_builder_(config.cutinandout_config),
-          speed_planner_(config.speed_dp_config),
-          st_drivable_area_builder_(config.speed_drivable_area_config),
-          speed_qp_optimizer_(config.speed_qp_config),
-          speed_qp_increase_points_(config.speed_qp_increase_points_config)
+        : EMconfig_(SynchronizeStaticCollisionConfig(config)),
+          perception_(EMconfig_.perception_config),
+          planning_start_(EMconfig_.planning_start_config),
+          dp_planner_(EMconfig_.dp_config),
+          increase_points_(EMconfig_.dp_increase_points_config),
+          drivable_area_builder_(EMconfig_.drivable_area_config),
+          qp_path_optimizer_(EMconfig_.qp_config),
+          qp_increase_points_(EMconfig_.qp_increase_points_config),
+          cutinandout_builder_(EMconfig_.cutinandout_config),
+          speed_planner_(EMconfig_.speed_dp_config),
+          st_drivable_area_builder_(EMconfig_.speed_drivable_area_config),
+          speed_qp_optimizer_(EMconfig_.speed_qp_config),
+          speed_qp_increase_points_(EMconfig_.speed_qp_increase_points_config)
     {
     }
 
@@ -93,20 +108,53 @@ namespace rsim_driver
 
     void EmPlanner::SetConfig(const EmPlannerConfig &config)
     {
-        EMconfig_ = config;
-        perception_.SetConfig(config.perception_config);
-        planning_start_.SetConfig(config.planning_start_config);
-        dp_planner_.SetConfig(config.dp_config);
-        increase_points_.SetConfig(config.dp_increase_points_config);
-        drivable_area_builder_.SetConfig(config.drivable_area_config);
-        qp_path_optimizer_.SetConfig(config.qp_config);
-        qp_increase_points_.SetConfig(config.qp_increase_points_config);
-        cutinandout_builder_.SetConfig(config.cutinandout_config);
-        speed_planner_.SetConfig(config.speed_dp_config);
-        st_drivable_area_builder_.SetConfig(config.speed_drivable_area_config);
-        speed_qp_optimizer_.SetConfig(config.speed_qp_config);
+        EMconfig_ = SynchronizeStaticCollisionConfig(config);
+        perception_.SetConfig(EMconfig_.perception_config);
+        planning_start_.SetConfig(EMconfig_.planning_start_config);
+        dp_planner_.SetConfig(EMconfig_.dp_config);
+        increase_points_.SetConfig(EMconfig_.dp_increase_points_config);
+        drivable_area_builder_.SetConfig(EMconfig_.drivable_area_config);
+        qp_path_optimizer_.SetConfig(EMconfig_.qp_config);
+        qp_increase_points_.SetConfig(EMconfig_.qp_increase_points_config);
+        cutinandout_builder_.SetConfig(EMconfig_.cutinandout_config);
+        speed_planner_.SetConfig(EMconfig_.speed_dp_config);
+        st_drivable_area_builder_.SetConfig(
+            EMconfig_.speed_drivable_area_config);
+        speed_qp_optimizer_.SetConfig(EMconfig_.speed_qp_config);
         speed_qp_increase_points_.SetConfig(
-            config.speed_qp_increase_points_config);
+            EMconfig_.speed_qp_increase_points_config);
+    }
+
+    bool EmPlanner::SetEgoDimensions(double length, double width)
+    {
+        if (!std::isfinite(length) || length <= 0.0 ||
+            !std::isfinite(width) || width <= 0.0)
+        {
+            return false;
+        }
+
+        if (EMconfig_.dp_config.collision.ego_length == length &&
+            EMconfig_.dp_config.collision.ego_width == width &&
+            EMconfig_.drivable_area_config.ego_width == width &&
+            EMconfig_.qp_config.ego_length == length &&
+            EMconfig_.qp_config.ego_width == width &&
+            EMconfig_.speed_qp_config.ego_length == length)
+        {
+            return true;
+        }
+
+        EMconfig_.dp_config.collision.ego_length = length;
+        EMconfig_.dp_config.collision.ego_width = width;
+        EMconfig_.drivable_area_config.ego_width = width;
+        EMconfig_.qp_config.ego_length = length;
+        EMconfig_.qp_config.ego_width = width;
+        EMconfig_.speed_qp_config.ego_length = length;
+
+        dp_planner_.SetConfig(EMconfig_.dp_config);
+        drivable_area_builder_.SetConfig(EMconfig_.drivable_area_config);
+        qp_path_optimizer_.SetConfig(EMconfig_.qp_config);
+        speed_qp_optimizer_.SetConfig(EMconfig_.speed_qp_config);
+        return true;
     }
 
     const PlanningStart &EmPlanner::get_planning_start() const

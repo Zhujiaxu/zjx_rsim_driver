@@ -4,6 +4,7 @@
 #include "DynamicSpeedPlanner.hpp"
 #include "computecutinandout.hpp"
 
+#include <cstdint>
 #include <vector>
 
 namespace rsim_driver
@@ -25,6 +26,8 @@ namespace rsim_driver
         StDrivableAreaFallback Flag = StDrivableAreaFallback::Success;
         std::vector<StPoint> lower_boundary;
         std::vector<StPoint> upper_boundary;
+        std::vector<uint8_t> lower_is_obstacle;
+        std::vector<uint8_t> upper_is_obstacle;
     };
 
     class StDrivableAreaBuilder

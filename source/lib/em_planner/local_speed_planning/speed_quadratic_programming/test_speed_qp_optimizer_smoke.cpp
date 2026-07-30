@@ -132,6 +132,20 @@ int main()
         return 1;
     }
 
+    rsim_driver::QpSpeedOptimizerConfig actualVehicleConfig = config;
+    actualVehicleConfig.ego_length = 4.9;
+    actualVehicleConfig.longitudinal_safety_buffer = 0.5;
+    rsim_driver::SpeedQpOptimizer actualVehicleOptimizer(actualVehicleConfig);
+    if (!Require(actualVehicleOptimizer.Optimize(
+                     forwardStart, forwardArea, &result),
+                 "open-road bounds should not be shrunk by ego length") ||
+        !Require(CheckNoReverse(result.stpoints) &&
+                     CheckKinematics(result.stpoints),
+                 "actual-length open-road solution should remain valid"))
+    {
+        return 1;
+    }
+
     rsim_driver::QpSpeedOptimizerConfig stopConfig = config;
     stopConfig.reference_speed = 0.0;
     stopConfig.weight_progress = 0.0;

@@ -12,8 +12,8 @@ namespace rsim_driver
 
     struct QpPathOptimizerConfig
     {
-        int num_points = 29;
-        double ds = 1.0;
+        int num_points = 113;
+        double ds = 0.25;
         double ego_length = 4.0;
         double ego_width = 2.0;
         double weight_reference_l = 0.5;
@@ -21,7 +21,7 @@ namespace rsim_driver
         double weight_smooth_l_double_prime = 1.0;
         double weight_jerk = 1.0;
         double weight_drivable_area_center = 3.0;
-        int max_iterations = 1000;
+        int max_iterations = 10000;
     };
     enum class QpPathOptimizerFallback
     {
