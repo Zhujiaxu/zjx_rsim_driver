@@ -58,6 +58,7 @@ namespace rsim_driver
         bool speed_qp_success = false;
         bool speed_qp_increase_points_success = false;
         bool trajectory_success = false;
+        bool stop_at_reference_end = false;
         PlanningStartResult planning_start_result;
         StartPointFrenetState frenet_start_result;
         StaticFrenetObstaclePerceptionResult static_perception_result;
@@ -202,10 +203,34 @@ namespace rsim_driver
         }
         output.frenet_start_success = true;
 
+        const double referenceEndS = referencePoints.back().s;
+        const double nominalDpEndS =
+            output.frenet_start_result.s +
+            static_cast<double>(EMconfig_.dp_config.s_step_count) *
+                EMconfig_.dp_config.s_step;
+        const double nominalQpEndS =
+            output.frenet_start_result.s +
+            static_cast<double>(EMconfig_.qp_config.num_points - 1) *
+                EMconfig_.qp_config.ds;
+        if (!std::isfinite(referenceEndS) ||
+            referenceEndS - output.frenet_start_result.s <= 1e-9)
+        {
+            PluginLogEcho(
+                "【SL-ReferenceEnd】:参考线前向长度不足 start_s=%.9f end_s=%.9f\n",
+                output.frenet_start_result.s, referenceEndS);
+            *result = output;
+            return false;
+        }
+        const double pathEndS =
+            std::min({referenceEndS, nominalDpEndS, nominalQpEndS});
+        output.stop_at_reference_end =
+            referenceEndS <= pathEndS + 1e-9;
+
         // Step 4: Dynamic Programming — plan path
         if (!dp_planner_.Plan(output.frenet_start_result,
                               output.static_perception_result.staticobstacles,
-                              &output.dp_result))
+                              &output.dp_result,
+                              pathEndS))
         {
             if (output.dp_result.Flag == DpPlannerFallback::Stop) {
                 std::cout << "【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车" << std::endl;
@@ -248,7 +273,8 @@ namespace rsim_driver
         if (!qp_path_optimizer_.Optimize(
                 output.frenet_start_result,
                 output.drivable_area_result,
-                &output.qp_result))
+                &output.qp_result,
+                pathEndS))
         {
             if (output.qp_result.Flag == QpPathOptimizerFallback::SolveFailStop) {
                 std::cout << "【SL-QP】:QP求解失败" << std::endl;

@@ -94,6 +94,8 @@ namespace rsim_driver
                 return false;
             if (start.v < -kEpsilon)
                 return false;
+            if (expected_num_points < 2)
+                return false;
 
             const std::size_t n = static_cast<std::size_t>(expected_num_points);
             if (drivable_area.lower_boundary.size() < n ||
@@ -121,17 +123,23 @@ namespace rsim_driver
 
     bool SpeedQpOptimizer::Optimize(const DynamicPlanSpeedPoint &start,
                                     const StDrivableAreaResult &drivable_area,
-                                    QpSpeedOptimizerResult *result) const
+                                    QpSpeedOptimizerResult *result,
+                                    bool stop_at_end) const
     {
         if (result == nullptr)
             return false;
+        QpSpeedOptimizerResult output;
+        if (!ValidConfig(config_) || drivable_area.upper_boundary.empty() ||
+            !IsFinite(drivable_area.upper_boundary.back().t))
+        {
+            *result = std::move(output);
+            return false;
+        }
         const double halfEgo = 0.5 * config_.ego_length;
         const double totalMargin = halfEgo + config_.longitudinal_safety_buffer;
         const int n = std::floor(drivable_area.upper_boundary.back().t / config_.dt)+1;
-        QpSpeedOptimizerResult output;
 
-        if (!ValidConfig(config_) ||
-            !ValidInput(start, drivable_area, n))
+        if (!ValidInput(start, drivable_area, n))
         {
             *result = output;
             return false;
@@ -259,18 +267,25 @@ namespace rsim_driver
         // --- acceleration bounds (n box constraints) ---
         for (int i = 1; i < n; ++i)
         {
+            const double lower = stop_at_end && i + 1 == n
+                                     ? 0.0
+                                     : config_.a_min;
+            const double upper = stop_at_end && i + 1 == n
+                                     ? 0.0
+                                     : config_.a_max;
             AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
                              {{AIndex(i), 1.0}},
-                             config_.a_min, config_.a_max);
+                             lower, upper);
         }
 
         // --- no-reverse velocity bounds: v_i >= 0 (n rows) ---
         const double infinity = OsqpEigen::INFTY;
         for (int i = 0; i < n; ++i)
         {
+            const double upper = stop_at_end && i + 1 == n ? 0.0 : infinity;
             AddConstraintRow(&constraintTriplets, &lowerBound, &upperBound, row++,
                              {{VIndex(i), 1.0}},
-                             0.0, infinity);
+                             0.0, upper);
         }
 
         // --- no-reverse progress: s_i - s_{i-1} >= 0 (n-1 rows) ---

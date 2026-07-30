@@ -9,9 +9,9 @@ namespace rsim_driver
 
     struct DrivableAreaConfig
     {
-        double left_road_boundary_l =4;
-        double right_road_boundary_l = -4;
-        double obstacle_lateral_buffer = 0.2;
+        double left_road_boundary_l =4.5;
+        double right_road_boundary_l = -4.5;
+        double obstacle_lateral_buffer =0.0;
         double ego_width = 2.0;
     };
     enum class DrivableAreaFallback

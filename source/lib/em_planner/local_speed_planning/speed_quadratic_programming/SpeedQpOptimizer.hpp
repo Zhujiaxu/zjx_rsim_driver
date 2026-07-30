@@ -46,7 +46,8 @@ namespace rsim_driver
 
         bool Optimize(const DynamicPlanSpeedPoint &start,
                       const StDrivableAreaResult &drivable_area,
-                      QpSpeedOptimizerResult *result) const;
+                      QpSpeedOptimizerResult *result,
+                      bool stop_at_end = false) const;
 
     private:
         QpSpeedOptimizerConfig config_;

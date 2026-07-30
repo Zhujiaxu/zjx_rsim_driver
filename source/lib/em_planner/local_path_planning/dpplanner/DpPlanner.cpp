@@ -23,15 +23,32 @@ namespace rsim_driver
             int previous_index = -1;
         };
 
-        std::vector<double> BuildSValues(double startS, const DpPlannerConfig &config)
+        std::vector<double> BuildSValues(double startS,
+                                         const DpPlannerConfig &config,
+                                         double maxS)
         {
             std::vector<double> values;
-            if (config.s_step <= kEpsilon || config.s_step_count <= 0)
+            if (!std::isfinite(startS) || std::isnan(maxS) ||
+                config.s_step <= kEpsilon || config.s_step_count <= 0)
                 return values;
 
-            values.reserve(static_cast<std::size_t>(config.s_step_count) + 1);
-            for (int i = 0; i <= config.s_step_count; ++i)
-                values.push_back(startS + static_cast<double>(i) * config.s_step);
+            const double nominalEnd =
+                startS + static_cast<double>(config.s_step_count) * config.s_step;
+            const double endS = std::isfinite(maxS)
+                                    ? std::min(nominalEnd, maxS)
+                                    : nominalEnd;
+            const double span = endS - startS;
+            if (!std::isfinite(endS) || span <= kEpsilon)
+                return values;
+
+            const int intervalCount = std::min(
+                config.s_step_count,
+                std::max(1, static_cast<int>(std::ceil(span / config.s_step))));
+            const double step = span / static_cast<double>(intervalCount);
+            values.reserve(static_cast<std::size_t>(intervalCount) + 1U);
+            for (int i = 0; i <= intervalCount; ++i)
+                values.push_back(startS + static_cast<double>(i) * step);
+            values.back() = endS;
             return values;
         }
 
@@ -126,7 +143,8 @@ namespace rsim_driver
 
     bool DpPlanner::Plan(const StartPointFrenetState &start,
                          const std::vector<StaticObsFrenetState> &obstacles,
-                         DpPlannerResult *result) const
+                         DpPlannerResult *result,
+                         double max_s) const
     {
         if (result == nullptr)
 
@@ -141,7 +159,7 @@ namespace rsim_driver
             return false;
         }
 
-        const std::vector<double> sValues = BuildSValues(start.s, config);
+        const std::vector<double> sValues = BuildSValues(start.s, config, max_s);
         const std::vector<double> lSamples = BuildLSamples(start.l, config);
         if (sValues.size() < 2 || lSamples.empty())
         {

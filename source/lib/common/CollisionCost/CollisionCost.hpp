@@ -14,6 +14,60 @@ namespace rsim_driver
         double s = 0.0;
         double l = 0.0;
     };
+    struct EgoBox
+    {
+        SlPoint left_front;
+        SlPoint right_front;
+        SlPoint left_rear;
+        SlPoint right_rear;
+    };
+    struct ObsBox
+    {
+        SlPoint left_front;
+        SlPoint right_front;
+        SlPoint left_rear;
+        SlPoint right_rear;
+    };
+    inline EgoBox ComputeEgoBox(const SlPoint &egoCenter, double egoLength, double egoWidth)
+    {
+        EgoBox egoBox;
+        const double halfLength = 0.5 * std::max(0.0, egoLength);
+        const double halfWidth = 0.5 * std::max(0.0, egoWidth);
+
+        egoBox.left_front.s = egoCenter.s + halfLength;
+        egoBox.left_front.l = egoCenter.l + halfWidth;
+
+        egoBox.right_front.s = egoCenter.s + halfLength;
+        egoBox.right_front.l = egoCenter.l - halfWidth;
+
+        egoBox.left_rear.s = egoCenter.s - halfLength;
+        egoBox.left_rear.l = egoCenter.l + halfWidth;
+
+        egoBox.right_rear.s = egoCenter.s - halfLength;
+        egoBox.right_rear.l = egoCenter.l - halfWidth;
+
+        return egoBox;
+    } 
+    inline ObsBox ComputeObsBox(const SlPoint &obsCenter, double obsLength, double obsWidth)
+    {
+        ObsBox obsBox;
+        const double halfLength = 0.5 * std::max(0.0, obsLength);
+        const double halfWidth = 0.5 * std::max(0.0, obsWidth);
+
+        obsBox.left_front.s = obsCenter.s + halfLength;
+        obsBox.left_front.l = obsCenter.l + halfWidth;
+
+        obsBox.right_front.s = obsCenter.s + halfLength;
+        obsBox.right_front.l = obsCenter.l - halfWidth;
+
+        obsBox.left_rear.s = obsCenter.s - halfLength;
+        obsBox.left_rear.l = obsCenter.l + halfWidth;
+
+        obsBox.right_rear.s = obsCenter.s - halfLength;
+        obsBox.right_rear.l = obsCenter.l - halfWidth;
+
+        return obsBox;
+    }
 
     struct StaticCollisionCostConfig
     {
@@ -65,24 +119,23 @@ namespace rsim_driver
 
             const double halfLength = 0.5 * std::max(0.0, obstacle.length);
             const double halfWidth = 0.5 * std::max(0.0, obstacle.width);
-            const double ds =
-                std::max(0.0, std::fabs(point.s - obstacle.s) - halfLength-0.5 * config.ego_length);
-            const double dl =
-                std::max(0.0, std::fabs(point.l - obstacle.l));
-            const double distance = std::hypot(ds, dl);
+            EgoBox egoBox = ComputeEgoBox(point, config.ego_length, config.ego_width);
+            ObsBox obsBox = ComputeObsBox({obstacle.s, obstacle.l}, obstacle.length, obstacle.width);
+            
+
+            
             const double cost = DistanceCollisionCost(distance, config);
 
             if (!std::isfinite(cost) || cost == config.infinity_cost)
                 return config.infinity_cost;
             totalCost += cost;
         }
-
         return totalCost;
     }
     template <typename CutInAndOutInfoT>
     inline double DynamicObstacleCollisionCost(const StPoint &point,
-                                              const std::vector<CutInAndOutInfoT> &cutInAndOutInfos,
-                                              const DynamicCollisionCostConfig &config = {})
+                                               const std::vector<CutInAndOutInfoT> &cutInAndOutInfos,
+                                               const DynamicCollisionCostConfig &config = {})
     {
         const double collisionDistance = std::max(0.0, config.collision_distance);
         const double riskDistance = std::max(collisionDistance, config.risk_distance);
@@ -90,8 +143,8 @@ namespace rsim_driver
 
         std::vector<PointToBoundaryDistanceResult> distances;
         if (!ComputePointToBoundaryDistances(cutInAndOutInfos,
-                                                    point,
-                                                    &distances))
+                                             point,
+                                             &distances))
         {
             return config.infinity_cost;
         }

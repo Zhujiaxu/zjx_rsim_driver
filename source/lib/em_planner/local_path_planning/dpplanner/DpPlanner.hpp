@@ -4,6 +4,7 @@
 #include "CollisionCost.hpp"
 #include "FrenetObstaclePerception.hpp"
 
+#include <limits>
 #include <vector>
 
 namespace rsim_driver
@@ -21,8 +22,8 @@ struct DpPlannerConfig
     double s_step = 0.4;
     int s_step_count = 70;
     double l_step = 0.3;
-    int left_l_step_count = 11;
-    int right_l_step_count = 11;
+    int left_l_step_count = 15;
+    int right_l_step_count = 15;
 
     double weight_l_prime = 5.0;
     double weight_l_double_prime = 1.0;
@@ -57,7 +58,8 @@ public:
 
     bool Plan(const StartPointFrenetState& start,
               const std::vector<StaticObsFrenetState>& obstacles,
-              DpPlannerResult* result) const;
+              DpPlannerResult* result,
+              double max_s = std::numeric_limits<double>::infinity()) const;
 
 private:
     DpPlannerConfig config_;

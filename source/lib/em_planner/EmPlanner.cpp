@@ -170,7 +170,12 @@ namespace rsim_driver
 
         DynamicPlanSpeedPoint speedStart =
             GetDynamicSpeedPlanStartPoint(output.planning_start_result);
-        if (!speed_planner_.Plan(speedStart, STBoundaryInfos, &output.speed_dp_result))
+        const double speedPathEnd = output.speed_reference_line.back().s;
+        if (!speed_planner_.Plan(speedStart,
+                                 STBoundaryInfos,
+                                 &output.speed_dp_result,
+                                 speedPathEnd,
+                                 output.stop_at_reference_end))
         {
             const char *dpMsg =
                 output.speed_dp_result.Flag == DynamicPlanSpeedFallback::Stop
@@ -201,7 +206,8 @@ namespace rsim_driver
 
         if (!speed_qp_optimizer_.Optimize(speedStart,
                                           output.drivable_area_st,
-                                          &output.speed_qp_result))
+                                          &output.speed_qp_result,
+                                          output.stop_at_reference_end))
         {
             const char *qpMsg =
                 output.speed_qp_result.Flag == QpSpeedOptimizerFallback::Stop

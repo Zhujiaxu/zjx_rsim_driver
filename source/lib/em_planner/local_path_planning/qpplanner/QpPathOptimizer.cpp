@@ -170,6 +170,36 @@ namespace rsim_driver
             return true;
         }
 
+        std::vector<double> BuildSValues(const StartPointFrenetState &start,
+                                         const QpPathOptimizerConfig &config,
+                                         double maxS,
+                                         double *step)
+        {
+            std::vector<double> values;
+            if (step == nullptr || std::isnan(maxS))
+                return values;
+
+            const int maxIntervals = config.num_points - 1;
+            const double nominalEnd =
+                start.s + static_cast<double>(maxIntervals) * config.ds;
+            const double endS = std::isfinite(maxS)
+                                    ? std::min(nominalEnd, maxS)
+                                    : nominalEnd;
+            const double span = endS - start.s;
+            if (!std::isfinite(endS) || span <= kEpsilon)
+                return values;
+
+            const int intervalCount = std::min(
+                maxIntervals,
+                std::max(1, static_cast<int>(std::ceil(span / config.ds))));
+            *step = span / static_cast<double>(intervalCount);
+            values.reserve(static_cast<std::size_t>(intervalCount) + 1U);
+            for (int i = 0; i <= intervalCount; ++i)
+                values.push_back(start.s + static_cast<double>(i) * *step);
+            values.back() = endS;
+            return values;
+        }
+
         void AddTargetCost(std::vector<Eigen::Triplet<double>> *triplets,
                            Eigen::VectorXd *gradient,
                            int index,
@@ -217,7 +247,8 @@ namespace rsim_driver
     bool QpPathOptimizer::Optimize(
         const StartPointFrenetState &start,
         const DrivableAreaResult &drivableArea,
-        QpPathResult *result) const
+        QpPathResult *result,
+        double max_s) const
     {
 
         if (result == nullptr)
@@ -234,18 +265,18 @@ namespace rsim_driver
             return false;
         }
 
-        const int n = config_.num_points;
-        const double ds = config_.ds;
+        double ds = 0.0;
+        const std::vector<double> S = BuildSValues(start, config_, max_s, &ds);
+        if (S.size() < 2U)
+        {
+            PluginLogEcho("【QpPathOptimizer::Optimize】: SL 过短的s");
+        }
+        const int n = static_cast<int>(S.size());
         const double halfLen = 0.5 * config_.ego_length;
         const double halfWid = 0.5 * config_.ego_width;
         const int numVariables = 3 * n;
         // 3 start eq + 2(n-1) Taylor eq + 2(n-1) two-sided corner rows.
         const int numConstraints = 4 * n - 1;
-
-        // --- build uniform s grid ---
-        std::vector<double> S(n);
-        for (int i = 0; i < n; ++i)
-            S[i] = start.s + static_cast<double>(i) * ds;
 
         // --- interpolate drivable area at uniform s and at corner positions ---
         // center_i = (left(s_i) + right(s_i)) / 2

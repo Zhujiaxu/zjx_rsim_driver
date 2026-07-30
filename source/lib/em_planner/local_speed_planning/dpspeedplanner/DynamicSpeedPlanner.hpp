@@ -6,6 +6,7 @@
 #include "localpathreferline.hpp"
 #include "computecutinandout.hpp"
 
+#include <limits>
 #include <vector>
 
 namespace rsim_driver
@@ -68,7 +69,9 @@ namespace rsim_driver
 
         bool Plan(const DynamicPlanSpeedPoint &start,
                   const std::vector<CutInAndOutInfo> &STBoundaryInfos,
-                  DynamicPlanSpeedResult *result) const;
+                  DynamicPlanSpeedResult *result,
+                  double max_s = std::numeric_limits<double>::infinity(),
+                  bool stop_at_end = false) const;
 
     private:
         DynamicPlanSpeedConfig config_;

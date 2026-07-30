@@ -1,0 +1,434 @@
+[RSimDriver] log file opened: /home/ubzjx/proj/qc_intern/work/rsim_driver/examples/DEMO1_rsim_driver_emplanner/output/staticobstacles/logs/rsim_driver.log
+[RSimDriver] global path CSV written: /home/ubzjx/proj/qc_intern/work/rsim_driver/examples/DEMO1_rsim_driver_emplanner/output/staticobstacles/csv/global_path_world_points.csv (rows=946, chord=285.21 m)
+[RSimDriver] route start road=42 lane=-2 s=14.23 world=(-130.15, -14.22) ego=(-130.15, -14.22)
+[RSimDriver] reference line ready: points=181
+【SL-QP】:QP求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=220 time=11.000000 ego=(-81.612, -11.720, h=0.520)
+【SL-QP】:QP求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=221 time=11.050000 ego=(-81.343, -11.565, h=0.520)
+【SL-QP】:QP求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=222 time=11.100000 ego=(-81.086, -11.419, h=0.520)
+【SL-QP】:QP求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=223 time=11.150000 ego=(-80.842, -11.279, h=0.520)
+【SL-QP】:QP求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=224 time=11.200000 ego=(-80.612, -11.147, h=0.520)
+【SL-QP】:QP求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=225 time=11.250000 ego=(-80.394, -11.023, h=0.520)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=11.300000
+【DpPlanner】:起点碰撞
+【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=363 time=18.150000 ego=(-48.756, 3.046, h=-0.309)
+【DpPlanner】:起点碰撞
+【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=364 time=18.200000 ego=(-48.467, 2.954, h=-0.309)
+【DpPlanner】:起点碰撞
+【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=365 time=18.250000 ego=(-48.193, 2.867, h=-0.309)
+【DpPlanner】:起点碰撞
+【SL-DP】:密集障碍物||规划起点已碰撞，紧急停车
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=366 time=18.300000 ego=(-47.933, 2.784, h=-0.309)
+【common】DynamicObsFrenetTransformer: 感知动态障碍物ID:3 结果s_dot无穷
+【common】DynamicObsFrenetTransformer: 感知动态障碍物ID:3 结果s_dot无穷
+【common】DynamicObsFrenetTransformer: 感知动态障碍物ID:3 结果s_dot无穷
+【common】DynamicObsFrenetTransformer: 感知动态障碍物ID:3 结果s_dot无穷
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=944 time=47.200000 ego=(117.130, -7.761, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=945 time=47.250000 ego=(117.431, -7.769, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=946 time=47.300000 ego=(117.718, -7.777, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=947 time=47.350000 ego=(117.989, -7.784, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=948 time=47.400000 ego=(118.246, -7.791, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=949 time=47.450000 ego=(118.487, -7.798, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=950 time=47.500000 ego=(118.714, -7.804, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=47.550000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=954 time=47.700000 ego=(119.447, -7.824, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=971 time=48.550000 ego=(121.627, -7.883, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=972 time=48.600000 ego=(121.754, -7.886, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=973 time=48.650000 ego=(121.866, -7.889, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=974 time=48.700000 ego=(121.962, -7.892, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=975 time=48.750000 ego=(122.044, -7.894, h=-0.027)
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=976 time=48.800000 ego=(122.111, -7.896, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=48.850000
+【ST-QP】：QP优化：求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=977 time=48.850000 ego=(122.162, -7.897, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=48.900000
+【ST-QP】：QP优化：求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=978 time=48.900000 ego=(122.199, -7.898, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=48.950000
+【ST-QP】：QP优化：求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=979 time=48.950000 ego=(122.221, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.000000
+【ST-QP】：QP优化：求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=980 time=49.000000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.050000
+【ST-QP】：QP优化：求解失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=981 time=49.050000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.100000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=982 time=49.100000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.150000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=983 time=49.150000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.200000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=984 time=49.200000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.250000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=985 time=49.250000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.300000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=986 time=49.300000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.350000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=987 time=49.350000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.400000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=988 time=49.400000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.450000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=989 time=49.450000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.500000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=990 time=49.500000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.550000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=991 time=49.550000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.600000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=992 time=49.600000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.650000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=993 time=49.650000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.700000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=994 time=49.700000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.750000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=995 time=49.750000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.800000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=996 time=49.800000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.850000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=997 time=49.850000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.900000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=998 time=49.900000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=49.950000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=999 time=49.950000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.000000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1000 time=50.000000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.050000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1001 time=50.050000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.100000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1002 time=50.100000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.150000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1003 time=50.150000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.200000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1004 time=50.200000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.250000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1005 time=50.250000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.300000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1006 time=50.300000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.350000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1007 time=50.350000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.400000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1008 time=50.400000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.450000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1009 time=50.450000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.500000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1010 time=50.500000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.550000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1011 time=50.550000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.600000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1012 time=50.600000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.650000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1013 time=50.650000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.700000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1014 time=50.700000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.750000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1015 time=50.750000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.800000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1016 time=50.800000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.850000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1017 time=50.850000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.900000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1018 time=50.900000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=50.950000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1019 time=50.950000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.000000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1020 time=51.000000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.050000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1021 time=51.050000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.100000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1022 time=51.100000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.150000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1023 time=51.150000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.200000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1024 time=51.200000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.250000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1025 time=51.250000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.300000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1026 time=51.300000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.350000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1027 time=51.350000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.400000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1028 time=51.400000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.450000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1029 time=51.450000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.500000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1030 time=51.500000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.550000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1031 time=51.550000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.600000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1032 time=51.600000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.650000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1033 time=51.650000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.700000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1034 time=51.700000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：跟踪延迟——距离过大 time=51.750000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1035 time=51.750000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=51.800000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1036 time=51.800000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=51.850000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1037 time=51.850000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=51.900000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1038 time=51.900000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=51.950000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1039 time=51.950000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.000000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1040 time=52.000000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.050000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1041 time=52.050000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.100000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1042 time=52.100000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.150000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1043 time=52.150000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.200000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1044 time=52.200000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.250000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1045 time=52.250000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.300000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1046 time=52.300000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.350000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1047 time=52.350000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.400000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1048 time=52.400000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.450000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1049 time=52.450000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.500000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1050 time=52.500000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.550000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1051 time=52.550000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.600000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1052 time=52.600000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.650000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1053 time=52.650000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.700000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1054 time=52.700000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.750000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1055 time=52.750000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.800000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1056 time=52.800000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.850000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1057 time=52.850000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.900000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1058 time=52.900000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=52.950000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1059 time=52.950000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.000000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1060 time=53.000000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.050000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1061 time=53.050000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.100000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1062 time=53.100000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.150000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1063 time=53.150000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.200000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1064 time=53.200000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.250000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1065 time=53.250000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.300000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1066 time=53.300000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.350000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1067 time=53.350000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.400000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1068 time=53.400000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.450000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1069 time=53.450000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.500000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1070 time=53.500000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.550000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1071 time=53.550000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.600000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1072 time=53.600000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.650000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1073 time=53.650000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.700000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1074 time=53.700000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.750000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1075 time=53.750000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.800000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1076 time=53.800000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.850000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1077 time=53.850000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.900000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1078 time=53.900000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=53.950000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1079 time=53.950000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.000000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1080 time=54.000000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.050000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1081 time=54.050000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.100000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1082 time=54.100000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.150000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1083 time=54.150000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.200000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1084 time=54.200000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.250000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1085 time=54.250000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.300000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1086 time=54.300000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.350000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1087 time=54.350000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.400000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1088 time=54.400000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.450000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1089 time=54.450000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.500000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1090 time=54.500000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.550000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1091 time=54.550000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.600000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1092 time=54.600000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.650000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1093 time=54.650000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.700000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1094 time=54.700000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.750000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1095 time=54.750000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.800000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1096 time=54.800000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.850000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1097 time=54.850000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.900000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1098 time=54.900000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=54.950000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1099 time=54.950000 ego=(122.228, -7.899, h=-0.027)
+[PlanningStart] : 插值上一帧轨迹：规划轨迹过短,无法找到当前时间点的轨迹点 time=55.000000
+【PostProcess】：后处理失败:插值SL参考线点失败
+[RSimDriver] ERROR: EM planner failed, stop ego id=2 frame=1100 time=55.000000 ego=(122.228, -7.899, h=-0.027)

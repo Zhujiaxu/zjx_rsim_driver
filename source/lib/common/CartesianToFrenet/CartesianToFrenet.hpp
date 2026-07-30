@@ -106,10 +106,8 @@ namespace rsim_driver
                          projectionDy * tangentY;
             obstacle.l = lateralDx * normalX + lateralDy * normalY;
             double relativeangle = NormalizeAngle(cartesianPoint.heading - matchedPoint.hdg);
-            obstacle.length = (cartesianPoint.length * std::fabs(std::cos(relativeangle))) < cartesianPoint.width ? cartesianPoint.width
-                             : cartesianPoint.length * std::fabs(std::cos(relativeangle));
-            obstacle.width = (cartesianPoint.length * std::fabs(std::sin(relativeangle))) < cartesianPoint.width ? cartesianPoint.width 
-                             : cartesianPoint.length * std::fabs(std::sin(relativeangle));
+            obstacle.length = cartesianPoint.length * std::fabs(std::cos(relativeangle)) + cartesianPoint.width * std::fabs(std::sin(relativeangle));
+            obstacle.width = cartesianPoint.length * std::fabs(std::sin(relativeangle)) + cartesianPoint.width * std::fabs(std::cos(relativeangle));
             if (!IsFinite(obstacle))
             {
                 PluginLog("【common】StaticObsFrenetTransformer: 感知静态障碍物ID:%d 结果参数无效\n", obstacle.id);
@@ -202,10 +200,8 @@ namespace rsim_driver
             }
             obstacle.s_dot = cartesianPoint.speed * std::cos(relativeangle) / (1 - matchedPoint.k * obstacle.l);
             obstacle.l_dot = cartesianPoint.speed * std::sin(relativeangle);
-            obstacle.length = (cartesianPoint.length * std::fabs(std::cos(relativeangle))) < cartesianPoint.width ? cartesianPoint.width
-                             : cartesianPoint.length * std::fabs(std::cos(relativeangle));
-            obstacle.width = (cartesianPoint.length * std::fabs(std::sin(relativeangle))) < cartesianPoint.width ? cartesianPoint.width 
-                             : cartesianPoint.length * std::fabs(std::sin(relativeangle));
+            obstacle.length = cartesianPoint.length * std::fabs(std::cos(relativeangle)) + cartesianPoint.width * std::fabs(std::sin(relativeangle));
+            obstacle.width = cartesianPoint.length * std::fabs(std::sin(relativeangle)) + cartesianPoint.width * std::fabs(std::cos(relativeangle));
             if (!IsFinite(obstacle))
             {
                 PluginLog("【common】DynamicObsFrenetTransformer: 感知动态障碍物ID:%d 结果参数无效\n", obstacle.id);

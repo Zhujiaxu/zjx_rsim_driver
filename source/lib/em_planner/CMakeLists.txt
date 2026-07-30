@@ -26,3 +26,12 @@ target_link_libraries(em_planner PUBLIC
     em_planner_perception
     local_path_planning
     local_speed_planning)
+
+if(BUILD_TESTING)
+    add_executable(test_route_end_stop_smoke
+        test_route_end_stop_smoke.cpp)
+    target_link_libraries(test_route_end_stop_smoke PRIVATE
+        em_planner)
+    add_test(NAME route_end_stop_smoke
+        COMMAND test_route_end_stop_smoke)
+endif()

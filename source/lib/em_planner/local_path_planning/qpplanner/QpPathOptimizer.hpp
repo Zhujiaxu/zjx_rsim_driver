@@ -3,6 +3,7 @@
 #include "FrenetToCartesian.hpp"
 #include "DrivableArea.hpp"
 
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -45,7 +46,8 @@ namespace rsim_driver
         bool Optimize(
             const StartPointFrenetState &start,
             const DrivableAreaResult &drivableArea,
-            QpPathResult *result) const;
+            QpPathResult *result,
+            double max_s = std::numeric_limits<double>::infinity()) const;
 
     private:
         QpPathOptimizerConfig config_;

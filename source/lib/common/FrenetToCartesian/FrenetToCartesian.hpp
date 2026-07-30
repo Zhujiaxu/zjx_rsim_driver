@@ -1,5 +1,7 @@
 #pragma once
 
+#include "LogWriter.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -21,6 +23,7 @@ namespace rsim_driver
 
         constexpr double kPi = 3.14159265358979323846;
         constexpr double kEpsilon = 1e-9;
+        constexpr double kBoundaryTolerance = 0.05;
 
         inline double NormalizeAngle(double angle)
         {
@@ -77,6 +80,24 @@ namespace rsim_driver
     {
         if (cartesianPoint == nullptr || referencePoints.empty())
             return false;
+
+        const double minS = referencePoints.front().s;
+        const double maxS = referencePoints.back().s;
+        if (frenetPoint.s < minS - frenet_to_cartesian_detail::kBoundaryTolerance ||
+            frenetPoint.s > maxS + frenet_to_cartesian_detail::kBoundaryTolerance)
+        {
+            PluginLogEcho(
+                "【common】FrenetPointToCartesian: s越界 s=%.9f range=[%.9f, %.9f]\n",
+                frenetPoint.s, minS, maxS);
+            return false;
+        }
+        if (frenetPoint.s < minS || frenetPoint.s > maxS)
+        {
+            PluginLogEcho(
+                "【common】FrenetPointToCartesian: s边界校正 s=%.9f range=[%.9f, %.9f]\n",
+                frenetPoint.s, minS, maxS);
+        }
+        frenetPoint.s = std::clamp(frenetPoint.s, minS, maxS);
 
         const RefPointT ref =
             frenet_to_cartesian_detail::InterpolateReferencePoint(referencePoints, frenetPoint.s);

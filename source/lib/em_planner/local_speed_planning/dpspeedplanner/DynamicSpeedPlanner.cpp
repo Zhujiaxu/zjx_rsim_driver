@@ -37,6 +37,9 @@ namespace rsim_driver
             return IsFinite(config.time_step) &&
                    config.time_step > kEpsilon &&
                    config.time_step_count > 0 &&
+                   IsFinite(config.s_step) &&
+                   config.s_step > kEpsilon &&
+                   config.s_step_count > 0 &&
                    IsFinite(config.planning_period) &&
                    config.planning_period >= 0.0 &&
                    IsFinite(config.reference_speed) &&
@@ -65,13 +68,29 @@ namespace rsim_driver
             return values;
         }
 
-        std::vector<double> BuildSValues(const DynamicPlanSpeedConfig &config)
+        std::vector<double> BuildSValues(const DynamicPlanSpeedConfig &config,
+                                         double maxS)
         {
             std::vector<double> values;
-            if (!ValidConfig(config))
+            if (!ValidConfig(config) || std::isnan(maxS))
                 return values;
-            for (int i = 0; i <= config.s_step_count; ++i)
-                values.push_back(static_cast<double>(i) * config.s_step);
+
+            const double nominalEnd =
+                static_cast<double>(config.s_step_count) * config.s_step;
+            const double endS = std::isfinite(maxS)
+                                    ? std::min(nominalEnd, maxS)
+                                    : nominalEnd;
+            if (!std::isfinite(endS) || endS <= kEpsilon)
+                return values;
+
+            const int intervalCount = std::min(
+                config.s_step_count,
+                std::max(1, static_cast<int>(std::ceil(endS / config.s_step))));
+            const double step = endS / static_cast<double>(intervalCount);
+            values.reserve(static_cast<std::size_t>(intervalCount) + 1U);
+            for (int i = 0; i <= intervalCount; ++i)
+                values.push_back(static_cast<double>(i) * step);
+            values.back() = endS;
             return values;
         }
 
@@ -147,7 +166,9 @@ namespace rsim_driver
     bool DynamicPlanSpeedPlanner::Plan(
         const DynamicPlanSpeedPoint &start,
         const std::vector<CutInAndOutInfo> &STBoundaryInfos,
-        DynamicPlanSpeedResult *result) const
+        DynamicPlanSpeedResult *result,
+        double max_s,
+        bool stop_at_end) const
     {
         if (result == nullptr)
             return false;
@@ -162,7 +183,7 @@ namespace rsim_driver
         }
 
         const std::vector<double> t_values = BuildTimeValues(config);
-        const std::vector<double> s_values = BuildSValues(config);
+        const std::vector<double> s_values = BuildSValues(config, max_s);
         if (t_values.size() < 2 ||
             s_values.size() < 2 ||
             std::fabs(s_values.front() - start.s) > kEpsilon)
@@ -270,31 +291,48 @@ namespace rsim_driver
         int best_layer_index = -1;
         int best_node_index = -1;
         double best_cost = std::numeric_limits<double>::infinity();
-        for (std::size_t layer_index = 1; layer_index < layers.size();
-             ++layer_index)
+        if (stop_at_end)
         {
-            const bool is_right_edge = layer_index + 1 == layers.size();
-            if (is_right_edge)
+            const std::size_t layer_index = layers.size() - 1U;
+            const std::size_t node_index = layers[layer_index].size() - 1U;
+            const DPNode &node = layers[layer_index][node_index];
+            if (std::isfinite(node.cost))
             {
-                for (std::size_t node_index = 0; node_index < layers[layer_index].size();
-                     ++node_index)
-                {
-                    const DPNode &node = layers[layer_index][node_index];
-                    if (node.cost < best_cost)
-                    {
-                        best_cost = node.cost;
-                        best_layer_index = static_cast<int>(layer_index);
-                        best_node_index = static_cast<int>(node_index);
-                    }
-                }
-                break;
-            }
-            double cost = layers[layer_index][layers[1].size() - 1].cost;
-            if (cost < best_cost)
-            {
-                best_cost = cost;
+                best_cost = node.cost;
                 best_layer_index = static_cast<int>(layer_index);
-                best_node_index = static_cast<int>(layers[1].size() - 1);
+                best_node_index = static_cast<int>(node_index);
+            }
+        }
+        else
+        {
+            for (std::size_t layer_index = 1; layer_index < layers.size();
+                 ++layer_index)
+            {
+                const bool is_right_edge = layer_index + 1 == layers.size();
+                if (is_right_edge)
+                {
+                    for (std::size_t node_index = 0;
+                         node_index < layers[layer_index].size();
+                         ++node_index)
+                    {
+                        const DPNode &node = layers[layer_index][node_index];
+                        if (node.cost < best_cost)
+                        {
+                            best_cost = node.cost;
+                            best_layer_index = static_cast<int>(layer_index);
+                            best_node_index = static_cast<int>(node_index);
+                        }
+                    }
+                    break;
+                }
+                const std::size_t node_index = layers[layer_index].size() - 1U;
+                const double cost = layers[layer_index][node_index].cost;
+                if (cost < best_cost)
+                {
+                    best_cost = cost;
+                    best_layer_index = static_cast<int>(layer_index);
+                    best_node_index = static_cast<int>(node_index);
+                }
             }
         }
 
